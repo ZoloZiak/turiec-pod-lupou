@@ -123,12 +123,6 @@ export default function Dashboard() {
                       data={data.topSuppliers} 
                       layout="vertical" 
                       margin={{ left: 50 }}
-                      onClick={(e: any) => {
-                        if (e?.activePayload?.[0]?.payload?.name) {
-                          const name = e.activePayload[0].payload.name;
-                          setSelectedSupplierName(name === selectedSupplierName ? null : name);
-                        }
-                      }}
                     >
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
@@ -137,7 +131,16 @@ export default function Dashboard() {
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
                         cursor={{ fill: '#f1f5f9' }}
                       />
-                      <Bar dataKey="value" radius={[0, 4, 4, 0]} className="cursor-pointer">
+                      <Bar 
+                        dataKey="value" 
+                        radius={[0, 4, 4, 0]} 
+                        className="cursor-pointer"
+                        onClick={(entry: any) => {
+                          if (entry?.name) {
+                            setSelectedSupplierName(entry.name === selectedSupplierName ? null : entry.name);
+                          }
+                        }}
+                      >
                         {data.topSuppliers.map((entry: any, index: number) => (
                           <Cell 
                             key={`cell-${index}`} 
