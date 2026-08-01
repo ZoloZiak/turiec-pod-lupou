@@ -9,12 +9,35 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedIco, setSelectedIco] = useState("");
   const [selectedSupplierName, setSelectedSupplierName] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
-  // Zrušiť filter dodávateľa pri zmene organizácie
+  // Zrušiť filtre pri zmene organizácie
   useEffect(() => {
     setSelectedSupplierName(null);
+    setSearchTerm("");
+    setCurrentPage(1);
     fetchData(selectedIco);
   }, [selectedIco]);
+
+  // Compute filtered transactions
+  const filteredTransactions = data?.transactions?.filter((t: any) => {
+    if (selectedSupplierName && t.supplier?.name !== selectedSupplierName) return false;
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const matchSubject = t.subject?.toLowerCase().includes(term);
+      const matchSupplier = t.supplier?.name?.toLowerCase().includes(term) || t.supplier?.ico?.includes(term);
+      if (!matchSubject && !matchSupplier) return false;
+    }
+    return true;
+  }) || [];
+
+  const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const fetchData = async (ico: string) => {
     setLoading(true);
@@ -191,16 +214,34 @@ export default function Dashboard() {
 
             {/* TRANSACTIONS TABLE */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Najnovšie zverejnené zmluvy a faktúry</h3>
-                {selectedSupplierName && (
-                  <button 
-                    onClick={() => setSelectedSupplierName(null)}
-                    className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium hover:bg-blue-100 transition-colors"
-                  >
-                    Filtrujem: {selectedSupplierName} <span className="ml-1 text-lg leading-none">&times;</span>
-                  </button>
-                )}
+              <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <h3 className="text-lg font-semibold whitespace-nowrap">Najnovšie zverejnené zmluvy a faktúry</h3>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  {selectedSupplierName && (
+                    <button 
+                      onClick={() => {
+                        setSelectedSupplierName(null);
+                        setCurrentPage(1);
+                      }}
+                      className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium hover:bg-blue-100 transition-colors whitespace-nowrap"
+                    >
+                      Filtrujem: {selectedSupplierName} <span className="ml-1 text-lg leading-none">&times;</span>
+                    </button>
+                  )}
+                  <div className="relative w-full md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Hľadať zmluvu alebo firmu..." 
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full pl-9 pr-4 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                    />
+                  </div>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
@@ -212,71 +253,98 @@ export default function Dashboard() {
                       <th className="px-6 py-4 font-medium">Zdroj a Dátum</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {(selectedSupplierName 
-                      ? data.transactions.filter((t: any) => t.supplier?.name === selectedSupplierName)
-                      : data.transactions
-                    ).slice(0, 15).map((t: any) => (
-                      <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <p className="font-medium text-slate-800 line-clamp-2" title={t.subject}>{t.subject}</p>
-                          <p className="text-xs text-slate-500 mt-1">Odberateľ: {t.buyer?.name}</p>
-                        </td>
-                        <td className="px-6 py-4 text-slate-600 font-medium">
-                          {t.supplier?.name || "Neznámy"}
-                          <div className="text-xs text-slate-400 font-normal mt-1 flex items-center gap-2">
-                            <span>IČO: {t.supplier?.ico}</span>
-                            {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
-                              <div className="flex gap-2 ml-2 border-l pl-2 border-slate-200">
-                                <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${t.supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">ORSR</a>
-                                <a href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${t.supplier.ico}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">RPVS</a>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex flex-col gap-1 mt-2 items-start">
-                            {t.suspicious && (
-                              <div className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-100" title="Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.">
-                                <AlertTriangle className="w-3 h-3" />
-                                Chýba zmluva v CRZ!
-                              </div>
-                            )}
-                            {t.amount_eur >= 100000 && (
-                              <div className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-100" title="Zákonná povinnosť: Zmluvy alebo faktúry nad 100 000€ vyžadujú, aby bol dodávateľ zapísaný v Registri partnerov verejného sektora. Skontroluj to kliknutím na RPVS link vyššie.">
-                                <AlertTriangle className="w-3 h-3" />
-                                Zákazka nad 100k € (nutné RPVS)
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                            {formatEur(t.amount_eur)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col gap-1 items-start">
-                            {t.source_type === 'WEB_INVOICE' ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                                Faktúra z webu
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                CRZ Zmluva
-                              </span>
-                            )}
-                            <a href={t.source_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs font-medium flex items-center gap-1 mt-1">
-                              Otvoriť dokument &rarr;
-                            </a>
-                            <span className="text-xs text-slate-400 mt-1">
-                              {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                   <tbody className="divide-y divide-slate-100">
+                    {paginatedTransactions.length > 0 ? (
+                      paginatedTransactions.map((t: any) => (
+                        <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <p className="font-medium text-slate-800 line-clamp-2" title={t.subject}>{t.subject}</p>
+                            <p className="text-xs text-slate-500 mt-1">Odberateľ: {t.buyer?.name}</p>
+                          </td>
+                          <td className="px-6 py-4 text-slate-600 font-medium">
+                            {t.supplier?.name || "Neznámy"}
+                            <div className="text-xs text-slate-400 font-normal mt-1 flex items-center gap-2">
+                              <span>IČO: {t.supplier?.ico}</span>
+                              {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
+                                <div className="flex gap-2 ml-2 border-l pl-2 border-slate-200">
+                                  <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${t.supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">ORSR</a>
+                                  <a href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${t.supplier.ico}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">RPVS</a>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-1 mt-2 items-start">
+                              {t.suspicious && (
+                                <div className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-100" title="Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Chýba zmluva v CRZ!
+                                </div>
+                              )}
+                              {t.amount_eur >= 100000 && (
+                                <div className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-100" title="Zákonná povinnosť: Zmluvy alebo faktúry nad 100 000€ vyžadujú, aby bol dodávateľ zapísaný v Registri partnerov verejného sektora. Skontroluj to kliknutím na RPVS link vyššie.">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Zákazka nad 100k € (nutné RPVS)
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                              {formatEur(t.amount_eur)}
                             </span>
-                          </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-1 items-start">
+                              {t.source_type === 'WEB_INVOICE' ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                  Faktúra z webu
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                  CRZ Zmluva
+                                </span>
+                              )}
+                              <a href={t.source_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline mt-1">
+                                {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                          Pre zadané kritériá sa nenašli žiadne záznamy.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
+              
+              {/* PAGINATION */}
+              {totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                  <p className="text-sm text-slate-500">
+                    Zobrazujem <span className="font-medium text-slate-900">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> až <span className="font-medium text-slate-900">{Math.min(currentPage * ITEMS_PER_PAGE, filteredTransactions.length)}</span> z <span className="font-medium text-slate-900">{filteredTransactions.length}</span> výsledkov
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 border border-slate-200 text-sm font-medium rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Predchádzajúca
+                    </button>
+                    <button 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1 border border-slate-200 text-sm font-medium rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Ďalšia
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
           </div>
