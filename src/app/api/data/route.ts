@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     // Načítať transakcie so spojenými entitami (Kto kupoval, kto dodával)
     let query = supabase
       .from('transactions')
-      .select('id, external_id, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)')
+      .select('id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)')
       .order('date_published', { ascending: false });
 
     const { data: transactions, error: txError } = await query;

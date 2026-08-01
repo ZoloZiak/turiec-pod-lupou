@@ -66,6 +66,11 @@ export default function AdminPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-8">
       <div className="max-w-4xl mx-auto">
         <header className="mb-8">
+          <div className="mb-4">
+            <a href="/" className="text-sm font-medium text-blue-600 hover:underline">
+              &larr; Späť na Dashboard
+            </a>
+          </div>
           <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
             <AlertTriangle className="text-amber-500 w-8 h-8" />
             Human-in-the-loop Administrácia

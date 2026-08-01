@@ -42,6 +42,9 @@ export default function Dashboard() {
             <h1 className="text-xl font-bold tracking-tight text-slate-800">Turiec pod Lupou</h1>
           </div>
           <div className="flex gap-4 items-center">
+            <a href="/admin" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+              Administrácia
+            </a>
             <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200">
               <Filter className="w-4 h-4 text-slate-500" />
               <select
@@ -161,28 +164,43 @@ export default function Dashboard() {
                       <th className="px-6 py-4 font-medium">Predmet zákazky</th>
                       <th className="px-6 py-4 font-medium">Dodávateľ</th>
                       <th className="px-6 py-4 font-medium text-right">Suma</th>
-                      <th className="px-6 py-4 font-medium text-right">Zdroj</th>
+                      <th className="px-6 py-4 font-medium">Zdroj a Dátum</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {data.transactions.slice(0, 15).map((t: any) => (
                       <tr key={t.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4">
-                          <p className="font-medium text-slate-800 line-clamp-2">{t.subject}</p>
-                          <p className="text-xs text-slate-500 mt-1">{t.buyer?.name}</p>
+                          <p className="font-medium text-slate-800 line-clamp-2" title={t.subject}>{t.subject}</p>
+                          <p className="text-xs text-slate-500 mt-1">Odberateľ: {t.buyer?.name}</p>
                         </td>
                         <td className="px-6 py-4 text-slate-600 font-medium">
                           {t.supplier?.name || "Neznámy"}
+                          <div className="text-xs text-slate-400 font-normal mt-1">IČO: {t.supplier?.ico}</div>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
                             {formatEur(t.amount_eur)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <a href={t.source_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">
-                            CRZ &rarr;
-                          </a>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1 items-start">
+                            {t.source_type === 'WEB_INVOICE' ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                Faktúra z webu
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                CRZ Zmluva
+                              </span>
+                            )}
+                            <a href={t.source_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs font-medium flex items-center gap-1 mt-1">
+                              Otvoriť dokument &rarr;
+                            </a>
+                            <span className="text-xs text-slate-400 mt-1">
+                              {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                            </span>
+                          </div>
                         </td>
                       </tr>
                     ))}
