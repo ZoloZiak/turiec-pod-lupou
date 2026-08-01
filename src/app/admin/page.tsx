@@ -8,6 +8,10 @@ export default function AdminPage() {
   const [realEntities, setRealEntities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [mergingId, setMergingId] = useState<string | null>(null);
+  
+  // PDF resolution state
+  const [resolvingPdfId, setResolvingPdfId] = useState<string | null>(null);
+  const [pdfData, setPdfData] = useState({ ico: "", name: "", amount: "" });
 
   // Authentication
   const [password, setPassword] = useState("");
@@ -86,9 +90,45 @@ export default function AdminPage() {
         alert("Chyba pri spájaní: " + json.error);
       }
     } catch (e) {
-      alert("Systémová chyba pri spájaní.");
+      console.error("Merge error:", e);
+      alert("Chyba pri spájaní entít.");
     } finally {
       setMergingId(null);
+    }
+  };
+
+  const handleResolvePdf = async (log: any) => {
+    if (!pdfData.ico || !pdfData.amount || !pdfData.name) {
+      alert("Vyplňte IČO, Názov a Sumu.");
+      return;
+    }
+    
+    setResolvingPdfId(log.id);
+    try {
+      const res = await fetch('/api/admin/resolve-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          logId: log.id,
+          ico: pdfData.ico,
+          name: pdfData.name,
+          amount: pdfData.amount,
+          url: log.parsed_data?.url
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setLogs(logs.filter(l => l.id !== log.id));
+        setResolvingPdfId(null);
+        setPdfData({ ico: "", name: "", amount: "" });
+      } else {
+        alert("Chyba: " + json.error);
+        setResolvingPdfId(null);
+      }
+    } catch (e) {
+      console.error("Resolve error:", e);
+      alert("Chyba pri ukladaní PDF faktúry.");
+      setResolvingPdfId(null);
     }
   };
 
@@ -264,13 +304,60 @@ export default function AdminPage() {
                         </pre>
                       </td>
                       <td className="px-6 py-4 text-right">
+                      {resolvingPdfId === log.id ? (
+                        <div className="flex flex-col gap-2 min-w-[200px]">
+                          <input 
+                            type="text" 
+                            placeholder="IČO firmy" 
+                            className="w-full text-sm border rounded px-2 py-1"
+                            value={pdfData.ico}
+                            onChange={(e) => setPdfData({...pdfData, ico: e.target.value})}
+                          />
+                          <input 
+                            type="text" 
+                            placeholder="Názov firmy" 
+                            className="w-full text-sm border rounded px-2 py-1"
+                            value={pdfData.name}
+                            onChange={(e) => setPdfData({...pdfData, name: e.target.value})}
+                          />
+                          <input 
+                            type="number" 
+                            placeholder="Suma (€)" 
+                            className="w-full text-sm border rounded px-2 py-1"
+                            value={pdfData.amount}
+                            onChange={(e) => setPdfData({...pdfData, amount: e.target.value})}
+                          />
+                          <div className="flex gap-2 justify-end mt-1">
+                            <button 
+                              onClick={() => setResolvingPdfId(null)}
+                              className="text-xs text-slate-500 hover:text-slate-700"
+                            >
+                              Zrušiť
+                            </button>
+                            <button 
+                              onClick={() => handleResolvePdf(log)}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-medium"
+                            >
+                              Uložiť faktúru
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
                         <button
-                          onClick={() => alert('V ďalšej verzii sa tu otvorí okno pre manuálne zadanie IČO a Sumy na základe textu.')}
+                          onClick={() => {
+                            setResolvingPdfId(log.id);
+                            setPdfData({ 
+                              ico: log.parsed_data?.extracted_ico || "", 
+                              name: "", 
+                              amount: log.parsed_data?.extracted_amount || "" 
+                            });
+                          }}
                           className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded-lg font-medium transition-colors text-xs"
                         >
                           Skontrolovať manuálne
                         </button>
-                      </td>
+                      )}
+                    </td>
                     </tr>
                   ))}
                 </tbody>
