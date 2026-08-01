@@ -81,11 +81,11 @@ export default function Dashboard() {
         </div>
         
         {/* ENTITY FILTER BAR */}
-        <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 w-full overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex gap-2">
+        <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedIco("")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedIco === "" ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === "" ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
             >
               Všetky organizácie
             </button>
@@ -93,7 +93,7 @@ export default function Dashboard() {
               <button
                 key={e.ico}
                 onClick={() => setSelectedIco(e.ico)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedIco === e.ico ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
               >
                 {e.name}
               </button>
@@ -249,8 +249,10 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
+              <div className="w-full">
+                {/* DESKTOP TABLE VIEW */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-sm text-left">
                   <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
                     <tr>
                       <th className="px-6 py-4 font-medium">Predmet zákazky</th>
@@ -322,8 +324,56 @@ export default function Dashboard() {
                         </td>
                       </tr>
                     )}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* MOBILE CARD VIEW */}
+                <div className="md:hidden flex flex-col gap-4 p-4 border-t border-slate-100 bg-slate-50">
+                  {paginatedTransactions.length > 0 ? (
+                    paginatedTransactions.map((t: any) => (
+                      <div key={t.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-blue-600 hover:underline font-bold text-base truncate pr-2">
+                            {t.supplier?.name || "Neznámy"}
+                          </Link>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold bg-red-100 text-red-800 whitespace-nowrap">
+                            {formatEur(t.amount_eur)}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-slate-800 mb-2">{t.subject}</p>
+                        <div className="flex flex-col gap-2 text-xs text-slate-500">
+                          <p>Odberateľ: {t.buyer?.name}</p>
+                          <p>IČO: {t.supplier?.ico}</p>
+                          <div className="flex justify-between items-center mt-2 border-t border-slate-100 pt-3">
+                            <div className="flex flex-col gap-1.5">
+                              {t.source_type === 'WEB_INVOICE' ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 self-start">Faktúra z webu</span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800 self-start">CRZ Zmluva</span>
+                              )}
+                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">
+                                {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                              </a>
+                            </div>
+                            <div className="flex flex-col gap-1.5 items-end">
+                              {t.suspicious && (
+                                <span className="text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-100 flex items-center gap-1 font-bold">
+                                  <AlertTriangle className="w-3 h-3" /> Chýba zmluva
+                                </span>
+                              )}
+                              {t.amount_eur >= 100000 && t.supplier?.ico && (
+                                <RpvsBadge ico={t.supplier.ico} />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-slate-500 p-8 bg-white border border-slate-200 rounded-xl">Pre zadané kritériá sa nenašli žiadne záznamy.</div>
+                  )}
+                </div>
               </div>
               
               {/* PAGINATION */}
