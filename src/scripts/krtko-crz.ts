@@ -79,7 +79,8 @@ async function runKrtko() {
       { ico: '00316741', name: 'Mesto Martin', type: 'CITY', normalized_name: 'mesto martin' },
       { ico: '36387959', name: 'Martinská parkovacia spoločnosť, a.s.', type: 'COMPANY', normalized_name: 'martinska parkovacia spolocnost a s' },
       { ico: '53560922', name: 'Dopravný podnik mesta Martin, s.r.o.', type: 'COMPANY', normalized_name: 'dopravny podnik mesta martin s r o' },
-      { ico: '42220360', name: 'Oblastná organizácia cestovného ruchu Turiec', type: 'NGO', normalized_name: 'oblastna organizacia cestovneho ruchu turiec' }
+      { ico: '42220360', name: 'Oblastná organizácia cestovného ruchu Turiec', type: 'NGO', normalized_name: 'oblastna organizacia cestovneho ruchu turiec' },
+      { ico: '36402691', name: 'Turčianska vodárenská spoločnosť, a.s.', type: 'COMPANY', normalized_name: 'turcianska vodarenska spolocnost a s' }
     ];
 
     await supabase.from('entities').upsert(entitiesToInsert, { onConflict: 'ico' });
@@ -87,7 +88,9 @@ async function runKrtko() {
     const searchTargets = [
       { name: 'Mesto Martin', ico: '00316741' },
       { name: 'Dopravný podnik mesta Martin', ico: '53560922' },
-      { name: 'Martinská parkovacia spoločnosť', ico: '36387959' }
+      { name: 'Martinská parkovacia spoločnosť', ico: '36387959' },
+      { name: 'Oblastná organizácia cestovného ruchu Turiec', ico: '42220360' },
+      { name: 'Turčianska vodárenská spoločnosť', ico: '36402691' }
     ];
 
     for (const target of searchTargets) {
