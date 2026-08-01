@@ -35,31 +35,37 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* HEADER */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Search className="w-6 h-6 text-blue-600" />
             <h1 className="text-xl font-bold tracking-tight text-slate-800">Turiec pod Lupou</h1>
           </div>
           <div className="flex gap-4 items-center">
-            <a href="/admin" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+            <a href="/admin" className="text-sm font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-slate-700 transition-colors">
               Administrácia
             </a>
-            <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200">
-              <Filter className="w-4 h-4 text-slate-500" />
-              <select
-                className="bg-transparent border-none text-sm font-medium focus:ring-0 cursor-pointer"
-                value={selectedIco}
-                onChange={(e) => setSelectedIco(e.target.value)}
+          </div>
+        </div>
+        
+        {/* ENTITY FILTER BAR */}
+        <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 w-full overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex gap-2">
+            <button
+              onClick={() => setSelectedIco("")}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedIco === "" ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+            >
+              Všetky organizácie
+            </button>
+            {data?.entities?.map((e: any) => (
+              <button
+                key={e.ico}
+                onClick={() => setSelectedIco(e.ico)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedIco === e.ico ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
               >
-                <option value="">Všetky mestské podniky</option>
-                {data?.entities?.map((e: any) => (
-                  <option key={e.ico} value={e.ico}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                {e.name}
+              </button>
+            ))}
           </div>
         </div>
       </header>
