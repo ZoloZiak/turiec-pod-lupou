@@ -155,7 +155,7 @@ export default async function AlertsPage() {
                   
                   {alert.source_url && (
                     <div className="border-t border-slate-100 pt-3">
-                       <a href={alert.source_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                       <a href={alert.source_url?.startsWith('http') ? alert.source_url : `https://${alert.source_url}`} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                           <FileText className="w-3 h-3" />
                           Odkaz na PDF faktúru
                        </a>

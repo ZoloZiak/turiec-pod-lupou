@@ -168,7 +168,7 @@ export default function SupplierProfilePage() {
                               CRZ Zmluva
                             </span>
                           )}
-                          <a href={t.source_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs font-medium mt-1">
+                          <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs font-medium mt-1">
                             Otvoriť dokument &rarr;
                           </a>
                           <span className="text-xs text-slate-400 mt-1">

@@ -308,7 +308,7 @@ export default function Dashboard() {
                                   CRZ Zmluva
                                 </span>
                               )}
-                              <a href={t.source_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline mt-1">
+                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline mt-1">
                                 {new Date(t.date_published).toLocaleDateString('sk-SK')}
                               </a>
                             </div>
