@@ -77,7 +77,7 @@ async function runKrtko() {
   try {
     // 1. Zaručiť existence mestskej entít
     const entitiesToInsert = [
-      { ico: '00316741', name: 'Mesto Martin', type: 'CITY', normalized_name: 'mesto martin' },
+      { ico: '00316741', name: 'Mesto Martin', type: 'MUNICIPALITY', normalized_name: 'mesto martin' },
       { ico: '36387959', name: 'Martinská parkovacia spoločnosť, a.s.', type: 'COMPANY', normalized_name: 'martinska parkovacia spolocnost a s' },
       { ico: '53560922', name: 'Dopravný podnik mesta Martin, s.r.o.', type: 'COMPANY', normalized_name: 'dopravny podnik mesta martin s r o' },
       { ico: '42220360', name: 'Oblastná organizácia cestovného ruchu Turiec', type: 'NGO', normalized_name: 'oblastna organizacia cestovneho ruchu turiec' },
