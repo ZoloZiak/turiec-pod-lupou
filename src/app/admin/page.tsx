@@ -9,6 +9,14 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [mergingId, setMergingId] = useState<string | null>(null);
 
+  // Authentication
+  const [password, setPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Tabs & Logs
+  const [activeTab, setActiveTab] = useState<"merge" | "logs">("merge");
+  const [logs, setLogs] = useState<any[]>([]);
+
   // Mappings state: { unmappedId: selectedRealEntityId }
   const [mappings, setMappings] = useState<Record<string, string>>({});
 
@@ -25,10 +33,25 @@ export default function AdminPage() {
         setUnmapped(json.unmapped);
         setRealEntities(json.realEntities);
       }
+      
+      const logsRes = await fetch('/api/admin/logs');
+      const logsJson = await logsRes.json();
+      if (logsJson.success) {
+        setLogs(logsJson.logs);
+      }
     } catch (e) {
-      console.error("Failed to fetch unmapped entities", e);
+      console.error("Failed to fetch data", e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === "turiec123") {
+      setIsAuthenticated(true);
+    } else {
+      alert("Nesprávne heslo!");
     }
   };
 
@@ -64,28 +87,63 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <div className="mb-4">
-            <a href="/" className="text-sm font-medium text-blue-600 hover:underline">
-              &larr; Späť na Dashboard
-            </a>
-          </div>
-          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
-            <AlertTriangle className="text-amber-500 w-8 h-8" />
-            Human-in-the-loop Administrácia
-          </h1>
-          <p className="text-slate-600 mt-2">
-            Tento panel zobrazuje entity vytvorené z neštruktúrovaných dát (faktúry z webu),
-            ktoré nemajú exaktné IČO. Vyberte reálnu firmu z registra na spárovanie.
-          </p>
-        </header>
+      {!isAuthenticated ? (
+        <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+          <h2 className="text-2xl font-bold text-center mb-6">Administrácia</h2>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Heslo</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Zadajte heslo..."
+              />
+            </div>
+            <button type="submit" className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">
+              Vstúpiť
+            </button>
+          </form>
+        </div>
+      ) : (
+        <div className="max-w-5xl mx-auto">
+          <header className="mb-8">
+            <div className="mb-4">
+              <a href="/" className="text-sm font-medium text-blue-600 hover:underline">
+                &larr; Späť na Dashboard
+              </a>
+            </div>
+            <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
+              <AlertTriangle className="text-amber-500 w-8 h-8" />
+              Human-in-the-loop Administrácia
+            </h1>
+            <p className="text-slate-600 mt-2">
+              Tento panel zobrazuje entity vytvorené z neštruktúrovaných dát, a audítorské logy o tom, čo scraper našiel a ako to interpretoval.
+            </p>
+          </header>
 
-        {loading ? (
-          <div className="flex justify-center p-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="flex gap-4 border-b border-slate-200 mb-6">
+            <button 
+              onClick={() => setActiveTab("merge")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "merge" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+            >
+              Spájanie entít (Human-in-the-loop)
+            </button>
+            <button 
+              onClick={() => setActiveTab("logs")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "logs" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+            >
+              Logy Scrapera (Audit)
+            </button>
           </div>
-        ) : unmapped.length === 0 ? (
+
+          {loading ? (
+            <div className="flex justify-center p-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : activeTab === "merge" ? (
+            unmapped.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
             <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-slate-800">Všetko je spárované!</h2>
@@ -140,8 +198,47 @@ export default function AdminPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        )
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase text-xs">
+              <tr>
+                <th className="px-6 py-4">Dátum a Čas</th>
+                <th className="px-6 py-4">Zdroj (Scraper)</th>
+                <th className="px-6 py-4">Hlásenie</th>
+                <th className="px-6 py-4">Detail (JSON)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {logs.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-8 text-center text-slate-500">Zatiaľ žiadne logy (tabuľka system_logs je prázdna).</td>
+                </tr>
+              ) : logs.map(log => (
+                <tr key={log.id} className="hover:bg-slate-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-slate-500 text-xs">
+                    {new Date(log.created_at).toLocaleString('sk-SK')}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">
+                      {log.source}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 font-medium text-slate-800">
+                    {log.message}
+                  </td>
+                  <td className="px-6 py-4">
+                    <pre className="text-xs bg-slate-800 text-slate-200 p-2 rounded overflow-x-auto max-w-xs">
+                      {JSON.stringify(log.parsed_data, null, 2)}
+                    </pre>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
