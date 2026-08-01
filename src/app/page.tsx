@@ -64,12 +64,12 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* HEADER */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:h-16 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center gap-2">
             <Search className="w-6 h-6 text-blue-600" />
             <h1 className="text-xl font-bold tracking-tight text-slate-800">Turiec pod Lupou</h1>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 items-center">
             <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Upozornenia

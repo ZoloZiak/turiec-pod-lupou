@@ -49,7 +49,7 @@ export default async function AlertsPage() {
   const over100k = enrichedTransactions.filter(a => a.amount_eur >= 100000).sort((a, b) => b.amount_eur - a.amount_eur) || [];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-8">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
