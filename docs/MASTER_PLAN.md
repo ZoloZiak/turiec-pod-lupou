@@ -16,11 +16,11 @@ Tento dokument je "Bibliou" projektu. Definuje nielen to, ako systém funguje dn
 - **Výzva:** Každý web má iný formát (HTML tabuľky, občas PDF).
 - **Riešenie:** Vytvorenie modulárnych "Scraper Plugins" (napr. `parkovanieMartinScraper.js`). Dáta prejdú čistiacou vrstvou (Sanitizer) a uložia sa do rovnakého univerzálneho formátu ako dáta z CRZ.
 
-### Fáza 2: Prepojovacie Mágie (The Ultimate Machine)
-- **Cieľ:** Inteligentné prepájanie subjektov a odhaľovanie sietí.
-- **Funkcia:** Pripojenie na Register partnerov verejného sektora (RPVS) a ORSF (Open Register). 
-- **Výstup:** Nielen "Kto dostal peniaze", ale aj "Kto je konečný užívateľ výhod (majiteľ) tej firmy" a či tá istá osoba nevlastní 5 rôznych firiem, ktoré "súťažia" o tú istú zákazku.
-
+### Fáza 2: Prepojovacie Mágie a Administrácia (Human-in-the-loop)
+- **Cieľ:** Inteligentné, ale 100% bezpečné prepájanie subjektov a odhaľovanie sietí.
+- **Funkcia:** Pripojenie na Register partnerov verejného sektora (RPVS) a ORSF (Open Register). Automatické dopytovanie nesmie bezhlavo prepájať zástupné IČO (`NO_ICO_*`) s reálnymi, aby sme predišli halucináciám (false positives).
+- **Riešenie:** Vytvorenie **UI administrácie**. Systém navrhne prepojenia (napr. "Tento NO_ICO_SERVISAS je pravdepodobne IČO 1234567"), ale k zlúčeniu entít v DB dôjde až po manuálnom potvrdení človekom ("Human in the loop").
+- **Výstup:** Nielen "Kto dostal peniaze", ale aj "Kto je konečný užívateľ výhod (majiteľ)" so stopercentnou dátovou čistotou.
 ---
 
 ## 2. TECHNICKÁ ŠPECIFIKÁCIA: Ako predísť chaosu a duplikátom
