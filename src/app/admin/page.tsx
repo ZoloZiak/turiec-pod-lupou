@@ -14,8 +14,7 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Tabs & Logs
-  // Tabs & Logs
-  const [activeTab, setActiveTab] = useState<"merge" | "logs">("merge");
+  const [activeTab, setActiveTab] = useState<"merge" | "logs" | "pdf">("merge");
   const [logs, setLogs] = useState<any[]>([]);
 
   // Mappings state: { unmappedId: { ico: string, name: string } }
@@ -139,130 +138,186 @@ export default function AdminPage() {
               Spájanie entít (Human-in-the-loop)
             </button>
             <button 
+              onClick={() => setActiveTab("pdf")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "pdf" ? "border-amber-600 text-amber-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+            >
+              Manuálna kontrola PDF
+            </button>
+            <button 
               onClick={() => setActiveTab("logs")}
               className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "logs" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
-              Logy Scrapera (Audit)
+              Audítorské Logy
             </button>
           </div>
 
-          {loading ? (
+          {loading && (
             <div className="flex justify-center p-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
-          ) : activeTab === "merge" ? (
+          )}
+
+          {!loading && activeTab === "merge" && (
             unmapped.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
-            <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-slate-800">Všetko je spárované!</h2>
-            <p className="text-slate-500 mt-2">Aktuálne neexistujú žiadne nesprárované entity v systéme.</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase text-xs">
-                <tr>
-                  <th className="px-6 py-4">Neoverená Entita (z webu)</th>
-                  <th className="px-6 py-4"></th>
-                  <th className="px-6 py-4">Priradiť k reálnej firme</th>
-                  <th className="px-6 py-4 text-right">Akcia</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {unmapped.map(entity => (
-                  <tr key={entity.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="font-semibold text-slate-800">{entity.name}</p>
-                      <p className="text-xs text-amber-600 font-mono mt-1">{entity.ico}</p>
-                      <a 
-                        href={`https://finstat.sk/hladaj?Query=${encodeURIComponent(entity.name)}`} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        className="text-xs text-blue-600 hover:underline mt-2 flex items-center gap-1"
-                      >
-                        <Search className="w-3 h-3" /> Hľadať na FinStat
-                      </a>
-                    </td>
-                    <td className="px-2 py-4 text-center">
-                      <ArrowRight className="w-5 h-5 text-slate-300 mx-auto" />
-                    </td>
-                    <td className="px-6 py-4 flex flex-col gap-2">
-                      <input
-                        type="text"
-                        placeholder="Zadajte skutočné IČO..."
-                        className="w-full bg-white border border-slate-200 text-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        value={mappings[entity.id]?.ico || ""}
-                        onChange={(e) => setMappings({
-                          ...mappings,
-                          [entity.id]: { ...mappings[entity.id], ico: e.target.value }
-                        })}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Zadajte skutočný názov..."
-                        className="w-full bg-white border border-slate-200 text-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        value={mappings[entity.id]?.name || ""}
-                        onChange={(e) => setMappings({
-                          ...mappings,
-                          [entity.id]: { ...mappings[entity.id], name: e.target.value }
-                        })}
-                      />
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleMerge(entity.id)}
-                        disabled={!mappings[entity.id]?.ico || !mappings[entity.id]?.name || mergingId === entity.id}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
-                      >
-                        {mergingId === entity.id ? "Spájam..." : "Potvrdiť zlúčenie"}
-                      </button>
-                    </td>
+              <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
+                <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                <h2 className="text-xl font-bold text-slate-800">Všetko je spárované!</h2>
+                <p className="text-slate-500 mt-2">Aktuálne neexistujú žiadne nesprárované entity v systéme.</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase text-xs">
+                    <tr>
+                      <th className="px-6 py-4">Neoverená Entita (z webu)</th>
+                      <th className="px-6 py-4"></th>
+                      <th className="px-6 py-4">Priradiť k reálnej firme</th>
+                      <th className="px-6 py-4 text-right">Akcia</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {unmapped.map(entity => (
+                      <tr key={entity.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <p className="font-semibold text-slate-800">{entity.name}</p>
+                          <p className="text-xs text-amber-600 font-mono mt-1">{entity.ico}</p>
+                          <a 
+                            href={`https://finstat.sk/hladaj?Query=${encodeURIComponent(entity.name)}`} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="text-xs text-blue-600 hover:underline mt-2 flex items-center gap-1"
+                          >
+                            <Search className="w-3 h-3" /> Hľadať na FinStat
+                          </a>
+                        </td>
+                        <td className="px-2 py-4 text-center">
+                          <ArrowRight className="w-5 h-5 text-slate-300 mx-auto" />
+                        </td>
+                        <td className="px-6 py-4 flex flex-col gap-2">
+                          <input
+                            type="text"
+                            placeholder="Zadajte skutočné IČO..."
+                            className="w-full bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                            value={mappings[entity.id]?.ico || ""}
+                            onChange={(e) => setMappings({
+                              ...mappings,
+                              [entity.id]: { ...mappings[entity.id], ico: e.target.value }
+                            })}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Zadajte skutočný názov..."
+                            className="w-full bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                            value={mappings[entity.id]?.name || ""}
+                            onChange={(e) => setMappings({
+                              ...mappings,
+                              [entity.id]: { ...mappings[entity.id], name: e.target.value }
+                            })}
+                          />
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => handleMerge(entity.id)}
+                            disabled={!mappings[entity.id]?.ico || !mappings[entity.id]?.name || mergingId === entity.id}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                          >
+                            {mergingId === entity.id ? "Spájam..." : "Potvrdiť zlúčenie"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          )}
+
+          {!loading && activeTab === "pdf" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-amber-50 border-b border-amber-100 text-amber-800 uppercase text-xs">
+                  <tr>
+                    <th className="px-6 py-4">Dátum</th>
+                    <th className="px-6 py-4">Neznáme PDF (URL)</th>
+                    <th className="px-6 py-4">Náhľad vyťaženého textu</th>
+                    <th className="px-6 py-4 text-right">Akcia</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )
-      ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase text-xs">
-              <tr>
-                <th className="px-6 py-4">Dátum a Čas</th>
-                <th className="px-6 py-4">Zdroj (Scraper)</th>
-                <th className="px-6 py-4">Hlásenie</th>
-                <th className="px-6 py-4">Detail (JSON)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {logs.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-slate-500">Zatiaľ žiadne logy (tabuľka system_logs je prázdna).</td>
-                </tr>
-              ) : logs.map(log => (
-                <tr key={log.id} className="hover:bg-slate-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-slate-500 text-xs">
-                    {new Date(log.created_at).toLocaleString('sk-SK')}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">
-                      {log.source}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 font-medium text-slate-800">
-                    {log.message}
-                  </td>
-                  <td className="px-6 py-4">
-                    <pre className="text-xs bg-slate-800 text-slate-200 p-2 rounded overflow-x-auto max-w-xs">
-                      {JSON.stringify(log.parsed_data, null, 2)}
-                    </pre>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {logs.filter(log => log.source === 'MANUAL_REVIEW_NEEDED').length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-slate-500">Všetky PDF boli úspešne prečítané. Žiadne nečakajú na kontrolu.</td>
+                    </tr>
+                  ) : logs.filter(log => log.source === 'MANUAL_REVIEW_NEEDED').map(log => (
+                    <tr key={log.id} className="hover:bg-amber-50/30 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-slate-500 text-xs">
+                        {new Date(log.created_at).toLocaleString('sk-SK')}
+                      </td>
+                      <td className="px-6 py-4">
+                        <a href={log.parsed_data?.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium break-all text-xs">
+                          {log.parsed_data?.url || "Neznáme URL"}
+                        </a>
+                      </td>
+                      <td className="px-6 py-4">
+                        <pre className="text-xs bg-slate-50 text-slate-600 p-3 rounded-lg overflow-x-auto max-w-sm max-h-32 whitespace-pre-wrap border border-slate-200">
+                          {log.parsed_data?.text_preview || log.message}
+                        </pre>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => alert('V ďalšej verzii sa tu otvorí okno pre manuálne zadanie IČO a Sumy na základe textu.')}
+                          className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded-lg font-medium transition-colors text-xs"
+                        >
+                          Skontrolovať manuálne
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {!loading && activeTab === "logs" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase text-xs">
+                  <tr>
+                    <th className="px-6 py-4">Dátum a Čas</th>
+                    <th className="px-6 py-4">Zdroj (Scraper)</th>
+                    <th className="px-6 py-4">Hlásenie</th>
+                    <th className="px-6 py-4">Detail (JSON)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {logs.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-slate-500">Zatiaľ žiadne logy (tabuľka system_logs je prázdna).</td>
+                    </tr>
+                  ) : logs.map(log => (
+                    <tr key={log.id} className="hover:bg-slate-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-slate-500 text-xs">
+                        {new Date(log.created_at).toLocaleString('sk-SK')}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">
+                          {log.source}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-slate-800">
+                        {log.message}
+                      </td>
+                      <td className="px-6 py-4">
+                        <pre className="text-xs bg-slate-800 text-slate-200 p-2 rounded overflow-x-auto max-w-xs">
+                          {JSON.stringify(log.parsed_data, null, 2)}
+                        </pre>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>

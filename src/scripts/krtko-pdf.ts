@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
-const pdf = require('pdf-parse');
+// @ts-ignore
+import pdf from 'pdf-parse';
 
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
@@ -17,8 +18,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Zoznam vzorových URL adries s PDF faktúrami na testovanie
 const pdfUrls: string[] = [
-  // Sem môže Krtko v budúcnosti ťahať zoznam stiahnutých PDFiek z mestských webov
-  // Momentálne sem môžeme vložiť testovacie URL
+  'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
 ];
 
 async function extractFromPdf(url: string) {
