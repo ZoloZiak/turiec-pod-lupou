@@ -36,8 +36,25 @@ export async function GET(request: Request) {
       );
     }
 
-    // Agregácie (Štatistiky)
-    const totalSpent = filteredTransactions.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
+    // Agregácie (Štatistiky) a Krížová kontrola (Cross-check)
+    const crzSuppliers = new Set(
+      transactions
+        .filter((t: any) => t.source_type === 'CRZ_CONTRACT' && t.supplier)
+        .map((t: any) => t.supplier.ico)
+    );
+
+    const enrichedTransactions = filteredTransactions.map((t: any) => {
+      let suspicious = false;
+      if (t.source_type === 'WEB_INVOICE' && t.supplier) {
+        // Skontrolujeme, či dodávateľ má vôbec nejakú zmluvu v CRZ
+        if (!crzSuppliers.has(t.supplier.ico)) {
+          suspicious = true;
+        }
+      }
+      return { ...t, suspicious };
+    });
+
+    const totalSpent = enrichedTransactions.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
     
     // Top dodávatelia (Sumár výdavkov podľa dodávateľa)
     const supplierAgg = filteredTransactions.reduce((acc: any, curr: any) => {
@@ -63,7 +80,7 @@ export async function GET(request: Request) {
         entitiesCount: entities?.length || 0,
       },
       topSuppliers,
-      transactions: filteredTransactions,
+      transactions: enrichedTransactions,
       entities: entities || [],
     });
   } catch (error: any) {

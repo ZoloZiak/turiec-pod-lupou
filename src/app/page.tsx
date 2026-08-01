@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, FileText, Building2, TrendingUp, Filter } from "lucide-react";
+import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle } from "lucide-react";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
@@ -177,6 +177,12 @@ export default function Dashboard() {
                         <td className="px-6 py-4 text-slate-600 font-medium">
                           {t.supplier?.name || "Neznámy"}
                           <div className="text-xs text-slate-400 font-normal mt-1">IČO: {t.supplier?.ico}</div>
+                          {t.suspicious && (
+                            <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-100" title="Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.">
+                              <AlertTriangle className="w-3 h-3" />
+                              Chýba zmluva v CRZ!
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
