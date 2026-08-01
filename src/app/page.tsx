@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
@@ -262,7 +263,9 @@ export default function Dashboard() {
                             <p className="text-xs text-slate-500 mt-1">Odberateľ: {t.buyer?.name}</p>
                           </td>
                           <td className="px-6 py-4 text-slate-600 font-medium">
-                            {t.supplier?.name || "Neznámy"}
+                            <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-blue-600 hover:underline font-bold text-base">
+                              {t.supplier?.name || "Neznámy"}
+                            </Link>
                             <div className="text-xs text-slate-400 font-normal mt-1 flex items-center gap-2">
                               <span>IČO: {t.supplier?.ico}</span>
                               {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
