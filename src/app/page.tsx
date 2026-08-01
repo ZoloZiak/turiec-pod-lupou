@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert } from "lucide-react";
+import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert, Menu, X } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 
@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [selectedSupplierName, setSelectedSupplierName] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const ITEMS_PER_PAGE = 20;
 
   // Zrušiť filtre pri zmene organizácie
@@ -64,12 +65,14 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* HEADER */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:h-16 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Search className="w-6 h-6 text-blue-600" />
             <h1 className="text-xl font-bold tracking-tight text-slate-800">Turiec pod Lupou</h1>
           </div>
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 items-center">
+
+          {/* DESKTOP BUTTONS */}
+          <div className="hidden sm:flex gap-4 items-center">
             <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Upozornenia
@@ -78,10 +81,53 @@ export default function Dashboard() {
               Administrácia
             </a>
           </div>
+
+          {/* MOBILE MENU TOGGLE */}
+          <div className="sm:flex md:hidden items-center">
+             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+             </button>
+          </div>
         </div>
         
-        {/* ENTITY FILTER BAR */}
-        <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 w-full">
+        {/* MOBILE DROPDOWN MENU */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
+             <div className="flex flex-col gap-2">
+               <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center justify-center gap-2">
+                 <AlertTriangle className="w-4 h-4" />
+                 Upozornenia
+               </a>
+               <a href="/admin" className="text-sm font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-slate-700 transition-colors text-center">
+                 Administrácia
+               </a>
+             </div>
+             
+             <div className="pt-4 border-t border-slate-100">
+               <p className="text-xs font-bold text-slate-500 uppercase mb-3">Vyberte organizáciu</p>
+               <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => { setSelectedIco(""); setIsMenuOpen(false); }}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === "" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                  >
+                    Všetky organizácie
+                  </button>
+                  {data?.entities?.map((e: any) => (
+                    <button
+                      key={e.ico}
+                      onClick={() => { setSelectedIco(e.ico); setIsMenuOpen(false); }}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === e.ico ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                    >
+                      {e.name}
+                    </button>
+                  ))}
+               </div>
+             </div>
+          </div>
+        )}
+
+        {/* DESKTOP ENTITY FILTER BAR */}
+        <div className="hidden md:block bg-white/80 backdrop-blur-md border-t md:border-t-0 border-slate-200 w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedIco("")}
