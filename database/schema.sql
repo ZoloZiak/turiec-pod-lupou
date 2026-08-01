@@ -47,8 +47,7 @@ CREATE INDEX idx_transactions_date ON transactions(date_published DESC);
 /*
 INSERT INTO entities (ico, name, type) VALUES 
 ('36387959', 'Martinská parkovacia spoločnosť, a.s.', 'COMPANY'),
-('53560922', 'Dopravný podnik mesta Martin, s.r.o.', 'COMPANY'),
-('12345678', 'Firma Krtko a syn', 'COMPANY');
+('53560922', 'Dopravný podnik mesta Martin, s.r.o.', 'COMPANY');
 
 -- Predpokladajme, že poznáme ID, v praxi by sme na to použili sub-select, 
 -- ale pre dummy dáta ti stačí overiť prázdne tabuľky:
