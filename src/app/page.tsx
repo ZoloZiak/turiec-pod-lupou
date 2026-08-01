@@ -350,6 +350,37 @@ export default function Dashboard() {
               )}
             </div>
 
+            {/* WATCHDOG FOOTER */}
+            <div className="mt-8 bg-slate-900 rounded-2xl p-6 shadow-lg text-slate-300 border border-slate-800">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <h3 className="text-lg font-bold text-white tracking-wide">Watchdog (Pre pokročilých)</h3>
+              </div>
+              <p className="text-sm text-slate-400 mb-4 max-w-3xl">
+                Rýchly filter na subjekty, ktoré sú historicky spájané s mestom Martin, rozsiahlymi verejnými zákazkami alebo kontroverznými zmluvami. Kliknutím na tlačidlo okamžite vyhľadáte ich prítomnosť v databáze.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button 
+                  onClick={() => { setSearchTerm("brantner"); setCurrentPage(1); window.scrollTo({top: 500, behavior: 'smooth'}); }}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-700 flex items-center gap-2"
+                >
+                  <Search className="w-4 h-4" /> Brantner (Odpad)
+                </button>
+                <button 
+                  onClick={() => { setSearchTerm("tora legal"); setCurrentPage(1); window.scrollTo({top: 500, behavior: 'smooth'}); }}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-700 flex items-center gap-2"
+                >
+                  <Search className="w-4 h-4" /> TORA LEGAL
+                </button>
+                <button 
+                  onClick={() => { setSearchTerm("pk faktoring"); setCurrentPage(1); window.scrollTo({top: 500, behavior: 'smooth'}); }}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-700 flex items-center gap-2"
+                >
+                  <Search className="w-4 h-4" /> PK Faktoring
+                </button>
+              </div>
+            </div>
+
           </div>
         )}
       </main>
