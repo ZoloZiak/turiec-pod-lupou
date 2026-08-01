@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, AlertTriangle, ArrowRight } from "lucide-react";
+import { CheckCircle, AlertTriangle, ArrowRight, Search } from "lucide-react";
 
 export default function AdminPage() {
   const [unmapped, setUnmapped] = useState<any[]>([]);
@@ -33,6 +33,13 @@ export default function AdminPage() {
       if (json.success) {
         setUnmapped(json.unmapped);
         setRealEntities(json.realEntities);
+        
+        // Prefill name in mappings so the user doesn't have to retype it
+        const initialMappings: Record<string, { ico: string, name: string }> = {};
+        json.unmapped.forEach((u: any) => {
+          initialMappings[u.id] = { ico: "", name: u.name };
+        });
+        setMappings(initialMappings);
       }
       
       const logsRes = await fetch('/api/admin/logs');
@@ -167,6 +174,14 @@ export default function AdminPage() {
                     <td className="px-6 py-4">
                       <p className="font-semibold text-slate-800">{entity.name}</p>
                       <p className="text-xs text-amber-600 font-mono mt-1">{entity.ico}</p>
+                      <a 
+                        href={`https://finstat.sk/hladaj?Query=${encodeURIComponent(entity.name)}`} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="text-xs text-blue-600 hover:underline mt-2 flex items-center gap-1"
+                      >
+                        <Search className="w-3 h-3" /> Hľadať na FinStat
+                      </a>
                     </td>
                     <td className="px-2 py-4 text-center">
                       <ArrowRight className="w-5 h-5 text-slate-300 mx-auto" />
