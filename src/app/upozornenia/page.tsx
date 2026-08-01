@@ -15,19 +15,38 @@ export default async function AlertsPage() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // Získať všetky transakcie nad 100k a tie, ktoré majú suspicious = true
-  const { data: alerts } = await supabase
+  // Získať všetky transakcie (pre krížovú kontrolu potrebujeme aj zmluvy aj faktúry)
+  const { data: allTransactions, error } = await supabase
     .from('transactions')
     .select(`
       *,
       supplier:entities!transactions_supplier_entity_id_fkey(ico, name),
       buyer:entities!transactions_buyer_entity_id_fkey(name)
-    `)
-    .or('amount_eur.gte.100000,suspicious.eq.true')
-    .order('amount_eur', { ascending: false });
+    `);
 
-  const missingCrz = alerts?.filter(a => a.suspicious) || [];
-  const over100k = alerts?.filter(a => a.amount_eur >= 100000) || [];
+  if (error) {
+    console.error("Supabase Error:", error);
+  }
+
+  // Krížová kontrola
+  const crzSuppliers = new Set(
+    (allTransactions || [])
+      .filter((t: any) => t.source_type === 'CRZ_CONTRACT' && t.supplier)
+      .map((t: any) => t.supplier.ico)
+  );
+
+  const enrichedTransactions = (allTransactions || []).map((t: any) => {
+    let suspicious = false;
+    if (t.source_type === 'WEB_INVOICE' && t.supplier) {
+      if (!crzSuppliers.has(t.supplier.ico)) {
+        suspicious = true;
+      }
+    }
+    return { ...t, suspicious };
+  });
+
+  const missingCrz = enrichedTransactions.filter(a => a.suspicious) || [];
+  const over100k = enrichedTransactions.filter(a => a.amount_eur >= 100000).sort((a, b) => b.amount_eur - a.amount_eur) || [];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-8">
