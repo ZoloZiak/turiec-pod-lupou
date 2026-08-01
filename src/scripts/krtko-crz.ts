@@ -25,9 +25,11 @@ interface RealContract {
 }
 
 async function scrapeCrzForOrganization(queryName: string): Promise<RealContract[]> {
-  console.log(`🔍 Vyhľadávam zmluvy v CRZ pre: ${queryName}...`);
+  const startDate = process.env.SCAN_START_DATE || "";
+  const endDate = process.env.SCAN_END_DATE || "";
+  console.log(`🔍 Vyhľadávam zmluvy v CRZ pre: ${queryName}${startDate ? ` od ${startDate}` : ""}${endDate ? ` do ${endDate}` : ""}...`);
   const encodedQuery = encodeURIComponent(queryName);
-  const url = `https://crz.gov.sk/2171273-sk/centralny-register-zmluv/?art_zs1=${encodedQuery}&art_predmet=&art_ico=&art_suma_zmluva_od=&art_suma_zmluva_do=&art_datum_zverejnene_od=&art_datum_zverejnene_do=&art_resort=0&art_osoba1=&art_osoba2=&nazov=&art_vypis=1`;
+  const url = `https://crz.gov.sk/2171273-sk/centralny-register-zmluv/?art_zs1=${encodedQuery}&art_predmet=&art_ico=&art_suma_zmluva_od=&art_suma_zmluva_do=&art_datum_zverejnene_od=${startDate}&art_datum_zverejnene_do=${endDate}&art_resort=0&art_osoba1=&art_osoba2=&nazov=&art_vypis=1`;
 
   try {
     const res = await fetch(url);

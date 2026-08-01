@@ -5,7 +5,15 @@ on:
     # Spustí sa každý deň o 02:00 ráno
     - cron: '0 2 * * *'
   workflow_dispatch:
-    # Umožňuje manuálne spustenie z GitHub Actions UI
+    inputs:
+      start_date:
+        description: 'Dátum od (vo formáte DD.MM.YYYY, napr. 01.01.2023)'
+        required: false
+        type: string
+      end_date:
+        description: 'Dátum do (vo formáte DD.MM.YYYY)'
+        required: false
+        type: string
 
 jobs:
   run-scrapers:
@@ -28,4 +36,6 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SCAN_START_DATE: ${{ github.event.inputs.start_date }}
+          SCAN_END_DATE: ${{ github.event.inputs.end_date }}
         run: npm run krtko:all
