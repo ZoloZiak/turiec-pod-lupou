@@ -42,14 +42,20 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
       const title = match[2].trim();
       const amountStr = match[3].replace(/\s/g, '').replace(',', '.');
       const amount = parseFloat(amountStr) || 0;
-      const authority = match[4].trim();
-      const supplierName = match[5].trim();
+      const osoba1 = match[4].trim();
+      const osoba2 = match[5].trim();
+      
+      // CRZ nie vždy dáva mesto do Osoba 1. Ak je Osoba 2 mesto, dodávateľ je Osoba 1.
+      let supplierName = osoba2;
+      if (osoba2.toLowerCase().includes(queryName.toLowerCase())) {
+        supplierName = osoba1;
+      }
 
       contracts.push({
         external_id: `crz_${id}`,
         title,
         amount,
-        buyer_name: authority,
+        buyer_name: queryName,
         supplier_name: supplierName,
         url: `https://crz.gov.sk/zmluva/${id}/`,
         published_at: new Date().toISOString()
