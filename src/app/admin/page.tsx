@@ -14,11 +14,12 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Tabs & Logs
+  // Tabs & Logs
   const [activeTab, setActiveTab] = useState<"merge" | "logs">("merge");
   const [logs, setLogs] = useState<any[]>([]);
 
-  // Mappings state: { unmappedId: selectedRealEntityId }
-  const [mappings, setMappings] = useState<Record<string, string>>({});
+  // Mappings state: { unmappedId: { ico: string, name: string } }
+  const [mappings, setMappings] = useState<Record<string, { ico: string, name: string }>>({});
 
   useEffect(() => {
     fetchData();
@@ -56,15 +57,15 @@ export default function AdminPage() {
   };
 
   const handleMerge = async (sourceId: string) => {
-    const targetId = mappings[sourceId];
-    if (!targetId) return;
+    const target = mappings[sourceId];
+    if (!target || !target.ico || !target.name) return;
 
     setMergingId(sourceId);
     try {
       const res = await fetch('/api/admin/merge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sourceEntityId: sourceId, targetEntityId: targetId })
+        body: JSON.stringify({ sourceEntityId: sourceId, targetIco: target.ico, targetName: target.name })
       });
       const json = await res.json();
       if (json.success) {
@@ -170,24 +171,32 @@ export default function AdminPage() {
                     <td className="px-2 py-4 text-center">
                       <ArrowRight className="w-5 h-5 text-slate-300 mx-auto" />
                     </td>
-                    <td className="px-6 py-4">
-                      <select
-                        className="w-full bg-white border border-slate-200 text-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        value={mappings[entity.id] || ""}
-                        onChange={(e) => setMappings({ ...mappings, [entity.id]: e.target.value })}
-                      >
-                        <option value="">-- Vyberte reálnu firmu --</option>
-                        {realEntities.map(re => (
-                          <option key={re.id} value={re.id}>
-                            {re.name} (IČO: {re.ico})
-                          </option>
-                        ))}
-                      </select>
+                    <td className="px-6 py-4 flex flex-col gap-2">
+                      <input
+                        type="text"
+                        placeholder="Zadajte skutočné IČO..."
+                        className="w-full bg-white border border-slate-200 text-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        value={mappings[entity.id]?.ico || ""}
+                        onChange={(e) => setMappings({
+                          ...mappings,
+                          [entity.id]: { ...mappings[entity.id], ico: e.target.value }
+                        })}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Zadajte skutočný názov..."
+                        className="w-full bg-white border border-slate-200 text-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        value={mappings[entity.id]?.name || ""}
+                        onChange={(e) => setMappings({
+                          ...mappings,
+                          [entity.id]: { ...mappings[entity.id], name: e.target.value }
+                        })}
+                      />
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => handleMerge(entity.id)}
-                        disabled={!mappings[entity.id] || mergingId === entity.id}
+                        disabled={!mappings[entity.id]?.ico || !mappings[entity.id]?.name || mergingId === entity.id}
                         className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
                       >
                         {mergingId === entity.id ? "Spájam..." : "Potvrdiť zlúčenie"}

@@ -72,6 +72,7 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
 
 async function runKrtko() {
   console.log('🚀 Spúšťam Krtka pre sťahovanie REÁLNYCH DÁT z CRZ...');
+  await supabase.from('system_logs').insert({ source: 'CRZ_KRTKO', message: 'Spúšťam sťahovanie dát z CRZ...' });
 
   try {
     // 1. Zaručiť existence mestskej entít
@@ -129,9 +130,11 @@ async function runKrtko() {
     }
 
     console.log('🎉 Sťahovanie a ukladanie reálnych zmlúv je DOKONČENÉ!');
+    await supabase.from('system_logs').insert({ source: 'CRZ_KRTKO', message: 'Sťahovanie dokončené úspešne.' });
 
-  } catch (err) {
+  } catch (err: any) {
     console.error('❌ Chyba pri behu Krtka:', err);
+    await supabase.from('system_logs').insert({ source: 'CRZ_KRTKO', message: 'Kritická chyba pri behu skriptu', parsed_data: { error: err.message } });
   }
 }
 

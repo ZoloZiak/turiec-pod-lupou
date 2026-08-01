@@ -109,6 +109,7 @@ async function scrapeInvoices(targetUrl: string, buyerIco: string): Promise<Invo
 // --- MAIN DATA PIPELINE ---
 async function runInvoiceSanitizerPipeline() {
   console.log('🚀 Spúšťam modul "Sanitizer" pre neštruktúrované dáta z viacerých webov...');
+  await supabase.from('system_logs').insert({ source: 'WEB_SCRAPER', message: 'Spúšťam sťahovanie faktúr z webov...' });
   
   const sources = [
     { buyerIco: '36387959', targetWeb: 'https://www.parkovaniemartin.sk/faktury-a-objednavky' },
@@ -128,6 +129,11 @@ async function runInvoiceSanitizerPipeline() {
 
     // 2. Extrahovať dáta
     const invoices = await scrapeInvoices(targetWeb, buyerIco);
+    await supabase.from('system_logs').insert({ 
+      source: 'WEB_SCRAPER', 
+      message: `Z webu ${targetWeb} stiahnutých ${invoices.length} faktúr`,
+      parsed_data: { buyerIco, targetWeb, count: invoices.length }
+    });
 
   // 3. Ukladacia vrstva s deduplikáciou dodávateľov (Krok 2 z Master Planu - Čistiaca vrstva)
   for (const inv of invoices) {
@@ -167,6 +173,7 @@ async function runInvoiceSanitizerPipeline() {
   }
 
   console.log('🎉 Modul na neštruktúrované dáta úspešne dokončil prácu pre všetky zdroje!');
+  await supabase.from('system_logs').insert({ source: 'WEB_SCRAPER', message: 'Sťahovanie faktúr dokončené úspešne.' });
 }
 
 runInvoiceSanitizerPipeline();

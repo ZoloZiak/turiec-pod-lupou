@@ -3,17 +3,35 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { sourceEntityId, targetEntityId } = await request.json();
+    const { sourceEntityId, targetIco, targetName } = await request.json();
 
-    if (!sourceEntityId || !targetEntityId) {
-      return NextResponse.json({ success: false, error: 'Chýba source alebo target ID' }, { status: 400 });
+    if (!sourceEntityId || !targetIco || !targetName) {
+      return NextResponse.json({ success: false, error: 'Chýba sourceEntityId, targetIco alebo targetName' }, { status: 400 });
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // 1. Presunúť všetky transakcie (faktúry/zmluvy), kde bol zdrojový (fake) entity dodávateľ
+    // 1. Vytvoriť alebo nájsť reálnu entitu s daným IČO
+    const { data: realEntity, error: upsertError } = await supabase
+      .from('entities')
+      .upsert({ 
+        ico: targetIco, 
+        name: targetName, 
+        type: 'COMPANY', 
+        normalized_name: targetName.toLowerCase() 
+      }, { onConflict: 'ico' })
+      .select('id')
+      .single();
+
+    if (upsertError || !realEntity) {
+      throw upsertError || new Error("Nepodarilo sa vytvoriť reálnu entitu");
+    }
+
+    const targetEntityId = realEntity.id;
+
+    // 2. Presunúť všetky transakcie (faktúry/zmluvy), kde bol zdrojový (fake) entity dodávateľ
     const { error: updateSupplierError } = await supabase
       .from('transactions')
       .update({ supplier_entity_id: targetEntityId })
@@ -21,7 +39,7 @@ export async function POST(request: Request) {
 
     if (updateSupplierError) throw updateSupplierError;
 
-    // 2. Presunúť transakcie, kde bol zdroj kupujúci (menej pravdepodobné, ale pre istotu)
+    // 3. Presunúť transakcie, kde bol zdroj kupujúci (menej pravdepodobné, ale pre istotu)
     const { error: updateBuyerError } = await supabase
       .from('transactions')
       .update({ buyer_entity_id: targetEntityId })
@@ -29,7 +47,7 @@ export async function POST(request: Request) {
 
     if (updateBuyerError) throw updateBuyerError;
 
-    // 3. Zmazať starú (fake) entitu
+    // 4. Zmazať starú (fake) entitu
     const { error: deleteError } = await supabase
       .from('entities')
       .delete()
