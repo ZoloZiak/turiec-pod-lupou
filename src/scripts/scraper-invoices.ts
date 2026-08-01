@@ -108,22 +108,26 @@ async function scrapeInvoices(targetUrl: string, buyerIco: string): Promise<Invo
 
 // --- MAIN DATA PIPELINE ---
 async function runInvoiceSanitizerPipeline() {
-  console.log('🚀 Spúšťam modul "Sanitizer" pre neštruktúrované dáta...');
+  console.log('🚀 Spúšťam modul "Sanitizer" pre neštruktúrované dáta z viacerých webov...');
   
-  // Konfigurácia pre konkrétny plugin:
-  // Kupujúci: Martinská parkovacia spoločnosť, a.s. (IČO: 36387959)
-  const buyerIco = '36387959';
-  const targetWeb = 'https://www.parkovaniemartin.sk/faktury-a-objednavky';
+  const sources = [
+    { buyerIco: '36387959', targetWeb: 'https://www.parkovaniemartin.sk/faktury-a-objednavky' },
+    { buyerIco: '53560922', targetWeb: 'https://www.dpmmartin.sk/zverejnovanie/faktury' },
+    { buyerIco: '42220360', targetWeb: 'https://www.turiec.com/povinne-zverejnovanie' }
+  ];
 
-  // 1. Získať ID kupujúceho z databázy
-  const { data: buyer } = await supabase.from('entities').select('id').eq('ico', buyerIco).single();
-  if (!buyer) {
-    console.error(`Kupujúci s IČO ${buyerIco} neexistuje v DB. Prerušujem pipeline.`);
-    return;
-  }
+  for (const source of sources) {
+    const { buyerIco, targetWeb } = source;
+    
+    // 1. Získať ID kupujúceho z databázy
+    const { data: buyer } = await supabase.from('entities').select('id').eq('ico', buyerIco).single();
+    if (!buyer) {
+      console.error(`Kupujúci s IČO ${buyerIco} neexistuje v DB. Prerušujem spracovanie pre ${targetWeb}.`);
+      continue;
+    }
 
-  // 2. Extrahovať dáta
-  const invoices = await scrapeInvoices(targetWeb, buyerIco);
+    // 2. Extrahovať dáta
+    const invoices = await scrapeInvoices(targetWeb, buyerIco);
 
   // 3. Ukladacia vrstva s deduplikáciou dodávateľov (Krok 2 z Master Planu - Čistiaca vrstva)
   for (const inv of invoices) {
@@ -159,9 +163,10 @@ async function runInvoiceSanitizerPipeline() {
     if (txError) {
       console.error(`Chyba pri zápise faktúry ${inv.external_id}:`, txError.message);
     }
+    }
   }
 
-  console.log('🎉 Modul na neštruktúrované dáta úspešne dokončil prácu!');
+  console.log('🎉 Modul na neštruktúrované dáta úspešne dokončil prácu pre všetky zdroje!');
 }
 
 runInvoiceSanitizerPipeline();
