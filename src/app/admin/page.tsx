@@ -239,6 +239,8 @@ export default function AdminPage() {
           </table>
         </div>
       )}
+        </div>
+      )}
     </div>
   );
 }
