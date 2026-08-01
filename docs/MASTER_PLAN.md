@@ -84,6 +84,6 @@ Toto je náš prísny, iteratívny postup. Kým nie je hotový Krok N, nejdeme n
 - [x] Použiť `Tremor` knižnicu pre zobrazenie krásneho "Koláča peňazí" a "Rebríčka firiem" na Frontende.
 
 ### KROK 4: Nasadenie do Cloudu (Launch)
-- [ ] Nahrať kód na GitHub.
+- [x] Nahrať kód na GitHub.
 - [ ] Prepojiť GitHub repozitár s Vercel.com (automatické nasadenie na web zadarmo).
 - [ ] Nastaviť automatické nočné spúšťanie Krtka, aby sa Supabase databáza sama aktualizovala.
