@@ -224,13 +224,29 @@ export default function Dashboard() {
                         </td>
                         <td className="px-6 py-4 text-slate-600 font-medium">
                           {t.supplier?.name || "Neznámy"}
-                          <div className="text-xs text-slate-400 font-normal mt-1">IČO: {t.supplier?.ico}</div>
-                          {t.suspicious && (
-                            <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-100" title="Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.">
-                              <AlertTriangle className="w-3 h-3" />
-                              Chýba zmluva v CRZ!
-                            </div>
-                          )}
+                          <div className="text-xs text-slate-400 font-normal mt-1 flex items-center gap-2">
+                            <span>IČO: {t.supplier?.ico}</span>
+                            {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
+                              <div className="flex gap-2 ml-2 border-l pl-2 border-slate-200">
+                                <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${t.supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">ORSR</a>
+                                <a href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${t.supplier.ico}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">RPVS</a>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-1 mt-2 items-start">
+                            {t.suspicious && (
+                              <div className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-100" title="Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.">
+                                <AlertTriangle className="w-3 h-3" />
+                                Chýba zmluva v CRZ!
+                              </div>
+                            )}
+                            {t.amount_eur >= 100000 && (
+                              <div className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-100" title="Zákonná povinnosť: Zmluvy alebo faktúry nad 100 000€ vyžadujú, aby bol dodávateľ zapísaný v Registri partnerov verejného sektora. Skontroluj to kliknutím na RPVS link vyššie.">
+                                <AlertTriangle className="w-3 h-3" />
+                                Zákazka nad 100k € (nutné RPVS)
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
