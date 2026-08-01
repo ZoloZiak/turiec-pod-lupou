@@ -111,7 +111,7 @@ export default function Dashboard() {
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                       <Tooltip 
-                        formatter={(val: number) => formatEur(val)} 
+                        formatter={(val: any) => formatEur(val as number)} 
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
                       />
                       <Bar dataKey="value" radius={[0, 4, 4, 0]}>
@@ -141,7 +141,7 @@ export default function Dashboard() {
                           <Cell key={`pie-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(val: number) => formatEur(val)} />
+                      <Tooltip formatter={(val: any) => formatEur(val as number)} />
                     </PieChart>
                   </ResponsiveContainer>
                  </div>

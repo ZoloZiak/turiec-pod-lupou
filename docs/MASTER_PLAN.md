@@ -79,9 +79,9 @@ Toto je náš prísny, iteratívny postup. Kým nie je hotový Krok N, nejdeme n
 - [ ] Pripraviť skript tak, aby mohol bežať neskôr bezplatne v cloude (napr. GitHub Actions alebo Vercel Cron).
 
 ### KROK 3: API Vrstva (Serverless) a Frontend (Next.js na Verceli)
-- [ ] Inicializovať Next.js projekt (spojíme Frontend aj Backend API do jedného repozitára).
-- [ ] Vytvoriť Next.js API endpoint `GET /api/stats?ico=36387959`, ktorý sa pripojí do Supabase.
-- [ ] Použiť `Tremor` knižnicu pre zobrazenie krásneho "Koláča peňazí" a "Rebríčka firiem" na Frontende.
+- [x] Inicializovať Next.js projekt (spojíme Frontend aj Backend API do jedného repozitára).
+- [x] Vytvoriť Next.js API endpoint `GET /api/stats?ico=36387959`, ktorý sa pripojí do Supabase.
+- [x] Použiť `Tremor` knižnicu pre zobrazenie krásneho "Koláča peňazí" a "Rebríčka firiem" na Frontende.
 
 ### KROK 4: Nasadenie do Cloudu (Launch)
 - [ ] Nahrať kód na GitHub.
