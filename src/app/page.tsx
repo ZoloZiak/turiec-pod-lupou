@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle } from "lucide-react";
+import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import RpvsBadge from "./components/RpvsBadge";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
@@ -69,6 +70,10 @@ export default function Dashboard() {
             <h1 className="text-xl font-bold tracking-tight text-slate-800">Turiec pod Lupou</h1>
           </div>
           <div className="flex gap-4 items-center">
+            <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              Upozornenia
+            </a>
             <a href="/admin" className="text-sm font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-slate-700 transition-colors">
               Administrácia
             </a>
@@ -282,11 +287,8 @@ export default function Dashboard() {
                                   Chýba zmluva v CRZ!
                                 </div>
                               )}
-                              {t.amount_eur >= 100000 && (
-                                <div className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-100" title="Zákonná povinnosť: Zmluvy alebo faktúry nad 100 000€ vyžadujú, aby bol dodávateľ zapísaný v Registri partnerov verejného sektora. Skontroluj to kliknutím na RPVS link vyššie.">
-                                  <AlertTriangle className="w-3 h-3" />
-                                  Zákazka nad 100k € (nutné RPVS)
-                                </div>
+                              {t.amount_eur >= 100000 && t.supplier?.ico && (
+                                <RpvsBadge ico={t.supplier.ico} />
                               )}
                             </div>
                           </td>
