@@ -8,8 +8,11 @@ export default function Dashboard() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedIco, setSelectedIco] = useState("");
+  const [selectedSupplierName, setSelectedSupplierName] = useState<string | null>(null);
 
+  // Zrušiť filter dodávateľa pri zmene organizácie
   useEffect(() => {
+    setSelectedSupplierName(null);
     fetchData(selectedIco);
   }, [selectedIco]);
 
@@ -116,16 +119,31 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold mb-6">Top 10 príjemcov (Dodávatelia)</h3>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data.topSuppliers} layout="vertical" margin={{ left: 50 }}>
+                    <BarChart 
+                      data={data.topSuppliers} 
+                      layout="vertical" 
+                      margin={{ left: 50 }}
+                      onClick={(e: any) => {
+                        if (e?.activePayload?.[0]?.payload?.name) {
+                          const name = e.activePayload[0].payload.name;
+                          setSelectedSupplierName(name === selectedSupplierName ? null : name);
+                        }
+                      }}
+                    >
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                       <Tooltip 
                         formatter={(val: any) => formatEur(val as number)} 
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                        cursor={{ fill: '#f1f5f9' }}
                       />
-                      <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]} className="cursor-pointer">
                         {data.topSuppliers.map((entry: any, index: number) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={COLORS[index % COLORS.length]} 
+                            opacity={selectedSupplierName ? (selectedSupplierName === entry.name ? 1 : 0.3) : 1}
+                          />
                         ))}
                       </Bar>
                     </BarChart>
@@ -145,9 +163,19 @@ export default function Dashboard() {
                         outerRadius={90}
                         paddingAngle={5}
                         dataKey="value"
+                        className="cursor-pointer"
+                        onClick={(entry: any) => {
+                          if (entry?.name) {
+                            setSelectedSupplierName(entry.name === selectedSupplierName ? null : entry.name);
+                          }
+                        }}
                       >
                         {data.topSuppliers.slice(0,5).map((entry: any, index: number) => (
-                          <Cell key={`pie-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell 
+                            key={`pie-${index}`} 
+                            fill={COLORS[index % COLORS.length]} 
+                            opacity={selectedSupplierName ? (selectedSupplierName === entry.name ? 1 : 0.3) : 1}
+                          />
                         ))}
                       </Pie>
                       <Tooltip formatter={(val: any) => formatEur(val as number)} />
@@ -160,8 +188,16 @@ export default function Dashboard() {
 
             {/* TRANSACTIONS TABLE */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100">
-                <h3 className="text-lg font-semibold">Najnovšie zverejnené zmluvy</h3>
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Najnovšie zverejnené zmluvy a faktúry</h3>
+                {selectedSupplierName && (
+                  <button 
+                    onClick={() => setSelectedSupplierName(null)}
+                    className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium hover:bg-blue-100 transition-colors"
+                  >
+                    Filtrujem: {selectedSupplierName} <span className="ml-1 text-lg leading-none">&times;</span>
+                  </button>
+                )}
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
@@ -174,7 +210,10 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {data.transactions.slice(0, 15).map((t: any) => (
+                    {(selectedSupplierName 
+                      ? data.transactions.filter((t: any) => t.supplier?.name === selectedSupplierName)
+                      : data.transactions
+                    ).slice(0, 15).map((t: any) => (
                       <tr key={t.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4">
                           <p className="font-medium text-slate-800 line-clamp-2" title={t.subject}>{t.subject}</p>
