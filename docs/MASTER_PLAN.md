@@ -85,5 +85,5 @@ Toto je náš prísny, iteratívny postup. Kým nie je hotový Krok N, nejdeme n
 
 ### KROK 4: Nasadenie do Cloudu (Launch)
 - [x] Nahrať kód na GitHub.
-- [ ] Prepojiť GitHub repozitár s Vercel.com (automatické nasadenie na web zadarmo).
-- [ ] Nastaviť automatické nočné spúšťanie Krtka, aby sa Supabase databáza sama aktualizovala.
+- [x] Prepojiť GitHub repozitár s Vercel.com (automatické nasadenie na web zadarmo).
+- [x] Nastaviť automatické nočné spúšťanie Krtka, aby sa Supabase databáza sama aktualizovala.
