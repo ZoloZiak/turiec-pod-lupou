@@ -2,33 +2,39 @@
 
 import { Building2, Search, ArrowRight, ShieldCheck, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
 import VerifiedBadge from "../components/VerifiedBadge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// Mockované dáta (kým používateľ nespustí SQL skript v Supabase)
-const mockAssets = [
-  {
-    id: "1",
-    person_name: "Ján Danko",
-    role: "Primátor Mesta Martin",
-    year: 2023,
-    official_salary_eur: 76200,
-    declared_assets: "Byt v Martine, 2x Garáž, Auto VW Touareg, Úspory 45 000 €",
-    source_url: "https://www.nrsr.sk/web/"
-  },
-  {
-    id: "2",
-    person_name: "Ján Danko",
-    role: "Primátor Mesta Martin",
-    year: 2022,
-    official_salary_eur: 74100,
-    declared_assets: "Byt v Martine, 2x Garáž, Auto VW Touareg, Úspory 32 000 €",
-    source_url: "https://www.nrsr.sk/web/"
-  }
-];
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Safe initialization for Next.js build time
+const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function MajetkyPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [assets, setAssets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('asset_declarations')
+        .select('*')
+        .order('year', { ascending: false });
+        
+      if (!error && data) {
+        setAssets(data);
+      }
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
 
   const formatEur = (amount: number) => {
     return new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
@@ -82,9 +88,14 @@ export default function MajetkyPage() {
 
         {/* LIST OF DECLARATIONS */}
         <div className="space-y-6">
-          {mockAssets
-            .filter(a => a.person_name.toLowerCase().includes(searchTerm.toLowerCase()))
-            .map((asset) => (
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            </div>
+          ) : (
+            assets
+              .filter(a => a.person_name.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((asset) => (
             <div key={asset.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row gap-6 items-start">
               
               <div className="md:w-1/3">
@@ -114,7 +125,7 @@ export default function MajetkyPage() {
                 
                 <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-inner">
                   <ul className="space-y-3">
-                    {asset.declared_assets.split(', ').map((item, i) => (
+                    {asset.declared_assets.split(', ').map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-slate-700">
                         <span className="text-emerald-500 font-bold mt-0.5">•</span>
                         {item}
@@ -130,7 +141,7 @@ export default function MajetkyPage() {
               </div>
               
             </div>
-          ))}
+          )))}
         </div>
         
       </main>

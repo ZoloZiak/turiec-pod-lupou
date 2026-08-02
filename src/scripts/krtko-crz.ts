@@ -28,48 +28,64 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
   const startDate = process.env.SCAN_START_DATE || "";
   const endDate = process.env.SCAN_END_DATE || "";
   console.log(`🔍 Vyhľadávam zmluvy v CRZ pre: ${queryName}${startDate ? ` od ${startDate}` : ""}${endDate ? ` do ${endDate}` : ""}...`);
-  const encodedQuery = encodeURIComponent(queryName);
-  const url = `https://crz.gov.sk/2171273-sk/centralny-register-zmluv/?art_zs1=${encodedQuery}&art_predmet=&art_ico=&art_suma_zmluva_od=&art_suma_zmluva_do=&art_datum_zverejnene_od=${startDate}&art_datum_zverejnene_do=${endDate}&art_resort=0&art_osoba1=&art_osoba2=&nazov=&art_vypis=1`;
+  let allContracts: RealContract[] = [];
+  let page = 0;
+  let hasMore = true;
 
-  try {
-    const res = await fetch(url);
-    const html = await res.text();
+  while (hasMore) {
+    const encodedQuery = encodeURIComponent(queryName);
+    // CRZ Stránkovanie: prvú stranu môžeme nechať bez page alebo page=0, druhú page=1
+    const pageParam = page > 0 ? `&page=${page}` : '';
+    const url = `https://crz.gov.sk/2171273-sk/centralny-register-zmluv/?art_zs1=${encodedQuery}&art_predmet=&art_ico=&art_suma_zmluva_od=&art_suma_zmluva_do=&art_datum_zverejnene_od=${startDate}&art_datum_zverejnene_do=${endDate}&art_resort=0&art_osoba1=&art_osoba2=&nazov=&art_vypis=1${pageParam}`;
 
-    const contracts: RealContract[] = [];
-    const regex = /<td class="cell2"><a href="\/zmluva\/(\d+)\/">([^<]+)<\/a>[\s\S]*?<td class="cell3[^">]*">([^<]+)&nbsp;&euro;<\/td>[\s\S]*?<td class="cell4">([^<]+)<\/td>\s*<td class="cell5">([^<]+)<\/td>/g;
+    try {
+      const res = await fetch(url);
+      const html = await res.text();
 
-    let match;
-    while ((match = regex.exec(html)) !== null) {
-      const id = match[1];
-      const title = match[2].trim();
-      const amountStr = match[3].replace(/\s/g, '').replace(',', '.');
-      const amount = parseFloat(amountStr) || 0;
-      const osoba1 = match[4].trim();
-      const osoba2 = match[5].trim();
+      const regex = /<td class="cell2"><a href="\/zmluva\/(\d+)\/">([^<]+)<\/a>[\s\S]*?<td class="cell3[^">]*">([^<]+)&nbsp;&euro;<\/td>[\s\S]*?<td class="cell4">([^<]+)<\/td>\s*<td class="cell5">([^<]+)<\/td>/g;
       
-      // CRZ nie vždy dáva mesto do Osoba 1. Ak je Osoba 2 mesto, dodávateľ je Osoba 1.
-      let supplierName = osoba2;
-      if (osoba2.toLowerCase().includes(queryName.toLowerCase())) {
-        supplierName = osoba1;
+      let match;
+      let countOnPage = 0;
+      while ((match = regex.exec(html)) !== null) {
+        countOnPage++;
+        const id = match[1];
+        const title = match[2].trim();
+        const amountStr = match[3].replace(/\s/g, '').replace(',', '.');
+        const amount = parseFloat(amountStr) || 0;
+        const osoba1 = match[4].trim();
+        const osoba2 = match[5].trim();
+        
+        let supplierName = osoba2;
+        if (osoba2.toLowerCase().includes(queryName.toLowerCase())) {
+          supplierName = osoba1;
+        }
+
+        allContracts.push({
+          external_id: `crz_${id}`,
+          title,
+          amount,
+          buyer_name: queryName,
+          supplier_name: supplierName,
+          url: `https://crz.gov.sk/zmluva/${id}/`,
+          published_at: new Date().toISOString()
+        });
       }
 
-      contracts.push({
-        external_id: `crz_${id}`,
-        title,
-        amount,
-        buyer_name: queryName,
-        supplier_name: supplierName,
-        url: `https://crz.gov.sk/zmluva/${id}/`,
-        published_at: new Date().toISOString()
-      });
+      console.log(`Strana ${page + 1}: nájdených ${countOnPage} zmlúv.`);
+      
+      if (countOnPage === 0 || page >= 50) { // Limit na 50 strán ako poistka proti zacykleniu
+        hasMore = false;
+      } else {
+        page++;
+      }
+    } catch (e) {
+      console.error(`❌ Chyba pri sťahovaní pre ${queryName} na strane ${page + 1}:`, e);
+      hasMore = false;
     }
-
-    console.log(`✅ Našlo sa ${contracts.length} zmlúv pre ${queryName}`);
-    return contracts;
-  } catch (e) {
-    console.error(`❌ Chyba pri sťahovaní pre ${queryName}:`, e);
-    return [];
   }
+
+  console.log(`✅ Celkovo sa našlo ${allContracts.length} zmlúv pre ${queryName}`);
+  return allContracts;
 }
 
 async function runKrtko() {
