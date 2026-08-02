@@ -189,6 +189,12 @@ export default function AdminPage() {
             >
               Audítorské Logy
             </button>
+            <a 
+              href="/admin/sluby"
+              className="pb-3 font-medium text-sm border-b-2 border-transparent text-amber-600 hover:text-amber-700 ml-auto flex items-center gap-1"
+            >
+              Správa Sľubov &rarr;
+            </a>
           </div>
 
           {loading && (
