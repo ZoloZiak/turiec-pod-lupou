@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert, Menu, X } from "lucide-react";
+import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert, Menu, X, Lightbulb } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 
@@ -73,6 +73,10 @@ export default function Dashboard() {
 
           {/* DESKTOP BUTTONS */}
           <div className="hidden sm:flex gap-4 items-center">
+            <a href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center gap-2">
+              <Lightbulb className="w-4 h-4" />
+              Sľubomer
+            </a>
             <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Upozornenia
@@ -94,6 +98,10 @@ export default function Dashboard() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
              <div className="flex flex-col gap-2">
+               <a href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center justify-center gap-2">
+                 <Lightbulb className="w-4 h-4" />
+                 Sľubomer
+               </a>
                <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center justify-center gap-2">
                  <AlertTriangle className="w-4 h-4" />
                  Upozornenia
