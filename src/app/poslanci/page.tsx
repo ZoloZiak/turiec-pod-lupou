@@ -3,14 +3,34 @@
 import { Users, ThumbsUp, ThumbsDown, Filter, FileText } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
+import { createClient } from "@supabase/supabase-js";
+import { useState, useEffect } from "react";
 
-const hlasovania = [
-  { id: "1", meno: "Ing. Ján Kováč", obvod: "Stred", hlasoval: "ZA", kauza: "Spoplatnenie parkovania v centre mesta", date: "15.03.2024" },
-  { id: "2", meno: "MUDr. Peter Novák", obvod: "Priekopa", hlasoval: "PROTI", kauza: "Spoplatnenie parkovania v centre mesta", date: "15.03.2024" },
-  { id: "3", meno: "Mgr. Lucia Kováčová", obvod: "Záturčie", hlasoval: "ZDRŽAL SA", kauza: "Spoplatnenie parkovania v centre mesta", date: "15.03.2024" },
-];
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function PoslanciPage() {
+  const [hlasovania, setHlasovania] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+      const { data, error } = await supabase
+        .from('city_council_votes')
+        .select('*')
+        .order('vote_date', { ascending: false });
+      if (!error && data) {
+        setHlasovania(data);
+      }
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
       <header className="bg-slate-900 text-white pt-16 pb-24 px-4 sm:px-6 lg:px-8">
@@ -25,31 +45,42 @@ export default function PoslanciPage() {
         <div className="bg-purple-50 border border-purple-200 p-4 rounded-xl flex items-center justify-between mb-8">
            <div className="flex items-center gap-3">
              <FileText className="w-5 h-5 text-purple-600"/>
-             <span className="font-bold text-purple-900">Aktuálna kauza: Spoplatnenie parkovania v centre mesta</span>
+             <span className="font-bold text-purple-900">Vyberte kauzu zo zoznamu (čoskoro)</span>
            </div>
-           <VerifiedBadge source="Záznam zo zastupiteľstva" date="15.03.2024"/>
+           <VerifiedBadge source="Záznam zo zastupiteľstva" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {hlasovania.map(h => (
-            <div key={h.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between items-center text-center">
-              <div className="w-16 h-16 bg-slate-100 rounded-full mb-4 flex items-center justify-center">
-                <Users className="w-8 h-8 text-slate-400"/>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          </div>
+        ) : hlasovania.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Zatiaľ žiadne dáta</h3>
+            <p className="text-slate-500">Čaká sa na stiahnutie a vyhodnotenie prvých hlasovaní z MsZ.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {hlasovania.map(h => (
+              <div key={h.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between items-center text-center">
+                <div className="w-16 h-16 bg-slate-100 rounded-full mb-4 flex items-center justify-center">
+                  <Users className="w-8 h-8 text-slate-400"/>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-1">{h.councillor_name}</h3>
+                <p className="text-slate-500 mb-6">Volebný obvod: {h.district}</p>
+                
+                <div className={`w-full py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2 ${
+                  h.vote_cast === 'ZA' ? 'bg-emerald-100 text-emerald-700' :
+                  h.vote_cast === 'PROTI' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {h.vote_cast === 'ZA' && <ThumbsUp className="w-5 h-5" />}
+                  {h.vote_cast === 'PROTI' && <ThumbsDown className="w-5 h-5" />}
+                  Hlasoval: {h.vote_cast}
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-1">{h.meno}</h3>
-              <p className="text-slate-500 mb-6">Volebný obvod: {h.obvod}</p>
-              
-              <div className={`w-full py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2 ${
-                h.hlasoval === 'ZA' ? 'bg-emerald-100 text-emerald-700' :
-                h.hlasoval === 'PROTI' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
-              }`}>
-                {h.hlasoval === 'ZA' && <ThumbsUp className="w-5 h-5" />}
-                {h.hlasoval === 'PROTI' && <ThumbsDown className="w-5 h-5" />}
-                Hlasoval: {h.hlasoval}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
