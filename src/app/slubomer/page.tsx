@@ -9,7 +9,10 @@ function formatEur(amount: number) {
 }
 
 export default async function SlubomerPage() {
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  // Server Component môže bezpečne použiť Service Role Key na obídenie RLS, inak fallbackne na anon key
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createClient(supabaseUrl, supabaseKey);
   
   // 1. Získať všetky sľuby z databázy
   const { data: promises, error } = await supabase
