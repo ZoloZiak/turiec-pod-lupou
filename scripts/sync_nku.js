@@ -7,7 +7,8 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
 
 async function scrapeNkuReports(keyword) {
   try {
-    const url = `https://www.nku.gov.sk/kontroly/vysledky-kontrol/?q=${encodeURIComponent(keyword)}`;
+    // Opravená URL pre aktuálne kontroly NKÚ
+    const url = `https://www.nku.gov.sk/aktualne-a-planovane-kontroly`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const html = await res.text();

@@ -4,6 +4,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const { createClient } = require('@supabase/supabase-js');
 const cheerio = require('cheerio');
+const cloudscraper = require('cloudscraper');
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -17,9 +18,7 @@ const targetCompanies = [
 
 async function scrapeFinstatProfit(ico) {
   try {
-    const res = await fetch(`https://finstat.sk/${ico}`);
-    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-    const html = await res.text();
+    const html = await cloudscraper.get(`https://finstat.sk/${ico}`);
     const $ = cheerio.load(html);
     
     // Finstat štruktúra pre zisk zvyčajne obsahuje nadpis "Zisk" a vedľa sumu

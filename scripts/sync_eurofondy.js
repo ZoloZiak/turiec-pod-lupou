@@ -8,7 +8,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
 async function scrapePlanObnovy(keyword) {
   try {
     // Sťahujeme zoznam výziev a výsledkov
-    const url = `https://www.planobnovy.sk/vyzvy/?search=${encodeURIComponent(keyword)}`;
+    const url = `https://www.planobnovy.sk/realizacia/`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const html = await res.text();
