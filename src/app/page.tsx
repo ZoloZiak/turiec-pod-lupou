@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert, Menu, X, Lightbulb } from "lucide-react";
+import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck, Globe, Users, Activity } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 import VerifiedBadge from "./components/VerifiedBadge";
@@ -203,6 +203,37 @@ export default function Dashboard() {
             
             <div className="mt-8">
               <MacroStats />
+            </div>
+
+            {/* Z-DYKTY NAVIGAČNÝ HUB */}
+            <div className="mt-8 mb-8">
+              <h2 className="text-xl font-bold mb-4 text-slate-800">Verejná kontrola (Fáza 7)</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Link href="/podniky" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-emerald-300 transition-all group">
+                  <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-emerald-100 transition-colors">
+                    <Activity className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <span className="font-semibold text-slate-700">Mestské podniky</span>
+                </Link>
+                <Link href="/nku" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-red-300 transition-all group">
+                  <div className="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors">
+                    <ShieldAlert className="w-5 h-5 text-red-600" />
+                  </div>
+                  <span className="font-semibold text-slate-700">Kontroly NKÚ</span>
+                </Link>
+                <Link href="/eurofondy" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-blue-300 transition-all group">
+                  <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
+                    <Globe className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <span className="font-semibold text-slate-700">Eurofondy</span>
+                </Link>
+                <Link href="/poslanci" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-purple-300 transition-all group">
+                  <div className="p-2 bg-purple-50 rounded-lg group-hover:bg-purple-100 transition-colors">
+                    <Users className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <span className="font-semibold text-slate-700">Hlasovania MsZ</span>
+                </Link>
+              </div>
             </div>
 
             {/* CHARTS */}
