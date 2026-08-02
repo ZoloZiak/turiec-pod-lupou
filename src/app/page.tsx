@@ -5,6 +5,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert, Menu, X, Lightbulb } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
+import VerifiedBadge from "./components/VerifiedBadge";
+import MacroStats from "./components/MacroStats";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
@@ -73,17 +75,21 @@ export default function Dashboard() {
 
           {/* DESKTOP BUTTONS */}
           <div className="hidden sm:flex gap-4 items-center">
-            <a href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center gap-2">
+            <Link href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center gap-2">
               <Lightbulb className="w-4 h-4" />
               Sľubomer
-            </a>
-            <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center gap-2">
+            </Link>
+            <Link href="/majetky" className="text-sm font-medium bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg text-indigo-600 transition-colors flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4" />
+              Majetky
+            </Link>
+            <Link href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Upozornenia
-            </a>
-            <a href="/admin" className="text-sm font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-slate-700 transition-colors">
+            </Link>
+            <Link href="/admin" className="text-sm font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-slate-700 transition-colors">
               Administrácia
-            </a>
+            </Link>
           </div>
 
           {/* MOBILE MENU TOGGLE */}
@@ -193,6 +199,10 @@ export default function Dashboard() {
                   <h3 className="text-3xl font-bold text-slate-800 mt-1">{data.stats.entitiesCount}</h3>
                 </div>
               </div>
+            </div>
+            
+            <div className="mt-8">
+              <MacroStats />
             </div>
 
             {/* CHARTS */}
@@ -348,11 +358,14 @@ export default function Dashboard() {
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-right">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <div className="flex items-center justify-end">
+                            <span className="font-bold text-slate-900 bg-slate-50 px-2 py-1 rounded">
                               {formatEur(t.amount_eur)}
                             </span>
-                          </td>
+                            <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />
+                          </div>
+                        </td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-1 items-start">
                               {t.source_type === 'WEB_INVOICE' ? (
@@ -391,9 +404,6 @@ export default function Dashboard() {
                           <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-blue-600 hover:underline font-bold text-base truncate pr-2">
                             {t.supplier?.name || "Neznámy"}
                           </Link>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold bg-red-100 text-red-800 whitespace-nowrap">
-                            {formatEur(t.amount_eur)}
-                          </span>
                         </div>
                         <p className="text-sm font-medium text-slate-800 mb-2">{t.subject}</p>
                         <div className="flex flex-col gap-2 text-xs text-slate-500">
@@ -422,6 +432,15 @@ export default function Dashboard() {
                             </div>
                           </div>
                         </div>
+                        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span className="text-sm text-slate-500 font-medium">Spolu</span>
+                        <div className="flex items-center">
+                          <span className="text-lg font-bold text-slate-900 bg-slate-50 px-2 py-1 rounded">
+                            {formatEur(t.amount_eur)}
+                          </span>
+                          <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />
+                        </div>
+                      </div>
                       </div>
                     ))
                   ) : (
