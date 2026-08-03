@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
+import * as cheerio from 'cheerio';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -60,12 +62,39 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
           supplierName = osoba1;
         }
 
+        // Novinka: Pre zmluvy vycrawlovat detail a zistiť IČO
+        let realIco = null;
+        try {
+          // Pre zrýchlenie sťahujeme IČO len ak zmluva aspoň existuje
+          const detailRes = await fetch(`https://crz.gov.sk/zmluva/${id}/`);
+          const detailHtml = await detailRes.text();
+          const $ = cheerio.load(detailHtml);
+          const icos: string[] = [];
+          $('strong').each((i, el) => {
+            if ($(el).text().includes('IČO:')) {
+              icos.push($(el).next('span').text().trim());
+            }
+          });
+          
+          // Ak sme našli IČO, jedno z nich je kupujúci (Martin 00316741), druhé je dodávateľ.
+          // Zoberieme to prvé, ktoré nie je naše vyhľadávané (ak by sme ho vedeli), 
+          // inak zoberieme to, čo sa našlo.
+          if (icos.length > 0) {
+            // Skúsme vyfiltrovať IČO mesta alebo podniku, ak ho vieme zistiť neskôr. 
+            // Pre teraz berieme posledné IČO na stránke (často dodávateľ).
+            realIco = icos[icos.length - 1]; 
+          }
+        } catch(e) {
+           console.error("Nedalo sa ziskat detail pre " + id);
+        }
+
         allContracts.push({
           external_id: `crz_${id}`,
           title,
           amount,
           buyer_name: queryName,
           supplier_name: supplierName,
+          supplier_ico: realIco, // Nové pole
           url: `https://crz.gov.sk/zmluva/${id}/`,
           published_at: new Date().toISOString()
         });
@@ -73,7 +102,7 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
 
       console.log(`Strana ${page + 1}: nájdených ${countOnPage} zmlúv.`);
       
-      if (countOnPage === 0 || page >= 50) { // Limit na 50 strán ako poistka proti zacykleniu
+      if (countOnPage === 0 || page >= 1) { // Znížený limit na 1 stranu kvôli scrapovaniu detailov
         hasMore = false;
       } else {
         page++;
@@ -126,8 +155,8 @@ async function runKrtko() {
       if (!buyer) continue;
 
       for (const contract of contracts) {
-        // Uložiť dodávateľa s unikátnym fallback ICO podľa mena, kým nezapojíme ORSF/FinStat API
-        const fallbackIco = `NO_ICO_${contract.supplier_name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15).toUpperCase()}`;
+        // Uložiť dodávateľa s reálnym IČO alebo fallbackom
+        const fallbackIco = (contract as any).supplier_ico || `NO_ICO_${contract.supplier_name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15).toUpperCase()}`;
         const { data: supplier } = await supabase.from('entities')
           .upsert({ 
             ico: fallbackIco, 
