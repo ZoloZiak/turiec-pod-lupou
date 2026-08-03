@@ -45,8 +45,8 @@ async function scrapeFinstatProfit(ico) {
   }
 }
 
-// Vypočíta reálne sumy zmlúv (dotácií) pre daný podnik z našej CRZ databázy
-async function getCitySubsidyFromCRZ(ico) {
+// Vypočíta reálne sumy zmlúv (dotácií) pre daný podnik z našej CRZ databázy PRE DANÝ ROK
+async function getCitySubsidyFromCRZ(ico, year) {
   // Najprv nájdeme interné ID mesta Martin (aby sme rátali len dotácie od mesta)
   const { data: mesto } = await supabase.from('entities').select('id').eq('ico', '00316741').single();
   if (!mesto) return 0;
@@ -55,10 +55,12 @@ async function getCitySubsidyFromCRZ(ico) {
   const { data: company } = await supabase.from('entities').select('name').eq('ico', ico).single();
   if (!company) return 0;
   
-  // Následne sčítame hodnotu všetkých zmlúv od mesta, kde prijímateľ má v názve meno nášho podniku
+  // Následne sčítame hodnotu všetkých zmlúv od mesta z daného roka
   const { data: transactions } = await supabase.from('transactions')
     .select('amount_eur, supplier:supplier_entity_id(name)')
-    .eq('buyer_entity_id', mesto.id);
+    .eq('buyer_entity_id', mesto.id)
+    .gte('date_published', `${year}-01-01`)
+    .lte('date_published', `${year}-12-31`);
     
   if (!transactions || transactions.length === 0) return 0;
   
@@ -87,7 +89,7 @@ async function run() {
       console.log(`  [ÚSPECH] Nájdený reálny zisk/strata (Live) za rok ${year}: ${profit} EUR`);
     }
 
-    const subsidy = await getCitySubsidyFromCRZ(company.ico);
+    const subsidy = await getCitySubsidyFromCRZ(company.ico, year);
 
     const record = {
       name: company.name,
@@ -103,6 +105,7 @@ async function run() {
       .from('city_companies')
       .select('id')
       .eq('ico', company.ico)
+      .eq('year', year)
       .single();
       
     if (existing) {
