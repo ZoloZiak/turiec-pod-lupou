@@ -9,11 +9,13 @@ const cloudscraper = require('cloudscraper');
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 const targetCompanies = [
-  { name: "Dopravný podnik mesta Martin, s.r.o.", ico: "53528255", type: "MHD" },
-  { name: "Turiec a.s.", ico: "31636228", type: "Správa majetku" },
-  { name: "Brantner Fatra s.r.o.", ico: "31590627", type: "Odpad" },
-  { name: "Televízia Turiec, s.r.o.", ico: "31608674", type: "Médiá" },
-  { name: "Mestský športový klub Martin, s.r.o.", ico: "53205774", type: "Šport" }
+  { name: 'Martinská parkovacia spoločnosť, a.s.', ico: '36387959', type: 'Parkovanie' },
+  { name: 'Dopravný podnik mesta Martin, s.r.o.', ico: '53560922', type: 'MHD' },
+  { name: 'Oblastná organizácia cestovného ruchu Turiec', ico: '42220360', type: 'Cestovný ruch' },
+  { name: 'Turčianska vodárenská spoločnosť, a.s.', ico: '36402691', type: 'Vodárne' },
+  { name: 'Sociálny podnik mesta Martin, s. r. o.', ico: '52402126', type: 'Služby' },
+  { name: 'Správa športových zariadení mesta Martin', ico: '37905185', type: 'Šport' },
+  { name: 'Kultúrna scéna Martin', ico: '53560795', type: 'Kultúra' }
 ];
 
 async function scrapeFinstatProfit(ico) {
@@ -21,31 +23,13 @@ async function scrapeFinstatProfit(ico) {
     const html = await cloudscraper.get(`https://finstat.sk/${ico}`);
     const $ = cheerio.load(html);
     
-    // Finstat štruktúra pre zisk zvyčajne obsahuje nadpis "Zisk" a vedľa sumu
-    let profitText = null;
+    // FinStat schováva skutočné dáta za AJAX/Knockout.js, no do <meta name="description">
+    // ich kvôli Googlu vkladá server-side.
+    const metaDesc = $('meta[name="description"]').attr('content') || '';
+    const match = metaDesc.match(/Zisk:\\s*([\\d\\s]+) €/i) || metaDesc.match(/Hospodársky výsledok:\\s*([\\d\\s]+) €/i);
     
-    // Skúsime vyhľadať všetky tagy čo obsahujú Zisk a pozrieť sa na okolie
-    $('*').each((i, el) => {
-      const text = $(el).text();
-      if (text.includes('Zisk') || text.includes('Hospodársky výsledok')) {
-        const parentHtml = $(el).parent().html();
-        if (parentHtml) {
-          const match = parentHtml.match(/([\\-\\d\\s]+)\\s*€/);
-          if (match) {
-            profitText = match[1];
-          }
-        }
-      }
-    });
-
-    // Fallback regex priamo na surové HTML
-    if (!profitText) {
-      const match = html.match(/Zisk[^<]*.*?([\\-\\d\\s]+)\\s*€/is);
-      if (match) profitText = match[1];
-    }
-
-    if (profitText) {
-      const cleanNumber = parseInt(profitText.replace(/[^\\d\\-]/g, ''), 10);
+    if (match) {
+      const cleanNumber = parseInt(match[1].replace(/\\s/g, ''), 10);
       return isNaN(cleanNumber) ? null : cleanNumber;
     }
     
