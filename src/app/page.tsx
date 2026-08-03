@@ -7,6 +7,8 @@ import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 import VerifiedBadge from "./components/VerifiedBadge";
 import MacroStats from "./components/MacroStats";
+import NumberFlow from "@number-flow/react";
+import SpotlightCard from "./components/SpotlightCard";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
@@ -64,37 +66,37 @@ export default function Dashboard() {
   const COLORS = ["#f87171", "#fb923c", "#fbbf24", "#34d399", "#38bdf8", "#818cf8", "#a78bfa", "#e879f9"];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-emerald-500/30">
       {/* HEADER */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Search className="w-6 h-6 text-blue-600" />
-            <h1 className="text-xl font-bold tracking-tight text-slate-800">Turiec pod Lupou</h1>
+            <Search className="w-6 h-6 text-emerald-400" />
+            <h1 className="text-xl font-bold tracking-tight text-white drop-shadow-md">Turiec pod Lupou</h1>
           </div>
 
           {/* DESKTOP BUTTONS */}
           <div className="hidden sm:flex gap-4 items-center">
-            <Link href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center gap-2">
+            <Link href="/slubomer" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-lg text-amber-400 border border-amber-500/20 transition-all flex items-center gap-2">
               <Lightbulb className="w-4 h-4" />
               Sľubomer
             </Link>
-            <Link href="/majetky" className="text-sm font-medium bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg text-indigo-600 transition-colors flex items-center gap-2">
+            <Link href="/majetky" className="text-sm font-medium bg-indigo-500/10 hover:bg-indigo-500/20 px-4 py-2 rounded-lg text-indigo-400 border border-indigo-500/20 transition-all flex items-center gap-2">
               <ShieldAlert className="w-4 h-4" />
               Majetky
             </Link>
-            <Link href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center gap-2">
+            <Link href="/upozornenia" className="text-sm font-medium bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-lg text-red-400 border border-red-500/20 transition-all flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Upozornenia
             </Link>
-            <Link href="/admin" className="text-sm font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-slate-700 transition-colors">
+            <Link href="/admin" className="text-sm font-medium bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-slate-300 border border-slate-700 transition-all">
               Administrácia
             </Link>
           </div>
 
           {/* MOBILE MENU TOGGLE */}
           <div className="sm:flex md:hidden items-center">
-             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400 hover:text-white rounded-lg">
                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
              </button>
           </div>
@@ -102,7 +104,7 @@ export default function Dashboard() {
         
         {/* MOBILE DROPDOWN MENU */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
+          <div className="md:hidden border-t border-slate-800 bg-slate-900 px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
              <div className="flex flex-col gap-2">
                <a href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center justify-center gap-2">
                  <Lightbulb className="w-4 h-4" />
@@ -141,7 +143,7 @@ export default function Dashboard() {
         )}
 
         {/* DESKTOP ENTITY FILTER BAR */}
-        <div className="hidden md:block bg-white/80 backdrop-blur-md border-t md:border-t-0 border-slate-200 w-full">
+        <div className="hidden md:block bg-slate-900/80 backdrop-blur-md border-t md:border-t-0 border-slate-800 w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedIco("")}
@@ -153,7 +155,7 @@ export default function Dashboard() {
               <button
                 key={e.ico}
                 onClick={() => setSelectedIco(e.ico)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-emerald-500 text-white shadow-md ring-2 ring-emerald-500 ring-offset-1 ring-offset-slate-900" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"}`}
               >
                 {e.name}
               </button>
@@ -165,40 +167,50 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
           </div>
         ) : (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             
-            {/* STATS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4">
-                <div className="p-3 bg-red-100 rounded-xl">
-                  <TrendingUp className="w-6 h-6 text-red-600" />
+            {/* LICZBA-BOHATER (Hero Stat) */}
+            <SpotlightCard className="bg-slate-900 border border-slate-800 rounded-3xl p-10 flex flex-col items-center justify-center text-center mb-8 shadow-2xl" glowColor="rgba(16, 185, 129, 0.2)">
+              <p className="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-4">Celkový objem zákaziek a zmlúv (Terminal)</p>
+              <div className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-emerald-100 font-mono tracking-tighter drop-shadow-lg">
+                <NumberFlow 
+                  value={data.stats.totalSpent} 
+                  format={{ style: "currency", currency: "EUR", maximumFractionDigits: 0 }} 
+                />
+              </div>
+              <div className="mt-6 flex items-center gap-3 text-slate-400 text-sm">
+                <span className="flex items-center gap-1"><CheckCircle className="w-4 h-4 text-emerald-500" /> Živé dáta</span>
+                <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Overené CRZ</span>
+              </div>
+            </SpotlightCard>
+
+            {/* SECONDARY STATS CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <SpotlightCard className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-slate-800 flex items-start gap-4">
+                <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                  <FileText className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-500">Celkové výdavky</p>
-                  <h3 className="text-3xl font-bold text-slate-800 mt-1">{formatEur(data.stats.totalSpent)}</h3>
+                  <p className="text-sm font-medium text-slate-400">Počet analyzovaných zmlúv v CRZ</p>
+                  <h3 className="text-4xl font-bold text-white mt-1">
+                    <NumberFlow value={data.stats.totalContracts} />
+                  </h3>
                 </div>
-              </div>
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4">
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <FileText className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Počet zmlúv v CRZ</p>
-                  <h3 className="text-3xl font-bold text-slate-800 mt-1">{data.stats.totalContracts}</h3>
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4">
-                <div className="p-3 bg-emerald-100 rounded-xl">
-                  <Building2 className="w-6 h-6 text-emerald-600" />
+              </SpotlightCard>
+              <SpotlightCard className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-slate-800 flex items-start gap-4">
+                <div className="p-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                  <Building2 className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-500">Sledovaných subjektov</p>
-                  <h3 className="text-3xl font-bold text-slate-800 mt-1">{data.stats.entitiesCount}</h3>
+                  <p className="text-sm font-medium text-slate-400">Sledovaných subjektov v meste</p>
+                  <h3 className="text-4xl font-bold text-white mt-1">
+                    <NumberFlow value={data.stats.entitiesCount} />
+                  </h3>
                 </div>
-              </div>
+              </SpotlightCard>
             </div>
             
             <div className="mt-8">
@@ -207,31 +219,39 @@ export default function Dashboard() {
 
             {/* Z-DYKTY NAVIGAČNÝ HUB */}
             <div className="mt-8 mb-8">
-              <h2 className="text-xl font-bold mb-4 text-slate-800">Verejná kontrola (Fáza 7)</h2>
+              <h2 className="text-xl font-bold mb-4 text-white">Verejná kontrola (Fáza 7)</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Link href="/podniky" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-emerald-300 transition-all group">
-                  <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-emerald-100 transition-colors">
-                    <Activity className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <span className="font-semibold text-slate-700">Mestské podniky</span>
+                <Link href="/podniky" className="group h-full block">
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-center gap-3 transition-all h-full" glowColor="rgba(16, 185, 129, 0.2)">
+                    <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors border border-emerald-500/20">
+                      <Activity className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <span className="font-semibold text-slate-300 group-hover:text-white">Mestské podniky</span>
+                  </SpotlightCard>
                 </Link>
-                <Link href="/nku" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-red-300 transition-all group">
-                  <div className="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors">
-                    <ShieldAlert className="w-5 h-5 text-red-600" />
-                  </div>
-                  <span className="font-semibold text-slate-700">Kontroly NKÚ</span>
+                <Link href="/nku" className="group h-full block">
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-center gap-3 transition-all h-full" glowColor="rgba(239, 68, 68, 0.2)">
+                    <div className="p-2 bg-red-500/10 rounded-lg group-hover:bg-red-500/20 transition-colors border border-red-500/20">
+                      <ShieldAlert className="w-5 h-5 text-red-400" />
+                    </div>
+                    <span className="font-semibold text-slate-300 group-hover:text-white">Kontroly NKÚ</span>
+                  </SpotlightCard>
                 </Link>
-                <Link href="/eurofondy" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-blue-300 transition-all group">
-                  <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
-                    <Globe className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <span className="font-semibold text-slate-700">Eurofondy</span>
+                <Link href="/eurofondy" className="group h-full block">
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-center gap-3 transition-all h-full" glowColor="rgba(59, 130, 246, 0.2)">
+                    <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors border border-blue-500/20">
+                      <Globe className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <span className="font-semibold text-slate-300 group-hover:text-white">Eurofondy</span>
+                  </SpotlightCard>
                 </Link>
-                <Link href="/poslanci" className="bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-3 hover:shadow-md hover:border-purple-300 transition-all group">
-                  <div className="p-2 bg-purple-50 rounded-lg group-hover:bg-purple-100 transition-colors">
-                    <Users className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <span className="font-semibold text-slate-700">Hlasovania MsZ</span>
+                <Link href="/poslanci" className="group h-full block">
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-center gap-3 transition-all h-full" glowColor="rgba(168, 85, 247, 0.2)">
+                    <div className="p-2 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors border border-purple-500/20">
+                      <Users className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <span className="font-semibold text-slate-300 group-hover:text-white">Hlasovania MsZ</span>
+                  </SpotlightCard>
                 </Link>
               </div>
             </div>
@@ -239,8 +259,8 @@ export default function Dashboard() {
             {/* CHARTS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* BAR CHART */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 className="text-lg font-semibold mb-6">Top 10 príjemcov (Dodávatelia)</h3>
+              <SpotlightCard className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-slate-800">
+                <h3 className="text-lg font-semibold mb-6 text-white">Top 10 príjemcov (Dodávatelia)</h3>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart 
@@ -249,11 +269,11 @@ export default function Dashboard() {
                       margin={{ left: 50 }}
                     >
                       <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                      <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <Tooltip 
                         formatter={(val: any) => formatEur(val as number)} 
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
-                        cursor={{ fill: '#f1f5f9' }}
+                        contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#f8fafc', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }} 
+                        cursor={{ fill: '#1e293b' }}
                       />
                       <Bar 
                         dataKey="value" 
@@ -269,18 +289,18 @@ export default function Dashboard() {
                           <Cell 
                             key={`cell-${index}`} 
                             fill={COLORS[index % COLORS.length]} 
-                            opacity={selectedSupplierName ? (selectedSupplierName === entry.name ? 1 : 0.3) : 1}
+                            opacity={selectedSupplierName ? (selectedSupplierName === entry.name ? 1 : 0.4) : 1}
                           />
                         ))}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
+              </SpotlightCard>
 
-              {/* PIE CHART (Placeholder, can be mapped to types later) */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center items-center">
-                 <h3 className="text-lg font-semibold mb-2 self-start">Rozdelenie financií</h3>
+              {/* PIE CHART */}
+              <SpotlightCard className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-slate-800 flex flex-col justify-center items-center">
+                 <h3 className="text-lg font-semibold mb-2 self-start text-white">Rozdelenie financií</h3>
                  <div className="h-72 w-full mt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -309,14 +329,14 @@ export default function Dashboard() {
                     </PieChart>
                   </ResponsiveContainer>
                  </div>
-                 <p className="text-xs text-slate-400 text-center mt-2">Zobrazených top 5 dodávateľov</p>
-              </div>
+                 <p className="text-xs text-slate-500 text-center mt-2">Zobrazených top 5 dodávateľov</p>
+              </SpotlightCard>
             </div>
 
             {/* TRANSACTIONS TABLE */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                <h3 className="text-lg font-semibold whitespace-nowrap">Najnovšie zverejnené zmluvy a faktúry</h3>
+            <div className="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 overflow-hidden">
+              <div className="p-6 border-b border-slate-800 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <h3 className="text-lg font-semibold whitespace-nowrap text-white">Najnovšie zverejnené zmluvy a faktúry</h3>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                   {selectedSupplierName && (
                     <button 
@@ -324,13 +344,13 @@ export default function Dashboard() {
                         setSelectedSupplierName(null);
                         setCurrentPage(1);
                       }}
-                      className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium hover:bg-blue-100 transition-colors whitespace-nowrap"
+                      className="flex items-center gap-1 text-sm bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full font-medium border border-blue-500/20 hover:bg-blue-500/20 transition-colors whitespace-nowrap"
                     >
                       Filtrujem: {selectedSupplierName} <span className="ml-1 text-lg leading-none">&times;</span>
                     </button>
                   )}
                   <div className="relative w-full md:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input 
                       type="text" 
                       placeholder="Hľadať zmluvu alebo firmu..." 
@@ -339,7 +359,7 @@ export default function Dashboard() {
                         setSearchTerm(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full pl-9 pr-4 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                      className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow placeholder:text-slate-500"
                     />
                   </div>
                 </div>
@@ -348,7 +368,7 @@ export default function Dashboard() {
                 {/* DESKTOP TABLE VIEW */}
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
+                  <thead className="text-xs text-slate-400 uppercase bg-slate-950/50 border-b border-slate-800">
                     <tr>
                       <th className="px-6 py-4 font-medium">Predmet zákazky</th>
                       <th className="px-6 py-4 font-medium">Dodávateľ</th>
@@ -356,16 +376,16 @@ export default function Dashboard() {
                       <th className="px-6 py-4 font-medium">Zdroj a Dátum</th>
                     </tr>
                   </thead>
-                   <tbody className="divide-y divide-slate-100">
+                   <tbody className="divide-y divide-slate-800">
                     {paginatedTransactions.length > 0 ? (
                       paginatedTransactions.map((t: any) => (
-                        <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                        <tr key={t.id} className="hover:bg-slate-800/50 transition-colors">
                           <td className="px-6 py-4">
-                            <p className="font-medium text-slate-800 line-clamp-2" title={t.subject}>{t.subject}</p>
+                            <p className="font-medium text-slate-200 line-clamp-2" title={t.subject}>{t.subject}</p>
                             <p className="text-xs text-slate-500 mt-1">Odberateľ: {t.buyer?.name}</p>
                           </td>
-                          <td className="px-6 py-4 text-slate-600 font-medium">
-                            <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-blue-600 hover:underline font-bold text-base">
+                          <td className="px-6 py-4 text-slate-400 font-medium">
+                            <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-emerald-400 hover:text-emerald-300 hover:underline font-bold text-base">
                               {t.supplier?.name || "Neznámy"}
                             </Link>
                             <div className="text-xs text-slate-400 font-normal mt-1 flex items-center gap-2">
@@ -391,7 +411,7 @@ export default function Dashboard() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end">
-                            <span className="font-bold text-slate-900 bg-slate-50 px-2 py-1 rounded">
+                            <span className="font-bold text-white bg-slate-800 px-2 py-1 rounded border border-slate-700">
                               {formatEur(t.amount_eur)}
                             </span>
                             <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />
@@ -400,15 +420,15 @@ export default function Dashboard() {
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-1 items-start">
                               {t.source_type === 'WEB_INVOICE' ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400">
                                   Faktúra z webu
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                                   CRZ Zmluva
                                 </span>
                               )}
-                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline mt-1">
+                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-xs text-slate-400 hover:text-white transition-colors mt-1">
                                 {new Date(t.date_published).toLocaleDateString('sk-SK')}
                               </a>
                             </div>
@@ -427,10 +447,10 @@ export default function Dashboard() {
                 </div>
 
                 {/* MOBILE CARD VIEW */}
-                <div className="md:hidden flex flex-col gap-4 p-4 border-t border-slate-100 bg-slate-50">
+                <div className="md:hidden flex flex-col gap-4 p-4 border-t border-slate-800 bg-slate-950">
                   {paginatedTransactions.length > 0 ? (
                     paginatedTransactions.map((t: any) => (
-                      <div key={t.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                      <div key={t.id} className="bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-800">
                         <div className="flex justify-between items-start mb-2">
                           <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-blue-600 hover:underline font-bold text-base truncate pr-2">
                             {t.supplier?.name || "Neznámy"}
@@ -475,7 +495,7 @@ export default function Dashboard() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center text-slate-500 p-8 bg-white border border-slate-200 rounded-xl">Pre zadané kritériá sa nenašli žiadne záznamy.</div>
+                    <div className="text-center text-slate-500 p-8 bg-slate-900 border border-slate-800 rounded-xl">Pre zadané kritériá sa nenašli žiadne záznamy.</div>
                   )}
                 </div>
               </div>
