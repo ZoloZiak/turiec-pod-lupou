@@ -174,7 +174,7 @@ export default function Dashboard() {
             
             {/* LICZBA-BOHATER (Hero Stat) */}
             <SpotlightCard className="bg-slate-900 border border-slate-800 rounded-3xl p-10 flex flex-col items-center justify-center text-center mb-8 shadow-2xl" glowColor="rgba(16, 185, 129, 0.2)">
-              <p className="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">Celkový objem zákaziek a zmlúv (Terminal)</p>
+              <p className="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">Celkový objem zákaziek a zmlúv</p>
               <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]">
                 <NumberFlow 
                   value={data.stats.totalSpent} 
@@ -211,7 +211,7 @@ export default function Dashboard() {
 
             {/* Z-DYKTY NAVIGAČNÝ HUB */}
             <div className="mt-12 mb-12 border-t border-slate-800 pt-8">
-              <h2 className="text-sm font-bold uppercase tracking-widest mb-6 text-slate-500">Verejná kontrola (Fáza 7)</h2>
+              <h2 className="text-sm font-bold uppercase tracking-widest mb-6 text-slate-500">Verejná kontrola</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Link href="/podniky" className="group h-full block">
                   <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-between transition-all h-full" glowColor="rgba(16, 185, 129, 0.15)">
