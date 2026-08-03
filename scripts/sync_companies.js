@@ -26,10 +26,10 @@ async function scrapeFinstatProfit(ico) {
     // FinStat schováva skutočné dáta za AJAX/Knockout.js, no do <meta name="description">
     // ich kvôli Googlu vkladá server-side.
     const metaDesc = $('meta[name="description"]').attr('content') || '';
-    const match = metaDesc.match(/Zisk:\\s*([\\d\\s]+) €/i) || metaDesc.match(/Hospodársky výsledok:\\s*([\\d\\s]+) €/i);
+    const match = metaDesc.match(/Zisk:\s*([\d\s\u00A0]+) €/i) || metaDesc.match(/Hospodársky výsledok:\s*([\d\s\u00A0]+) €/i);
     
     if (match) {
-      const cleanNumber = parseInt(match[1].replace(/\\s/g, ''), 10);
+      const cleanNumber = parseInt(match[1].replace(/[\s\u00A0]/g, ''), 10);
       return isNaN(cleanNumber) ? null : cleanNumber;
     }
     
@@ -40,11 +40,19 @@ async function scrapeFinstatProfit(ico) {
   }
 }
 
-// Simulácia: Krtko zistí z otvorenej mestskej zmluvy koľko peňazí (dotácií) išlo z mesta
+// Vypočíta reálne sumy zmlúv (dotácií) pre daný podnik z našej CRZ databázy
 async function getCitySubsidyFromCRZ(ico) {
-  // Tu Krtko spočíta reálne zmluvy medzi mestom a dodávateľom (CRZ)
-  if (ico === "53528255") return 4500000;
-  return 0; 
+  // Najprv nájdeme interné ID entity podľa IČO
+  const { data: entity } = await supabase.from('entities').select('id').eq('ico', ico).single();
+  if (!entity) return 0;
+  
+  // Následne sčítame hodnotu všetkých zmlúv, kde daný podnik figuruje ako dodávateľ (prijímateľ peňazí od mesta)
+  const { data: transactions } = await supabase.from('transactions')
+    .select('amount_eur')
+    .eq('supplier_entity_id', entity.id);
+    
+  if (!transactions || transactions.length === 0) return 0;
+  return transactions.reduce((acc, row) => acc + (row.amount_eur || 0), 0);
 }
 
 async function run() {

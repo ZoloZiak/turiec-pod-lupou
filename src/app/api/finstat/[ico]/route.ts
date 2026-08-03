@@ -12,6 +12,7 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     
     // Fetch finstat html
+    // @ts-ignore
     const html = await cloudscraper.get(`https://finstat.sk/${ico}`);
     const $ = cheerio.load(html);
     
@@ -21,11 +22,11 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
     let zisk = null;
     let trzby = null;
     
-    const ziskMatch = metaDescription.match(/Zisk:\s*([\\d\\s]+) €/i) || metaDescription.match(/Hospodársky výsledok:\s*([\\d\\s]+) €/i);
-    if (ziskMatch) zisk = parseInt(ziskMatch[1].replace(/\\s/g, ''), 10);
+    const ziskMatch = metaDescription.match(/Zisk:\s*([\d\s\u00A0]+) €/i) || metaDescription.match(/Hospodársky výsledok:\s*([\d\s\u00A0]+) €/i);
+    if (ziskMatch) zisk = parseInt(ziskMatch[1].replace(/[\s\u00A0]/g, ''), 10);
     
-    const trzbyMatch = metaDescription.match(/Tržby:\s*([\\d\\s]+) €/i) || metaDescription.match(/Výnosy:\s*([\\d\\s]+) €/i);
-    if (trzbyMatch) trzby = parseInt(trzbyMatch[1].replace(/\\s/g, ''), 10);
+    const trzbyMatch = metaDescription.match(/Tržby:\s*([\d\s\u00A0]+) €/i) || metaDescription.match(/Výnosy:\s*([\d\s\u00A0]+) €/i);
+    if (trzbyMatch) trzby = parseInt(trzbyMatch[1].replace(/[\s\u00A0]/g, ''), 10);
     
     // Also extract name to be sure
     let name = $('h1.title').text().trim() || $('title').text().replace(/ IČO.*/, '').trim();
