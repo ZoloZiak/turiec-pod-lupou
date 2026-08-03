@@ -174,8 +174,8 @@ export default function Dashboard() {
             
             {/* LICZBA-BOHATER (Hero Stat) */}
             <SpotlightCard className="bg-slate-900 border border-slate-800 rounded-3xl p-10 flex flex-col items-center justify-center text-center mb-8 shadow-2xl" glowColor="rgba(16, 185, 129, 0.2)">
-              <p className="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-4">Celkový objem zákaziek a zmlúv (Terminal)</p>
-              <div className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-emerald-100 font-mono tracking-tighter drop-shadow-lg">
+              <p className="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">Celkový objem zákaziek a zmlúv (Terminal)</p>
+              <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]">
                 <NumberFlow 
                   value={data.stats.totalSpent} 
                   format={{ style: "currency", currency: "EUR", maximumFractionDigits: 0 }} 
@@ -460,14 +460,14 @@ export default function Dashboard() {
                         <div className="flex flex-col gap-2 text-xs text-slate-500">
                           <p>Odberateľ: {t.buyer?.name}</p>
                           <p>IČO: {t.supplier?.ico}</p>
-                          <div className="flex justify-between items-center mt-2 border-t border-slate-100 pt-3">
+                          <div className="flex justify-between items-center mt-2 border-t border-slate-800 pt-3">
                             <div className="flex flex-col gap-1.5">
                               {t.source_type === 'WEB_INVOICE' ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 self-start">Faktúra z webu</span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 self-start">Faktúra z webu</span>
                               ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800 self-start">CRZ Zmluva</span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">CRZ Zmluva</span>
                               )}
-                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">
+                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors font-medium">
                                 {new Date(t.date_published).toLocaleDateString('sk-SK')}
                               </a>
                             </div>
@@ -483,10 +483,10 @@ export default function Dashboard() {
                             </div>
                           </div>
                         </div>
-                        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div className="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between">
                         <span className="text-sm text-slate-500 font-medium">Spolu</span>
                         <div className="flex items-center">
-                          <span className="text-lg font-bold text-slate-900 bg-slate-50 px-2 py-1 rounded">
+                          <span className="text-lg font-bold text-white bg-slate-800 border border-slate-700 px-2 py-1 rounded">
                             {formatEur(t.amount_eur)}
                           </span>
                           <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />
@@ -502,22 +502,22 @@ export default function Dashboard() {
               
               {/* PAGINATION */}
               {totalPages > 1 && (
-                <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="px-6 py-4 border-t border-slate-800 flex items-center justify-between">
                   <p className="text-sm text-slate-500">
-                    Zobrazujem <span className="font-medium text-slate-900">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> až <span className="font-medium text-slate-900">{Math.min(currentPage * ITEMS_PER_PAGE, filteredTransactions.length)}</span> z <span className="font-medium text-slate-900">{filteredTransactions.length}</span> výsledkov
+                    Zobrazujem <span className="font-medium text-white">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> až <span className="font-medium text-white">{Math.min(currentPage * ITEMS_PER_PAGE, filteredTransactions.length)}</span> z <span className="font-medium text-white">{filteredTransactions.length}</span> výsledkov
                   </p>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="px-3 py-1 border border-slate-200 text-sm font-medium rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 border border-slate-700 text-sm font-medium rounded hover:bg-slate-800 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Predchádzajúca
                     </button>
                     <button 
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1 border border-slate-200 text-sm font-medium rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 border border-slate-700 text-sm font-medium rounded hover:bg-slate-800 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Ďalšia
                     </button>
