@@ -10,7 +10,11 @@
     "krtko": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/krtko-crz.ts",
     "krtko:pdf": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/krtko-pdf.ts",
     "krtko:all": "npm run krtko && npm run krtko:pdf",
-    "scrape": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/scraper-invoices.ts"
+    "scrape": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/scraper-invoices.ts",
+    "sync:nku": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_nku.js",
+    "sync:eurofondy": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_eurofondy.js",
+    "sync:companies": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_companies.js",
+    "sync:data": "npm run krtko & npm run sync:nku & npm run sync:eurofondy & npm run sync:companies & wait"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

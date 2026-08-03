@@ -22,6 +22,7 @@ interface RealContract {
   amount: number;
   buyer_name: string;
   supplier_name: string;
+  supplier_ico?: string | null;
   url: string;
   published_at: string;
 }
@@ -44,15 +45,14 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
       const res = await fetch(url);
       const html = await res.text();
 
-      const regex = /<td class="cell2"><a href="\/zmluva\/(\d+)\/">([^<]+)<\/a>[\s\S]*?<td class="cell3[^">]*">([^<]+)&nbsp;&euro;<\/td>[\s\S]*?<td class="cell4">([^<]+)<\/td>\s*<td class="cell5">([^<]+)<\/td>/g;
-      
-      let match;
-      let countOnPage = 0;
+      const regex = /<td class="cell2"><a href="\/zmluva\/(\d+)\/">([^<]+)<\/a>[\s\S]*?<td class="cell3[^">]*">([^<]+)&nbsp;&euro;<\/td>[\s\S]*?<td class="cell4">([^<]+)<\/td>\s*<td class="cell5">([^<]+)<      let countOnPage = 0;
+      const contractPromises = [];
+
       while ((match = regex.exec(html)) !== null) {
         countOnPage++;
         const id = match[1];
         const title = match[2].trim();
-        const amountStr = match[3].replace(/\s/g, '').replace(',', '.');
+        const amountStr = match[3].replace(/\\s/g, '').replace(',', '.');
         const amount = parseFloat(amountStr) || 0;
         const osoba1 = match[4].trim();
         const osoba2 = match[5].trim();
@@ -62,47 +62,45 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
           supplierName = osoba1;
         }
 
-        // Novinka: Pre zmluvy vycrawlovat detail a zistiť IČO
-        let realIco = null;
-        try {
-          // Pre zrýchlenie sťahujeme IČO len ak zmluva aspoň existuje
-          const detailRes = await fetch(`https://crz.gov.sk/zmluva/${id}/`);
-          const detailHtml = await detailRes.text();
-          const $ = cheerio.load(detailHtml);
-          const icos: string[] = [];
-          $('strong').each((i, el) => {
-            if ($(el).text().includes('IČO:')) {
-              icos.push($(el).next('span').text().trim());
-            }
-          });
-          
-          // Ak sme našli IČO, jedno z nich je kupujúci (Martin 00316741), druhé je dodávateľ.
-          // Zoberieme to prvé, ktoré nie je naše vyhľadávané (ak by sme ho vedeli), 
-          // inak zoberieme to, čo sa našlo.
-          if (icos.length > 0) {
-            // Skúsme vyfiltrovať IČO mesta alebo podniku, ak ho vieme zistiť neskôr. 
-            // Pre teraz berieme posledné IČO na stránke (často dodávateľ).
-            realIco = icos[icos.length - 1]; 
+        // Paralerizované sťahovanie detailov
+        const fetchDetail = async () => {
+          let realIco = null;
+          try {
+            const detailRes = await fetch(`https://crz.gov.sk/zmluva/${id}/`);
+            const detailHtml = await detailRes.text();
+            const $ = cheerio.load(detailHtml);
+            const icos: string[] = [];
+            $('strong').each((i, el) => {
+              if ($(el).text().includes('IČO:')) {
+                icos.push($(el).next('span').text().trim());
+              }
+            });
+            if (icos.length > 0) realIco = icos[icos.length - 1]; 
+          } catch(e) {
+             console.error("Nedalo sa ziskat detail pre " + id);
           }
-        } catch(e) {
-           console.error("Nedalo sa ziskat detail pre " + id);
-        }
+          return {
+            external_id: `crz_${id}`,
+            title,
+            amount,
+            buyer_name: queryName,
+            supplier_name: supplierName,
+            supplier_ico: realIco, 
+            url: `https://crz.gov.sk/zmluva/${id}/`,
+            published_at: new Date().toISOString()
+          };
+        };
 
-        allContracts.push({
-          external_id: `crz_${id}`,
-          title,
-          amount,
-          buyer_name: queryName,
-          supplier_name: supplierName,
-          supplier_ico: realIco, // Nové pole
-          url: `https://crz.gov.sk/zmluva/${id}/`,
-          published_at: new Date().toISOString()
-        });
+        contractPromises.push(fetchDetail());
       }
 
-      console.log(`Strana ${page + 1}: nájdených ${countOnPage} zmlúv.`);
+      // Spusti vsetky dopyty na detaily zmluv pre danu stranu sucasne (parallel)
+      const pageContracts = await Promise.all(contractPromises);
+      allContracts.push(...pageContracts);
+
+      console.log(`Strana ${page + 1}: nájdených ${countOnPage} zmlúv (paralelne spracované).`);
       
-      if (countOnPage === 0 || page >= 1) { // Znížený limit na 1 stranu kvôli scrapovaniu detailov
+      if (countOnPage === 0 || page >= 1) { 
         hasMore = false;
       } else {
         page++;
@@ -147,15 +145,16 @@ async function runKrtko() {
       { name: 'Kultúrna scéna Martin', ico: '53560795' }
     ];
 
-    for (const target of searchTargets) {
+    // Spustime vsetky organizacie paralelne (namiesto for...of)
+    await Promise.all(searchTargets.map(async (target) => {
       const contracts = await scrapeCrzForOrganization(target.name);
       
       const { data: buyer } = await supabase.from('entities').select('id').eq('ico', target.ico).single();
 
-      if (!buyer) continue;
+      if (!buyer) return;
 
-      for (const contract of contracts) {
-        // Uložiť dodávateľa s reálnym IČO alebo fallbackom
+      // Hromadne ulozenie zmluv pre dany podniku (vnutorna paralerizacia)
+      await Promise.all(contracts.map(async (contract) => {
         const fallbackIco = (contract as any).supplier_ico || `NO_ICO_${contract.supplier_name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15).toUpperCase()}`;
         const { data: supplier } = await supabase.from('entities')
           .upsert({ 
@@ -167,7 +166,7 @@ async function runKrtko() {
           .select('id')
           .single();
 
-        if (!supplier) continue;
+        if (!supplier) return;
 
         await supabase.from('transactions').upsert({
           external_id: contract.external_id,
@@ -179,8 +178,8 @@ async function runKrtko() {
           date_published: contract.published_at,
           subject: contract.title
         }, { onConflict: 'external_id' });
-      }
-    }
+      }));
+    }));
 
     console.log('🎉 Sťahovanie a ukladanie reálnych zmlúv je DOKONČENÉ!');
     await supabase.from('system_logs').insert({ source: 'CRZ_KRTKO', message: 'Sťahovanie dokončené úspešne.' });
