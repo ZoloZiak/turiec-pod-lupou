@@ -159,15 +159,23 @@ async function runKrtko() {
       // Hromadne ulozenie zmluv pre dany podniku (vnutorna paralerizacia)
       await Promise.all(contracts.map(async (contract) => {
         const fallbackIco = (contract as any).supplier_ico || `NO_ICO_${contract.supplier_name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15).toUpperCase()}`;
-        const { data: supplier } = await supabase.from('entities')
-          .upsert({ 
-            ico: fallbackIco, 
-            name: contract.supplier_name, 
-            type: 'COMPANY', 
-            normalized_name: contract.supplier_name.toLowerCase() 
-          }, { onConflict: 'ico' })
+        let { data: supplier } = await supabase.from('entities')
           .select('id')
+          .eq('ico', fallbackIco)
           .single();
+
+        if (!supplier) {
+          const res = await supabase.from('entities')
+            .upsert({ 
+              ico: fallbackIco, 
+              name: contract.supplier_name, 
+              type: 'COMPANY', 
+              normalized_name: contract.supplier_name.toLowerCase() 
+            }, { onConflict: 'ico', ignoreDuplicates: true })
+            .select('id')
+            .single();
+          supplier = res.data;
+        }
 
         if (!supplier) return;
 
