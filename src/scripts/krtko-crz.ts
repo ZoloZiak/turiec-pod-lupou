@@ -45,7 +45,10 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
       const res = await fetch(url);
       const html = await res.text();
 
-      const regex = /<td class="cell2"><a href="\/zmluva\/(\d+)\/">([^<]+)<\/a>[\s\S]*?<td class="cell3[^">]*">([^<]+)&nbsp;&euro;<\/td>[\s\S]*?<td class="cell4">([^<]+)<\/td>\s*<td class="cell5">([^<]+)<      let countOnPage = 0;
+      const regex = /<td class="cell2"><a href="\/zmluva\/(\d+)\/">([^<]+)<\/a>[\s\S]*?<td class="cell3[^">]*">([^<]+)&nbsp;&euro;<\/td>[\s\S]*?<td class="cell4">([^<]+)<\/td>\s*<td class="cell5">([^<]+)<\/td>/g;
+      
+      let match;
+      let countOnPage = 0;
       const contractPromises = [];
 
       while ((match = regex.exec(html)) !== null) {
