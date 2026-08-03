@@ -11,6 +11,7 @@ export default function SupplierProfilePage() {
   const ico = params.ico as string;
 
   const [data, setData] = useState<any>(null);
+  const [finstatData, setFinstatData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,6 +26,15 @@ export default function SupplierProfilePage() {
       const res = await fetch(`/api/supplier?ico=${icoStr}`);
       const json = await res.json();
       if (json.success) setData(json);
+
+      // Súbežné fetchnutie Finstat live dát cez cloudscraper API
+      try {
+        const finstatRes = await fetch(`/api/finstat/${icoStr}`);
+        const finstatJson = await finstatRes.json();
+        if (finstatJson.success) setFinstatData(finstatJson.data);
+      } catch (e) {
+        console.error("Finstat nepodarilo načítať", e);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -78,7 +88,7 @@ export default function SupplierProfilePage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-6">
         
         {/* KPI CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
             <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Identifikácia</p>
             <p className="text-2xl font-bold font-mono text-slate-800">{isNoIco ? "Neznáme IČO" : supplier.ico}</p>
@@ -89,6 +99,9 @@ export default function SupplierProfilePage() {
                 </a>
                 <a href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${supplier.ico}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
                   <Search className="w-3 h-3" /> RPVS
+                </a>
+                <a href={`https://finstat.sk/${supplier.ico}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
+                  <Search className="w-3 h-3" /> FinStat
                 </a>
               </div>
             )}
@@ -102,6 +115,25 @@ export default function SupplierProfilePage() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
             <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Počet zákaziek</p>
             <p className="text-3xl font-bold text-slate-900">{stats.totalCount}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl shadow-sm border border-indigo-100 flex flex-col justify-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <TrendingUp className="w-16 h-16 text-indigo-600" />
+            </div>
+            <p className="text-sm font-medium text-indigo-700 uppercase tracking-wider mb-1 relative z-10">Zisk (FinStat AI Proxy)</p>
+            {finstatData === null ? (
+              <p className="text-sm text-slate-500 animate-pulse mt-2">Analyzujem živé dáta...</p>
+            ) : finstatData.zisk !== null ? (
+              <>
+                <p className={`text-3xl font-bold relative z-10 ${finstatData.zisk < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                  {formatEur(finstatData.zisk)}
+                </p>
+                {finstatData.trzby && <p className="text-xs text-slate-500 mt-1 relative z-10">Tržby: {formatEur(finstatData.trzby)}</p>}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500 mt-2 relative z-10">Nedostupné (SZČO/Chránené)</p>
+            )}
           </div>
         </div>
 
