@@ -47,17 +47,30 @@ async function scrapeFinstatProfit(ico) {
 
 // Vypočíta reálne sumy zmlúv (dotácií) pre daný podnik z našej CRZ databázy
 async function getCitySubsidyFromCRZ(ico) {
-  // Najprv nájdeme interné ID entity podľa IČO
-  const { data: entity } = await supabase.from('entities').select('id').eq('ico', ico).single();
-  if (!entity) return 0;
+  // Najprv nájdeme interné ID mesta Martin (aby sme rátali len dotácie od mesta)
+  const { data: mesto } = await supabase.from('entities').select('id').eq('ico', '00316741').single();
+  if (!mesto) return 0;
   
-  // Následne sčítame hodnotu všetkých zmlúv, kde daný podnik figuruje ako dodávateľ (prijímateľ peňazí od mesta)
+  // Získame názov cieľovej firmy pre textové porovnanie
+  const { data: company } = await supabase.from('entities').select('name').eq('ico', ico).single();
+  if (!company) return 0;
+  
+  // Následne sčítame hodnotu všetkých zmlúv od mesta, kde prijímateľ má v názve meno nášho podniku
   const { data: transactions } = await supabase.from('transactions')
-    .select('amount_eur')
-    .eq('supplier_entity_id', entity.id);
+    .select('amount_eur, supplier:supplier_entity_id(name)')
+    .eq('buyer_entity_id', mesto.id);
     
   if (!transactions || transactions.length === 0) return 0;
-  return transactions.reduce((acc, row) => acc + (row.amount_eur || 0), 0);
+  
+  // Extrahujeme jadro názvu pre fuzzy matching
+  const coreName = company.name.toLowerCase().replace(/,.*$/, '').replace(/ a\.s\.| s\.r\.o\.| spol\. s r\. o\./g, '').trim();
+  
+  return transactions.reduce((acc, row) => {
+    if (row.supplier && row.supplier.name && row.supplier.name.toLowerCase().includes(coreName)) {
+      return acc + (row.amount_eur || 0);
+    }
+    return acc;
+  }, 0);
 }
 
 async function run() {
