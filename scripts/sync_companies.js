@@ -28,15 +28,20 @@ async function scrapeFinstatProfit(ico) {
     const metaDesc = $('meta[name="description"]').attr('content') || '';
     const match = metaDesc.match(/Zisk:\s*([\d\s\u00A0]+) €/i) || metaDesc.match(/Hospodársky výsledok:\s*([\d\s\u00A0]+) €/i);
     
+    // Zistime rok z textu stranky
+    const text = $('body').text().replace(/\s+/g, ' ');
+    const rokMatch = text.match(/v roku (20\d\d)/i);
+    const rok = rokMatch ? parseInt(rokMatch[1], 10) : new Date().getFullYear() - 1; // Default to last year if not found
+    
     if (match) {
       const cleanNumber = parseInt(match[1].replace(/[\s\u00A0]/g, ''), 10);
-      return isNaN(cleanNumber) ? null : cleanNumber;
+      return { profit: isNaN(cleanNumber) ? null : cleanNumber, year: rok };
     }
     
-    return null;
+    return { profit: null, year: rok };
   } catch (err) {
     console.error(`Chyba pri scrapovaní Finstatu (IČO ${ico}):`, err.message);
-    return null;
+    return { profit: null, year: 2025 };
   }
 }
 
@@ -61,12 +66,12 @@ async function run() {
   for (const company of targetCompanies) {
     console.log(`- Skúmam web pre IČO: ${company.ico}...`);
     
-    let profit = await scrapeFinstatProfit(company.ico);
+    let { profit, year } = await scrapeFinstatProfit(company.ico);
     if (profit === null) {
       console.log(`  [VAROVANIE] Hodnotu sa nepodarilo vycrawlovať. Nasadená Captcha alebo nová štruktúra.`);
       profit = 0; // fallback v pripade nepreniknutia
     } else {
-      console.log(`  [ÚSPECH] Nájdený reálny zisk/strata (Live): ${profit} EUR`);
+      console.log(`  [ÚSPECH] Nájdený reálny zisk/strata (Live) za rok ${year}: ${profit} EUR`);
     }
 
     const subsidy = await getCitySubsidyFromCRZ(company.ico);
@@ -78,14 +83,13 @@ async function run() {
       profit_loss_eur: profit,
       city_subsidy_eur: subsidy,
       finstat_url: `https://finstat.sk/${company.ico}`,
-      year: 2023
+      year: year
     };
 
     const { data: existing } = await supabase
       .from('city_companies')
       .select('id')
       .eq('ico', company.ico)
-      .eq('year', 2023)
       .single();
       
     if (existing) {
