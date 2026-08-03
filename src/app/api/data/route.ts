@@ -16,8 +16,8 @@ export async function GET(request: Request) {
     const { data: entities, error: entitiesError } = await supabase
       .from('entities')
       .select('*')
-      .neq('ico', '99999999') // Ignorovať staré chybné dáta, ak by zostali
-      .not('ico', 'like', 'NO_ICO_%');
+      .eq('type', 'MUNICIPALITY') // Iba mestské podniky a úrad
+      .neq('ico', '99999999');
 
     if (entitiesError) throw entitiesError;
 
