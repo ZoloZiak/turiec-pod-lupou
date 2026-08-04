@@ -15,6 +15,7 @@ export interface TransactionForAudit {
 export interface RpvsCheckResult {
   ico?: string;
   resolvedIco?: string;
+  partnerId?: number;
   hasIco: boolean;
   active: boolean;
   exempt?: boolean;
@@ -24,8 +25,8 @@ export interface RpvsCheckResult {
 
 /**
  * Robust multi-stage RPVS status checker.
- * Stage 1: Direct OData query by ICO.
- * Stage 2: Fallback query via RPVS GetPartners JSON API using ICO.
+ * Stage 1: Check GetPartners API for active PartnerId & detail link.
+ * Stage 2: Direct OData query by ICO.
  * Stage 3: Fallback query via RPVS GetPartners JSON API using Supplier Name.
  */
 export async function checkRpvsStatus(
@@ -45,14 +46,39 @@ export async function checkRpvsStatus(
   }
 
   // 2. Štát, ministerstvá, štátne fondy, verejné orgány, obce a mestá (§ 2 ods. 3 písm. a, b, c Zákona o RPVS)
-  // Štátne orgány a verejnoprávne subjekty nemajú povinnosť zápisu v RPVS, pretože ich konečným užívateľom výhod je verejnosť/štát.
   const STATE_KEYWORDS = /ministerstvo|rezort|štátn|sociálna poisťovňa|environmentálny fond|fond rozvoja|slovenská pošta|železnice|lesy sr|úrad práce|úrad verejného|žilinský samosprávny|mesto |obec |slovenská akadémia|všeobecná zdravotná|všzp/i;
   
   if (supplierName && STATE_KEYWORDS.test(supplierName)) {
     return { ico: cleanIco || undefined, resolvedIco: cleanIco || undefined, hasIco: Boolean(cleanIco), active: false, exempt: true, source: 'STATE_ENTITY_EXEMPTION' };
   }
 
-  // Stage 1: Check by ICO via OData API
+  // Stage 1: GetPartners API search for PartnerId (Direct working RPVS detail link)
+  if (cleanIco) {
+    try {
+      const getPartnersUrl = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`;
+      const getPartnersRes = await fetch(getPartnersUrl);
+      if (getPartnersRes.ok) {
+        const list = (await getPartnersRes.json()) as any[];
+        if (Array.isArray(list) && list.length > 0) {
+          const partner = list.find((p: any) => p.TypOsoby === 'Partner verejného sektora' || p.PartnerId);
+          if (partner && partner.PartnerId) {
+            return {
+              ico: cleanIco,
+              resolvedIco: partner.Ico || cleanIco,
+              partnerId: partner.PartnerId,
+              hasIco: true,
+              active: true,
+              source: 'GET_PARTNERS_ICO'
+            };
+          }
+        }
+      }
+    } catch (err: any) {
+      console.warn(`[RPVS GetPartners Error] ICO ${cleanIco}:`, err.message);
+    }
+  }
+
+  // Stage 2: Check by ICO via OData API
   if (cleanIco) {
     try {
       const url = `https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?%24filter=${encodeURIComponent(`Ico eq '${cleanIco}'`)}`;
@@ -68,7 +94,7 @@ export async function checkRpvsStatus(
         }
       }
     } catch (err: any) {
-      console.warn(`[RPVS Stage 1 Error] ICO ${cleanIco}:`, err.message);
+      console.warn(`[RPVS OData Error] ICO ${cleanIco}:`, err.message);
     }
   }
 

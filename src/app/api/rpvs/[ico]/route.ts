@@ -16,6 +16,7 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
     return NextResponse.json({ 
       active: result.active,
       exempt: Boolean(result.exempt),
+      partnerId: result.partnerId || null,
       ico: result.resolvedIco || result.ico,
       hasIco: result.hasIco,
       source: result.source,

@@ -410,9 +410,9 @@ export default function Dashboard() {
                             <div className="text-xs text-slate-400 font-normal mt-1 flex items-center gap-2">
                               <span>IČO: {t.supplier?.ico}</span>
                               {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
-                                <div className="flex gap-2 ml-2 border-l pl-2 border-slate-200">
-                                  <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${t.supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">ORSR</a>
-                                  <a href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${t.supplier.ico}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">RPVS</a>
+                                <div className="flex gap-2 ml-2 border-l pl-2 border-slate-700">
+                                  <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${t.supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-emerald-400 hover:underline">ORSR</a>
+                                  <a href={`https://finstat.sk/${t.supplier.ico}`} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-emerald-400 hover:underline">FinStat</a>
                                 </div>
                               )}
                             </div>

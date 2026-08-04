@@ -6,6 +6,7 @@ import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 export default function RpvsBadge({ ico, name }: { ico: string; name?: string }) {
   const [status, setStatus] = useState<'loading' | 'active' | 'exempt' | 'inactive' | 'error'>('loading');
   const [resolvedIco, setResolvedIco] = useState<string | null>(null);
+  const [partnerId, setPartnerId] = useState<number | null>(null);
 
   useEffect(() => {
     const queryIco = ico || "NO_ICO";
@@ -20,6 +21,7 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
         } else {
           setStatus(data.active ? "active" : "inactive");
           if (data.ico) setResolvedIco(data.ico);
+          if (data.partnerId) setPartnerId(data.partnerId);
         }
       })
       .catch(() => setStatus("error"));
@@ -46,10 +48,14 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
     );
   }
 
+  const detailUrl = partnerId 
+    ? `https://rpvs.gov.sk/rpvs/Partner/Partner/Detail/${partnerId}`
+    : `https://finstat.sk/${resolvedIco || ico}`;
+
   if (status === 'active') {
     return (
       <a 
-        href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${resolvedIco || ico}`}
+        href={detailUrl}
         target="_blank"
         rel="noreferrer"
         className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded border border-emerald-200 transition-colors" 

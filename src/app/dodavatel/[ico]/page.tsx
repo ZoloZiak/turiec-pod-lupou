@@ -125,9 +125,6 @@ export default function SupplierProfilePage() {
                 <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
                   <Search className="w-3 h-3" /> ORSR
                 </a>
-                <a href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${supplier.ico}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
-                  <Search className="w-3 h-3" /> RPVS
-                </a>
                 <a href={`https://finstat.sk/${supplier.ico}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
                   <Search className="w-3 h-3" /> FinStat
                 </a>
