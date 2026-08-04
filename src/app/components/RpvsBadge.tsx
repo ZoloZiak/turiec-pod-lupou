@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, ExternalLink } from "lucide-react";
 
 export default function RpvsBadge({ ico, name }: { ico: string; name?: string }) {
   const [status, setStatus] = useState<'loading' | 'active' | 'exempt' | 'inactive' | 'error'>('loading');

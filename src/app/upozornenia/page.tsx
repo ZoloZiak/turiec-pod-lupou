@@ -3,36 +3,45 @@ import { ShieldAlert, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import AlertsClient from "./AlertsClient";
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Vždy fetchnúť čerstvé dáta
 
 export default async function AlertsPage() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-  // Získať všetky transakcie (pre krížovú kontrolu potrebujeme aj zmluvy aj faktúry)
-  const { data: allTransactions, error } = await supabase
-    .from('transactions')
-    .select(`
-      *,
-      supplier:entities!transactions_supplier_entity_id_fkey(ico, name),
-      buyer:entities!transactions_buyer_entity_id_fkey(name)
-    `);
+  let allTransactions: any[] = [];
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { data, error } = await supabase
+        .from('transactions')
+        .select(`
+          *,
+          supplier:entities!transactions_supplier_entity_id_fkey(ico, name),
+          buyer:entities!transactions_buyer_entity_id_fkey(name)
+        `);
 
-  if (error) {
-    console.error("Supabase Error:", error);
+      if (error) {
+        console.error("Supabase Error in AlertsPage:", error);
+      } else if (data) {
+        allTransactions = data;
+      }
+    } catch (err: any) {
+      console.error("Exception in AlertsPage:", err.message);
+    }
   }
 
   // Krížová kontrola
   const crzSuppliers = new Set(
-    (allTransactions || [])
-      .filter((t: any) => t.source_type === 'CRZ_CONTRACT' && t.supplier)
+    allTransactions
+      .filter((t: any) => t.source_type === 'CRZ_CONTRACT' && t.supplier && t.supplier.ico)
       .map((t: any) => t.supplier.ico)
   );
 
-  const enrichedTransactions = (allTransactions || []).map((t: any) => {
+  const enrichedTransactions = allTransactions.map((t: any) => {
     let suspicious = false;
-    if (t.source_type === 'WEB_INVOICE' && t.supplier) {
+    if (t.source_type === 'WEB_INVOICE' && t.supplier && t.supplier.ico) {
       if (!crzSuppliers.has(t.supplier.ico)) {
         suspicious = true;
       }
@@ -41,7 +50,7 @@ export default async function AlertsPage() {
   });
 
   const missingCrz = enrichedTransactions.filter(a => a.suspicious) || [];
-  const over100k = enrichedTransactions.filter(a => a.amount_eur >= 100000).sort((a, b) => b.amount_eur - a.amount_eur) || [];
+  const over100k = enrichedTransactions.filter(a => a.amount_eur >= 100000).sort((a, b) => (b.amount_eur || 0) - (a.amount_eur || 0)) || [];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 sm:p-8">
