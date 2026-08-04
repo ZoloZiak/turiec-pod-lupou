@@ -424,7 +424,7 @@ export default function Dashboard() {
                                 </div>
                               )}
                               {t.amount_eur >= 100000 && t.supplier?.ico && (
-                                <RpvsBadge ico={t.supplier.ico} />
+                                <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} />
                               )}
                             </div>
                           </td>
@@ -497,7 +497,7 @@ export default function Dashboard() {
                                 </span>
                               )}
                               {t.amount_eur >= 100000 && t.supplier?.ico && (
-                                <RpvsBadge ico={t.supplier.ico} />
+                                <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} />
                               )}
                             </div>
                           </div>

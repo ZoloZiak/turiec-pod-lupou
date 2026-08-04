@@ -99,7 +99,7 @@ export default async function AlertsPage() {
                       {alert.subject || "Neuvedený predmet"}
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4">
-                      <RpvsBadge ico={alert.supplier.ico} />
+                      <RpvsBadge ico={alert.supplier.ico} name={alert.supplier?.name} />
                       
                       <div className="flex items-center gap-4 text-slate-500 text-xs font-medium">
                         <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {new Date(alert.date_published).toLocaleDateString('sk-SK')}</span>
