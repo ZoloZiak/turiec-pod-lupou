@@ -69,6 +69,7 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
         // Paralerizované sťahovanie detailov
         const fetchDetail = async () => {
           let realIco = null;
+          let realPublishedAt = new Date().toISOString();
           try {
             const detailRes = await fetch(`https://crz.gov.sk/zmluva/${id}/`);
             const detailHtml = await detailRes.text();
@@ -80,6 +81,11 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
               }
             });
             if (icos.length > 0) realIco = icos[icos.length - 1]; 
+
+            const dateMatch = detailHtml.match(/Dátum zverejnenia:\s*(\d{2})\.(\d{2})\.(\d{4})/i);
+            if (dateMatch) {
+              realPublishedAt = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+            }
           } catch(e) {
              console.error("Nedalo sa ziskat detail pre " + id);
           }
@@ -91,7 +97,7 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
             supplier_name: supplierName,
             supplier_ico: realIco, 
             url: `https://crz.gov.sk/zmluva/${id}/`,
-            published_at: new Date().toISOString()
+            published_at: realPublishedAt
           };
         };
 

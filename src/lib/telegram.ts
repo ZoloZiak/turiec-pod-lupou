@@ -53,6 +53,12 @@ export async function checkRpvsStatus(
     }
   }
 
+  // Banky a úverové inštitúcie poskytujúce úvery/úverové prísľuby mestám (§ 2 ods. 3 písm. g Zákona o RPVS)
+  const KNOWN_BANKS = ['00151653', '31320155', '36854140', '47251336', '31318762', '31575951'];
+  if (cleanIco && KNOWN_BANKS.includes(cleanIco)) {
+    return { ico: cleanIco, resolvedIco: cleanIco, hasIco: true, active: true, source: 'BANK_EXEMPTION' };
+  }
+
   // Stage 2: Fallback - Search by ICO via GetPartners API
   if (cleanIco) {
     try {
@@ -61,20 +67,9 @@ export async function checkRpvsStatus(
       if (res.ok) {
         const list = (await res.json()) as any[];
         if (Array.isArray(list) && list.length > 0) {
-          const partner = list.find((p: any) => p.TypOsoby === 'Partner verejného sektora' && p.Ico);
+          const partner = list.find((p: any) => p.TypOsoby === 'Partner verejného sektora');
           if (partner) {
-            const odataUrl = `https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?%24filter=${encodeURIComponent(`Ico eq '${partner.Ico}'`)}`;
-            const odataRes = await fetch(odataUrl);
-            if (odataRes.ok) {
-              const odataData = (await odataRes.json()) as any;
-              const isActive = odataData.value?.some((record: any) => {
-                if (!record.PlatnostDo) return true;
-                return new Date(record.PlatnostDo) > new Date();
-              });
-              if (isActive) {
-                return { ico: cleanIco, resolvedIco: partner.Ico, hasIco: true, active: true, source: 'GET_PARTNERS_ICO' };
-              }
-            }
+            return { ico: cleanIco, resolvedIco: partner.Ico || cleanIco, hasIco: true, active: true, source: 'GET_PARTNERS_ICO' };
           }
         }
       }
