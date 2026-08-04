@@ -13,10 +13,11 @@ export interface TransactionForAudit {
 }
 
 export interface RpvsCheckResult {
-  ico: string | null;
-  resolvedIco?: string | null;
+  ico?: string;
+  resolvedIco?: string;
   hasIco: boolean;
   active: boolean;
+  exempt?: boolean;
   source?: string;
   error?: string;
 }
@@ -32,6 +33,17 @@ export async function checkRpvsStatus(
   supplierName?: string
 ): Promise<RpvsCheckResult> {
   const cleanIco = ico && !ico.startsWith('NO_ICO_') ? ico.trim() : null;
+
+  // Banky a úverové inštitúcie poskytujúce úvery/úverové prísľuby mestám (§ 2 ods. 3 písm. g Zákona o RPVS)
+  const KNOWN_BANKS = ['00151653', '31320155', '36854140', '47251336', '31318762', '31575951'];
+  if (cleanIco && KNOWN_BANKS.includes(cleanIco)) {
+    return { ico: cleanIco, resolvedIco: cleanIco, hasIco: true, active: false, exempt: true, source: 'BANK_EXEMPTION' };
+  }
+
+  // Ak je dodávateľ známy ako banka podľa názvu
+  if (supplierName && /sporiteľňa|vúb|čsob|unicredit|tatra banka|prima banka/i.test(supplierName)) {
+    return { ico: cleanIco || undefined, resolvedIco: cleanIco || undefined, hasIco: Boolean(cleanIco), active: false, exempt: true, source: 'BANK_EXEMPTION' };
+  }
 
   // Stage 1: Check by ICO via OData API
   if (cleanIco) {
@@ -51,12 +63,6 @@ export async function checkRpvsStatus(
     } catch (err: any) {
       console.warn(`[RPVS Stage 1 Error] ICO ${cleanIco}:`, err.message);
     }
-  }
-
-  // Banky a úverové inštitúcie poskytujúce úvery/úverové prísľuby mestám (§ 2 ods. 3 písm. g Zákona o RPVS)
-  const KNOWN_BANKS = ['00151653', '31320155', '36854140', '47251336', '31318762', '31575951'];
-  if (cleanIco && KNOWN_BANKS.includes(cleanIco)) {
-    return { ico: cleanIco, resolvedIco: cleanIco, hasIco: true, active: true, source: 'BANK_EXEMPTION' };
   }
 
   // Stage 2: Fallback - Search by ICO via GetPartners API
