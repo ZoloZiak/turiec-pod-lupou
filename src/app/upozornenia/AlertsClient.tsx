@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Search, AlertTriangle, ShieldAlert, Calendar, FileText, CheckCircle, ExternalLink, Filter } from 'lucide-react';
+import { Search, AlertTriangle, ShieldAlert, Calendar, FileText, CheckCircle, ExternalLink, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import RpvsBadge from '../components/RpvsBadge';
 
@@ -9,10 +9,23 @@ function formatEur(amount: number) {
   return new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR' }).format(amount);
 }
 
+function formatDate(dateStr: any) {
+  if (!dateStr) return '—';
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? '—' : date.toLocaleDateString('sk-SK');
+}
+
 export default function AlertsClient({ over100k, missingCrz }: { over100k: any[], missingCrz: any[] }) {
   const [activeTab, setActiveTab] = useState<'100k' | 'crz'>('100k');
   const [searchTerm, setSearchTerm] = useState('');
   const [minAmount, setMinAmount] = useState<number>(0);
+  
+  // Stránkovanie pre 100k zmluvy
+  const [page100k, setPage100k] = useState(1);
+  // Stránkovanie pre chýbajúce CRZ
+  const [pageCrz, setPageCrz] = useState(1);
+
+  const ITEMS_PER_PAGE = 15;
 
   // Filter 100k alerts
   const filteredOver100k = over100k.filter(alert => {
@@ -40,6 +53,13 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
     return true;
   });
 
+  // Paginated Slices
+  const paginatedOver100k = filteredOver100k.slice((page100k - 1) * ITEMS_PER_PAGE, page100k * ITEMS_PER_PAGE);
+  const totalPages100k = Math.ceil(filteredOver100k.length / ITEMS_PER_PAGE);
+
+  const paginatedMissingCrz = filteredMissingCrz.slice((pageCrz - 1) * ITEMS_PER_PAGE, pageCrz * ITEMS_PER_PAGE);
+  const totalPagesCrz = Math.ceil(filteredMissingCrz.length / ITEMS_PER_PAGE);
+
   return (
     <div className="space-y-6">
       {/* FILTER BAR FOR ALERTS */}
@@ -50,7 +70,11 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
             type="text"
             placeholder="Hľadať firmu, IČO alebo predmet zákazky..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage100k(1);
+              setPageCrz(1);
+            }}
             className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 placeholder:text-slate-400"
           />
         </div>
@@ -60,19 +84,19 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
             <Filter className="w-3.5 h-3.5" /> Min. suma:
           </span>
           <button
-            onClick={() => setMinAmount(0)}
+            onClick={() => { setMinAmount(0); setPage100k(1); setPageCrz(1); }}
             className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 0 ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
           >
             Všetky sumy
           </button>
           <button
-            onClick={() => setMinAmount(50000)}
+            onClick={() => { setMinAmount(50000); setPage100k(1); setPageCrz(1); }}
             className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 50000 ? 'bg-amber-600 text-white border-amber-500' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
           >
             nad 50k €
           </button>
           <button
-            onClick={() => setMinAmount(100000)}
+            onClick={() => { setMinAmount(100000); setPage100k(1); setPageCrz(1); }}
             className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 100000 ? 'bg-red-600 text-white border-red-500' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
           >
             nad 100k €
@@ -100,7 +124,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* COLUMN 1: Zákazky nad 100 000 € */}
         <div className={`${activeTab === '100k' ? 'block' : 'hidden'} lg:block`}>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
             <div className="bg-amber-50 border-b border-amber-100 p-6 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
@@ -116,23 +140,23 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
               </span>
             </div>
             
-            <div className="divide-y divide-slate-100 flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
-              {filteredOver100k.length === 0 ? (
+            <div className="divide-y divide-slate-100">
+              {paginatedOver100k.length === 0 ? (
                 <div className="p-12 text-center text-slate-500">
                   Pre zadané kritériá sa nenašli žiadne zákazky.
                 </div>
               ) : (
-                filteredOver100k.map(alert => (
+                paginatedOver100k.map(alert => (
                   <div key={alert.id} className="p-6 hover:bg-slate-50 transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <Link href={`/dodavatel/${alert.supplier?.ico}`} className="text-base font-bold text-blue-600 hover:underline">
-                          {alert.supplier?.name}
+                          {alert.supplier?.name || "Neznámy dodávateľ"}
                         </Link>
-                        <p className="text-xs text-slate-500 mt-0.5 font-mono">IČO: {alert.supplier?.ico}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 font-mono">IČO: {alert.supplier?.ico || "Neznáme"}</p>
                       </div>
                       <span className="font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-full text-sm font-mono border border-slate-200">
-                        {formatEur(alert.amount_eur)}
+                        {formatEur(alert.amount_eur || 0)}
                       </span>
                     </div>
                     <div className="text-sm text-slate-700 mb-4 line-clamp-2">
@@ -148,7 +172,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
                       
                       <div className="flex items-center gap-4 text-slate-500 text-xs font-medium ml-auto">
                         <span className="flex items-center gap-1 font-mono">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> {new Date(alert.date_published).toLocaleDateString('sk-SK')}
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> {formatDate(alert.date_published)}
                         </span>
                       </div>
                     </div>
@@ -156,12 +180,37 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
                 ))
               )}
             </div>
+
+            {/* Pagination Controls 100k */}
+            {totalPages100k > 1 && (
+              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                <span className="text-xs text-slate-500">
+                  Strana {page100k} z {totalPages100k}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    disabled={page100k === 1}
+                    onClick={() => setPage100k(p => Math.max(1, p - 1))}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-slate-600" />
+                  </button>
+                  <button
+                    disabled={page100k === totalPages100k}
+                    onClick={() => setPage100k(p => Math.min(totalPages100k, p + 1))}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                  >
+                    <ChevronRight className="w-4 h-4 text-slate-600" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* COLUMN 2: Faktúry bez CRZ */}
         <div className={`${activeTab === 'crz' ? 'block' : 'hidden'} lg:block`}>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
             <div className="bg-red-50 border-b border-red-100 p-6 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-red-900 flex items-center gap-2">
@@ -177,24 +226,24 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
               </span>
             </div>
             
-            <div className="divide-y divide-slate-100 flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
-              {filteredMissingCrz.length === 0 ? (
+            <div className="divide-y divide-slate-100">
+              {paginatedMissingCrz.length === 0 ? (
                 <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-2">
                   <CheckCircle className="w-8 h-8 text-emerald-500 mb-2" />
                   Pre zadané filtre neboli nájdené žiadne nezrovnalosti.
                 </div>
               ) : (
-                filteredMissingCrz.map(alert => (
+                paginatedMissingCrz.map(alert => (
                   <div key={alert.id} className="p-6 hover:bg-slate-50 transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <Link href={`/dodavatel/${alert.supplier?.ico}`} className="text-base font-bold text-blue-600 hover:underline">
-                          {alert.supplier?.name}
+                          {alert.supplier?.name || "Neznámy dodávateľ"}
                         </Link>
-                        <p className="text-xs text-slate-500 mt-0.5 font-mono">IČO: {alert.supplier?.ico}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 font-mono">IČO: {alert.supplier?.ico || "Neznáme"}</p>
                       </div>
                       <span className="font-bold text-red-700 bg-red-100 px-3 py-1 rounded-full text-sm font-mono border border-red-200">
-                        {formatEur(alert.amount_eur)}
+                        {formatEur(alert.amount_eur || 0)}
                       </span>
                     </div>
                     
@@ -218,7 +267,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
                       
                       <div className="flex items-center gap-4 text-slate-500 text-xs font-medium ml-auto font-mono">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> {new Date(alert.date_published).toLocaleDateString('sk-SK')}
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> {formatDate(alert.date_published)}
                         </span>
                       </div>
                     </div>
@@ -226,6 +275,31 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
                 ))
               )}
             </div>
+
+            {/* Pagination Controls CRZ */}
+            {totalPagesCrz > 1 && (
+              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                <span className="text-xs text-slate-500">
+                  Strana {pageCrz} z {totalPagesCrz}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    disabled={pageCrz === 1}
+                    onClick={() => setPageCrz(p => Math.max(1, p - 1))}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-slate-600" />
+                  </button>
+                  <button
+                    disabled={pageCrz === totalPagesCrz}
+                    onClick={() => setPageCrz(p => Math.min(totalPagesCrz, p + 1))}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                  >
+                    <ChevronRight className="w-4 h-4 text-slate-600" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
