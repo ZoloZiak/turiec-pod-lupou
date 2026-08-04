@@ -3,23 +3,25 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
-export default function RpvsBadge({ ico }: { ico: string }) {
+export default function RpvsBadge({ ico, name }: { ico: string; name?: string }) {
   const [status, setStatus] = useState<'loading' | 'active' | 'inactive' | 'error'>('loading');
+  const [resolvedIco, setResolvedIco] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!ico || ico.startsWith("NO_ICO_")) {
-      setStatus("error");
-      return;
-    }
+    const queryIco = ico || "NO_ICO";
+    const url = `/api/rpvs/${encodeURIComponent(queryIco)}${name ? `?name=${encodeURIComponent(name)}` : ''}`;
 
-    fetch(`/api/rpvs/${ico}`)
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         if (data.error) setStatus("error");
-        else setStatus(data.active ? "active" : "inactive");
+        else {
+          setStatus(data.active ? "active" : "inactive");
+          if (data.ico) setResolvedIco(data.ico);
+        }
       })
       .catch(() => setStatus("error"));
-  }, [ico]);
+  }, [ico, name]);
 
   if (status === 'loading') {
     return (
@@ -32,16 +34,22 @@ export default function RpvsBadge({ ico }: { ico: string }) {
 
   if (status === 'active') {
     return (
-      <div className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded border border-emerald-200" title="Zákonná povinnosť splnená: Subjekt je zapísaný v Registri partnerov verejného sektora.">
+      <a 
+        href={`https://rpvs.gov.sk/rpvs/Partner/Partner/Vyhladavanie?NazovPodniku=&Ico=${resolvedIco || ico}`}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded border border-emerald-200 transition-colors" 
+        title="Zákonná povinnosť splnená: Subjekt je zapísaný v Registri partnerov verejného sektora."
+      >
         <CheckCircle className="w-3 h-3" />
         Firma je zapísaná v RPVS
-      </div>
+      </a>
     );
   }
 
   if (status === 'inactive') {
     return (
-      <div className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-200" title="PORUŠENIE ZÁKONA: Zákazka nad 100 000 € vyžaduje zápis v RPVS, no firma v ňom nie je aktívne zapísaná!">
+      <div className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-200" title="Zákazka nad 100 000 € vyžaduje zápis v RPVS, no pre tento subjekt nebol nájdený aktívny zápis v RPVS!">
         <XCircle className="w-3 h-3" />
         POZOR! Zákazka nad 100k, ale firma NIE JE v RPVS!
       </div>

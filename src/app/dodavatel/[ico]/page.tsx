@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search } from "lucide-react";
+import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search, Share2, Copy, Check } from "lucide-react";
 import Link from "next/link";
 
 export default function SupplierProfilePage() {
@@ -13,12 +13,21 @@ export default function SupplierProfilePage() {
   const [data, setData] = useState<any>(null);
   const [finstatData, setFinstatData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (ico) {
       fetchSupplierData(ico);
     }
   }, [ico]);
+
+  const handleShare = () => {
+    if (!data?.supplier) return;
+    const shareText = `🔎 Turiec pod Lupou: Dodávateľ ${data.supplier.name} zrealizoval pre verejný sektor v Turci zmluvy za ${formatEur(data.stats.totalAmount)} (${data.stats.totalCount} zákaziek). Pozri detail: ${window.location.href}`;
+    navigator.clipboard.writeText(shareText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
 
   const fetchSupplierData = async (icoStr: string) => {
     setLoading(true);
@@ -72,16 +81,35 @@ export default function SupplierProfilePage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-12">
       {/* HEADER */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-4">
-          <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-blue-600" />
-            <h1 className="text-xl font-bold tracking-tight text-slate-800 truncate">
-              {supplier.name}
-            </h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div className="flex items-center gap-2">
+              <Building2 className="w-6 h-6 text-blue-600" />
+              <h1 className="text-xl font-bold tracking-tight text-slate-800 truncate">
+                {supplier.name}
+              </h1>
+            </div>
           </div>
+
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-all shadow-sm active:scale-95"
+          >
+            {copied ? (
+              <>
+                <Check className="w-4 h-4 text-white" />
+                <span>Kopírované do schránky!</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Zdieľať profil</span>
+              </>
+            )}
+          </button>
         </div>
       </header>
 

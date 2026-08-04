@@ -18,12 +18,14 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [redFlagFilter, setRedFlagFilter] = useState<'all' | 'high_amount' | 'december' | 'missing_contract'>('all');
   const ITEMS_PER_PAGE = 20;
 
   // Zrušiť filtre pri zmene organizácie
   useEffect(() => {
     setSelectedSupplierName(null);
     setSearchTerm("");
+    setRedFlagFilter("all");
     setCurrentPage(1);
     fetchData(selectedIco);
   }, [selectedIco]);
@@ -31,6 +33,9 @@ export default function Dashboard() {
   // Compute filtered transactions
   const filteredTransactions = data?.transactions?.filter((t: any) => {
     if (selectedSupplierName && t.supplier?.name !== selectedSupplierName) return false;
+    if (redFlagFilter === 'high_amount' && t.amount_eur < 100000) return false;
+    if (redFlagFilter === 'missing_contract' && !t.suspicious) return false;
+    if (redFlagFilter === 'december' && new Date(t.date_published).getMonth() !== 11) return false;
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       const matchSubject = t.subject?.toLowerCase().includes(term);
@@ -315,33 +320,67 @@ export default function Dashboard() {
 
             {/* TRANSACTIONS TABLE */}
             <div className="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 overflow-hidden">
-              <div className="p-6 border-b border-slate-800 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                <h3 className="text-lg font-semibold whitespace-nowrap text-white">Najnovšie zverejnené zmluvy a faktúry</h3>
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                  {selectedSupplierName && (
-                    <button 
-                      onClick={() => {
-                        setSelectedSupplierName(null);
-                        setCurrentPage(1);
-                      }}
-                      className="flex items-center gap-1 text-sm bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full font-medium border border-blue-500/20 hover:bg-blue-500/20 transition-colors whitespace-nowrap"
-                    >
-                      Filtrujem: {selectedSupplierName} <span className="ml-1 text-lg leading-none">&times;</span>
-                    </button>
-                  )}
-                  <div className="relative w-full md:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input 
-                      type="text" 
-                      placeholder="Hľadať zmluvu alebo firmu..." 
-                      value={searchTerm}
-                      onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow placeholder:text-slate-500"
-                    />
+              <div className="p-6 border-b border-slate-800 space-y-4">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                  <h3 className="text-lg font-semibold whitespace-nowrap text-white">Najnovšie zverejnené zmluvy a faktúry</h3>
+                  <div className="flex items-center gap-3 w-full md:w-auto">
+                    {selectedSupplierName && (
+                      <button 
+                        onClick={() => {
+                          setSelectedSupplierName(null);
+                          setCurrentPage(1);
+                        }}
+                        className="flex items-center gap-1 text-sm bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full font-medium border border-blue-500/20 hover:bg-blue-500/20 transition-colors whitespace-nowrap"
+                      >
+                        Filtrujem: {selectedSupplierName} <span className="ml-1 text-lg leading-none">&times;</span>
+                      </button>
+                    )}
+                    <div className="relative w-full md:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <input 
+                        type="text" 
+                        placeholder="Hľadať zmluvu alebo firmu..." 
+                        value={searchTerm}
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          setCurrentPage(1);
+                        }}
+                        className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow placeholder:text-slate-500"
+                      />
+                    </div>
                   </div>
+                </div>
+
+                {/* RED FLAGS FILTER BAR (z-dykty.pl inspired) */}
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 text-xs font-semibold">
+                  <span className="text-slate-500 uppercase tracking-widest text-[11px] mr-2">Rýchly audit:</span>
+                  <button
+                    onClick={() => { setRedFlagFilter('all'); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-lg border transition-all ${redFlagFilter === 'all' ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-white'}`}
+                  >
+                    Všetky zmluvy
+                  </button>
+                  <button
+                    onClick={() => { setRedFlagFilter('high_amount'); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'high_amount' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-amber-400'}`}
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                    Zmluvy nad 100 000 €
+                  </button>
+                  <button
+                    onClick={() => { setRedFlagFilter('missing_contract'); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'missing_contract' ? 'bg-red-500/20 text-red-300 border-red-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-red-400'}`}
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+                    Chýba zmluva v CRZ
+                  </button>
+                  <button
+                    onClick={() => { setRedFlagFilter('december'); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'december' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-purple-400'}`}
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-purple-400" />
+                    Koncoročný zhonec (December)
+                  </button>
                 </div>
               </div>
               <div className="w-full">

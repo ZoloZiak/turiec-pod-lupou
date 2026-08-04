@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 import * as cheerio from 'cheerio';
+import { auditAndNotifyTransaction } from '../lib/telegram';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
@@ -189,6 +190,18 @@ async function runKrtko() {
           date_published: contract.published_at,
           subject: contract.title
         }, { onConflict: 'external_id' });
+
+        // Vyhodnotiť notifikáciu a RPVS pre podozrivé zmluvy
+        await auditAndNotifyTransaction({
+          external_id: contract.external_id,
+          subject: contract.title,
+          amount: contract.amount,
+          buyer_name: target.name,
+          supplier_name: contract.supplier_name,
+          supplier_ico: (contract as any).supplier_ico,
+          url: contract.url,
+          published_at: contract.published_at,
+        });
       }));
     }));
 
