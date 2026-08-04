@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, AlertTriangle, ArrowRight, Search } from "lucide-react";
+import { CheckCircle, AlertTriangle, ArrowRight, Search, Lightbulb, Plus, Trash2, Edit2, Check, FileText } from "lucide-react";
 
 export default function AdminPage() {
   const [unmapped, setUnmapped] = useState<any[]>([]);
@@ -18,15 +18,27 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Tabs & Logs
-  const [activeTab, setActiveTab] = useState<"merge" | "logs" | "pdf">("merge");
+  const [activeTab, setActiveTab] = useState<"merge" | "logs" | "pdf_logs" | "pdfs" | "entities" | "promises">("merge");
   const [logs, setLogs] = useState<any[]>([]);
+  
+  // Dashboard state
+  const [promises, setPromises] = useState<any[]>([]);
+  const [allEntities, setAllEntities] = useState<any[]>([]);
+  const [webPdfs, setWebPdfs] = useState<any[]>([]);
 
   // Mappings state: { unmappedId: { ico: string, name: string } }
   const [mappings, setMappings] = useState<Record<string, { ico: string, name: string }>>({});
 
+  // Slubomer editing state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<any>({});
+  const [isCreating, setIsCreating] = useState(false);
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -37,7 +49,6 @@ export default function AdminPage() {
         setUnmapped(json.unmapped);
         setRealEntities(json.realEntities);
         
-        // Prefill name in mappings so the user doesn't have to retype it
         const initialMappings: Record<string, { ico: string, name: string }> = {};
         json.unmapped.forEach((u: any) => {
           initialMappings[u.id] = { ico: "", name: u.name };
@@ -49,6 +60,19 @@ export default function AdminPage() {
       const logsJson = await logsRes.json();
       if (logsJson.success) {
         setLogs(logsJson.logs);
+      }
+
+      const dashRes = await fetch('/api/admin/dashboard');
+      const dashJson = await dashRes.json();
+      if (dashJson.success) {
+        setAllEntities(dashJson.entities);
+        setWebPdfs(dashJson.pdfs);
+      }
+
+      const promRes = await fetch('/api/admin/promises');
+      const promJson = await promRes.json();
+      if (promJson.success) {
+        setPromises(promJson.promises);
       }
     } catch (e) {
       console.error("Failed to fetch data", e);
@@ -79,7 +103,6 @@ export default function AdminPage() {
       });
       const json = await res.json();
       if (json.success) {
-        // Remove from list
         setUnmapped(prev => prev.filter(e => e.id !== sourceId));
         setMappings(prev => {
           const newMappings = { ...prev };
@@ -132,6 +155,76 @@ export default function AdminPage() {
     }
   };
 
+  // --- Promises Handlers ---
+  const handleSavePromise = async (promise: any, isNew: boolean = false) => {
+    try {
+      const res = await fetch('/api/admin/promises', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer Krtko2024`
+        },
+        body: JSON.stringify({
+          action: isNew ? 'CREATE' : 'UPDATE',
+          promise
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert("Sľub úspešne uložený");
+        setEditingId(null);
+        setIsCreating(false);
+        fetchData();
+      } else {
+        alert("Chyba pri ukladaní: " + json.error);
+      }
+    } catch (e) {
+      alert("Systémová chyba");
+    }
+  };
+
+  const handleDeletePromise = async (id: string) => {
+    if (!confirm("Naozaj chcete vymazať tento sľub?")) return;
+    try {
+      const res = await fetch('/api/admin/promises', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer Krtko2024`
+        },
+        body: JSON.stringify({
+          action: 'DELETE',
+          promise: { id }
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        fetchData();
+      }
+    } catch (e) {
+      alert("Systémová chyba");
+    }
+  };
+
+  const startEditPromise = (p: any) => {
+    setEditingId(p.id);
+    setEditForm({ ...p });
+    setIsCreating(false);
+  };
+
+  const startCreatePromise = () => {
+    setIsCreating(true);
+    setEditingId(null);
+    setEditForm({
+      title: "",
+      description: "",
+      politician_name: "Ján Danko",
+      status: "V RIEŠENÍ",
+      source_url: "",
+      related_transaction_ids: []
+    });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-8">
       {!isAuthenticated ? (
@@ -154,7 +247,7 @@ export default function AdminPage() {
           </form>
         </div>
       ) : (
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <header className="mb-8">
             <div className="mb-4">
               <a href="/" className="text-sm font-medium text-blue-600 hover:underline">
@@ -163,38 +256,47 @@ export default function AdminPage() {
             </div>
             <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
               <AlertTriangle className="text-amber-500 w-8 h-8" />
-              Human-in-the-loop Administrácia
+              Riadiace centrum (Krtko)
             </h1>
-            <p className="text-slate-600 mt-2">
-              Tento panel zobrazuje entity vytvorené z neštruktúrovaných dát, a audítorské logy o tom, čo scraper našiel a ako to interpretoval.
-            </p>
           </header>
 
-          <div className="flex gap-4 border-b border-slate-200 mb-6">
+          <div className="flex gap-4 border-b border-slate-200 mb-6 flex-wrap">
             <button 
               onClick={() => setActiveTab("merge")}
               className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "merge" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
-              Spájanie entít (Human-in-the-loop)
+              Spájanie entít
             </button>
             <button 
-              onClick={() => setActiveTab("pdf")}
-              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "pdf" ? "border-amber-600 text-amber-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+              onClick={() => setActiveTab("entities")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "entities" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
-              Manuálna kontrola PDF
+              Všetky firmy (Zoznam)
+            </button>
+            <button 
+              onClick={() => setActiveTab("pdfs")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "pdfs" ? "border-emerald-600 text-emerald-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+            >
+              Vyťažené PDF Faktúry
+            </button>
+            <button 
+              onClick={() => setActiveTab("pdf_logs")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "pdf_logs" ? "border-amber-600 text-amber-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+            >
+              Nevyriešené PDF (Logy)
             </button>
             <button 
               onClick={() => setActiveTab("logs")}
-              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "logs" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "logs" ? "border-slate-800 text-slate-800" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
               Audítorské Logy
             </button>
-            <a 
-              href="/admin/sluby"
-              className="pb-3 font-medium text-sm border-b-2 border-transparent text-amber-600 hover:text-amber-700 ml-auto flex items-center gap-1"
+            <button 
+              onClick={() => setActiveTab("promises")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ml-auto ${activeTab === "promises" ? "border-amber-500 text-amber-500" : "border-transparent text-amber-600 hover:text-amber-700"}`}
             >
-              Správa Sľubov &rarr;
-            </a>
+              Sľubomer &rarr;
+            </button>
           </div>
 
           {loading && (
@@ -278,7 +380,88 @@ export default function AdminPage() {
             )
           )}
 
-          {!loading && activeTab === "pdf" && (
+          {!loading && activeTab === "entities" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="p-4 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
+                <h2 className="font-bold text-indigo-900">Všetky firmy a organizácie v databáze</h2>
+                <span className="text-xs font-medium text-indigo-700 bg-indigo-200 px-2 py-1 rounded-full">{allEntities.length} záznamov</span>
+              </div>
+              <div className="max-h-[600px] overflow-y-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase text-xs sticky top-0">
+                    <tr>
+                      <th className="px-6 py-4">Názov Subjektu</th>
+                      <th className="px-6 py-4">IČO</th>
+                      <th className="px-6 py-4 text-right">FinStat Odkaz</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {allEntities.map(entity => (
+                      <tr key={entity.id} className="hover:bg-slate-50">
+                        <td className="px-6 py-4 font-medium text-slate-800">{entity.name}</td>
+                        <td className="px-6 py-4 font-mono text-slate-600">{entity.ico}</td>
+                        <td className="px-6 py-4 text-right">
+                          {entity.ico && !entity.ico.startsWith('NO_ICO_') ? (
+                            <a href={`https://finstat.sk/${entity.ico}`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-1 text-xs font-semibold">
+                              Otvoriť <ArrowRight className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <span className="text-xs text-slate-400">Nedostupné</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {!loading && activeTab === "pdfs" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="p-4 bg-emerald-50 border-b border-emerald-100 flex justify-between items-center">
+                <h2 className="font-bold text-emerald-900">PDF faktúry úspešne vyťažené z webu (OCR)</h2>
+                <span className="text-xs font-medium text-emerald-700 bg-emerald-200 px-2 py-1 rounded-full">{webPdfs.length} dokladov</span>
+              </div>
+              <div className="max-h-[600px] overflow-y-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase text-xs sticky top-0">
+                    <tr>
+                      <th className="px-6 py-4">Dátum</th>
+                      <th className="px-6 py-4">Dodávateľ (Vyťažený)</th>
+                      <th className="px-6 py-4">Suma</th>
+                      <th className="px-6 py-4">Popis / Zmluva</th>
+                      <th className="px-6 py-4 text-right">Zdroj (PDF)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {webPdfs.map(pdf => (
+                      <tr key={pdf.id} className="hover:bg-slate-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-slate-500">{new Date(pdf.transaction_date).toLocaleDateString('sk-SK')}</td>
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-slate-800">{pdf.supplier?.name}</p>
+                          <p className="text-xs text-slate-500 font-mono">{pdf.supplier?.ico}</p>
+                        </td>
+                        <td className="px-6 py-4 font-bold text-emerald-600 whitespace-nowrap">
+                          {pdf.amount_eur.toLocaleString('sk-SK', { style: 'currency', currency: 'EUR' })}
+                        </td>
+                        <td className="px-6 py-4 text-slate-600 text-xs">
+                          {pdf.description || '-'}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <a href={pdf.source_url} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline inline-flex items-center gap-1 text-xs font-semibold whitespace-nowrap">
+                            <FileText className="w-3 h-3" /> Zobraziť PDF
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {!loading && activeTab === "pdf_logs" && (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <table className="w-full text-sm text-left">
                 <thead className="bg-amber-50 border-b border-amber-100 text-amber-800 uppercase text-xs">
@@ -411,6 +594,99 @@ export default function AdminPage() {
               </table>
             </div>
           )}
+
+          {!loading && activeTab === "promises" && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-800">Správa predvolebných sľubov</h2>
+                  <p className="text-slate-500 text-sm">Aktualizujte a spravujte sľuby, ktoré sa zobrazujú verejnosti.</p>
+                </div>
+                <button onClick={startCreatePromise} className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors text-sm">
+                  <Plus className="w-4 h-4" /> Nový Sľub
+                </button>
+              </div>
+
+              {isCreating && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-200 mb-8">
+                  <h2 className="text-xl font-bold mb-4 text-amber-900">Pridať nový sľub</h2>
+                  <div className="grid grid-cols-1 gap-4 mb-4">
+                    <input type="text" placeholder="Názov sľubu (napr. Nová plaváreň)" className="border p-2 rounded text-sm" value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} />
+                    <textarea placeholder="Detailný popis" className="border p-2 rounded text-sm" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} />
+                    <div className="flex gap-4">
+                      <select className="border p-2 rounded flex-1 text-sm" value={editForm.status} onChange={e => setEditForm({...editForm, status: e.target.value})}>
+                        <option value="SPLNENÉ">SPLNENÉ</option>
+                        <option value="V RIEŠENÍ">V RIEŠENÍ</option>
+                        <option value="ZABUDNUTÉ">ZABUDNUTÉ</option>
+                      </select>
+                      <input type="text" placeholder="Politik" className="border p-2 rounded flex-1 text-sm" value={editForm.politician_name} onChange={e => setEditForm({...editForm, politician_name: e.target.value})} />
+                    </div>
+                    <input type="text" placeholder="Link na zdroj (URL programu)" className="border p-2 rounded text-sm" value={editForm.source_url} onChange={e => setEditForm({...editForm, source_url: e.target.value})} />
+                    <input type="text" placeholder="Zmluvy (Zadajte ID zmlúv oddelené čiarkou)" className="border p-2 rounded text-sm" value={(editForm.related_transaction_ids || []).join(',')} onChange={e => {
+                      const ids = e.target.value.split(',').map(i => i.trim()).filter(Boolean);
+                      setEditForm({...editForm, related_transaction_ids: ids});
+                    }} />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setIsCreating(false)} className="px-4 py-2 border rounded-lg hover:bg-slate-50 text-sm">Zrušiť</button>
+                    <button onClick={() => handleSavePromise(editForm, true)} className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium">Vytvoriť sľub</button>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {promises.map(p => (
+                  <div key={p.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    {editingId === p.id ? (
+                      <div>
+                        <input type="text" className="border p-2 rounded w-full mb-2 font-bold text-sm" value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} />
+                        <textarea className="border p-2 rounded w-full mb-2 text-sm" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} />
+                        <div className="flex gap-4 mb-2">
+                          <select className="border p-2 rounded flex-1 text-sm" value={editForm.status} onChange={e => setEditForm({...editForm, status: e.target.value})}>
+                            <option value="SPLNENÉ">SPLNENÉ</option>
+                            <option value="V RIEŠENÍ">V RIEŠENÍ</option>
+                            <option value="ZABUDNUTÉ">ZABUDNUTÉ</option>
+                          </select>
+                          <input type="text" className="border p-2 rounded flex-1 text-sm" value={editForm.politician_name} onChange={e => setEditForm({...editForm, politician_name: e.target.value})} />
+                        </div>
+                        <input type="text" placeholder="Zdroj URL" className="border p-2 rounded w-full mb-2 text-sm" value={editForm.source_url} onChange={e => setEditForm({...editForm, source_url: e.target.value})} />
+                        <input type="text" placeholder="Zmluvy (ID oddelené čiarkou)" className="border p-2 rounded w-full mb-4 text-sm" value={(editForm.related_transaction_ids || []).join(',')} onChange={e => {
+                          const ids = e.target.value.split(',').map(i => i.trim()).filter(Boolean);
+                          setEditForm({...editForm, related_transaction_ids: ids});
+                        }} />
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => setEditingId(null)} className="px-4 py-2 border rounded-lg hover:bg-slate-50 text-slate-700 text-sm">Zrušiť</button>
+                          <button onClick={() => handleSavePromise(editForm, false)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-1 text-sm font-medium"><Check className="w-4 h-4"/> Uložiť</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className={`px-2 py-1 text-xs font-bold rounded-full ${p.status === 'SPLNENÉ' ? 'bg-emerald-100 text-emerald-800' : p.status === 'V RIEŠENÍ' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                              {p.status}
+                            </span>
+                            <h3 className="text-xl font-bold">{p.title}</h3>
+                          </div>
+                          <p className="text-slate-600 text-sm mb-2">{p.description}</p>
+                          <div className="text-xs font-mono text-slate-400">
+                            {p.related_transaction_ids && p.related_transaction_ids.length > 0 && (
+                              <span className="flex items-center gap-1"><FileText className="w-3 h-3" /> Prepojených zmlúv: {p.related_transaction_ids.length}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => startEditPromise(p)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 className="w-5 h-5"/></button>
+                          <button onClick={() => handleDeletePromise(p.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-5 h-5"/></button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       )}
     </div>
