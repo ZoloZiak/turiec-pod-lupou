@@ -460,6 +460,7 @@ export default function Dashboard() {
                               {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
                                 <div className="flex gap-2 ml-2 border-l pl-2 border-slate-700">
                                   <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${t.supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-emerald-400 hover:underline">ORSR</a>
+                                  <a href={`/api/rpvs-redirect/${t.supplier.ico}`} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-emerald-400 hover:underline font-semibold text-emerald-400">RPVS</a>
                                   <a href={`https://finstat.sk/${t.supplier.ico}`} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-emerald-400 hover:underline">FinStat</a>
                                 </div>
                               )}
@@ -471,7 +472,7 @@ export default function Dashboard() {
                                   Chýba zmluva v CRZ!
                                 </div>
                               )}
-                              {t.amount_eur >= 100000 && t.supplier?.ico && (
+                              {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
                                 <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} />
                               )}
                             </div>
