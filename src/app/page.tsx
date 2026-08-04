@@ -214,26 +214,22 @@ export default function Dashboard() {
               <h2 className="text-sm font-bold uppercase tracking-widest mb-6 text-slate-500">Verejná kontrola</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Link href="/podniky" className="group h-full block">
-                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-between transition-all h-full" glowColor="rgba(16, 185, 129, 0.15)">
-                    <span className="text-xs font-mono text-slate-600 mb-4">01</span>
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(16, 185, 129, 0.15)">
                     <span className="font-bold text-lg text-slate-300 group-hover:text-emerald-400 transition-colors">Mestské podniky</span>
                   </SpotlightCard>
                 </Link>
                 <Link href="/nku" className="group h-full block">
-                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-between transition-all h-full" glowColor="rgba(239, 68, 68, 0.15)">
-                    <span className="text-xs font-mono text-slate-600 mb-4">02</span>
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(239, 68, 68, 0.15)">
                     <span className="font-bold text-lg text-slate-300 group-hover:text-red-400 transition-colors">Kontroly NKÚ</span>
                   </SpotlightCard>
                 </Link>
                 <Link href="/eurofondy" className="group h-full block">
-                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-between transition-all h-full" glowColor="rgba(59, 130, 246, 0.15)">
-                    <span className="text-xs font-mono text-slate-600 mb-4">03</span>
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(59, 130, 246, 0.15)">
                     <span className="font-bold text-lg text-slate-300 group-hover:text-blue-400 transition-colors">Eurofondy</span>
                   </SpotlightCard>
                 </Link>
                 <Link href="/poslanci" className="group h-full block">
-                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-between transition-all h-full" glowColor="rgba(168, 85, 247, 0.15)">
-                    <span className="text-xs font-mono text-slate-600 mb-4">04</span>
+                  <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(168, 85, 247, 0.15)">
                     <span className="font-bold text-lg text-slate-300 group-hover:text-purple-400 transition-colors">Hlasovania MsZ</span>
                   </SpotlightCard>
                 </Link>
