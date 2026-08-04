@@ -101,7 +101,17 @@ export async function checkRpvsStatus(
           return new Date(record.PlatnostDo) > new Date();
         });
         if (isActive) {
-          return { ico: cleanIco, resolvedIco: cleanIco, hasIco: true, active: true, source: 'ODATA_ICO' };
+          let resolvedPartnerId: number | undefined = undefined;
+          try {
+            const gpRes = await fetch(`https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`);
+            if (gpRes.ok) {
+              const gpList = await gpRes.json();
+              if (Array.isArray(gpList) && gpList.length > 0 && gpList[0].PartnerId) {
+                resolvedPartnerId = gpList[0].PartnerId;
+              }
+            }
+          } catch(e) {}
+          return { ico: cleanIco, resolvedIco: cleanIco, partnerId: resolvedPartnerId, hasIco: true, active: true, source: 'ODATA_ICO' };
         }
       }
     } catch (err: any) {
