@@ -19,6 +19,8 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [redFlagFilter, setRedFlagFilter] = useState<'all' | 'high_amount' | 'december' | 'missing_contract'>('all');
+  const [sourceTypeFilter, setSourceTypeFilter] = useState<'all' | 'CRZ_CONTRACT' | 'WEB_INVOICE'>('all');
+  const [selectedYear, setSelectedYear] = useState<string>('all');
   const ITEMS_PER_PAGE = 20;
 
   // Zrušiť filtre pri zmene organizácie
@@ -26,9 +28,16 @@ export default function Dashboard() {
     setSelectedSupplierName(null);
     setSearchTerm("");
     setRedFlagFilter("all");
+    setSourceTypeFilter("all");
+    setSelectedYear("all");
     setCurrentPage(1);
     fetchData(selectedIco);
   }, [selectedIco]);
+
+  // Dynamic list of available years
+  const availableYears = Array.from(
+    new Set(data?.transactions?.map((t: any) => new Date(t.date_published).getFullYear()).filter(Boolean))
+  ).sort((a: any, b: any) => b - a);
 
   // Compute filtered transactions
   const filteredTransactions = data?.transactions?.filter((t: any) => {
@@ -36,6 +45,9 @@ export default function Dashboard() {
     if (redFlagFilter === 'high_amount' && t.amount_eur < 100000) return false;
     if (redFlagFilter === 'missing_contract' && !t.suspicious) return false;
     if (redFlagFilter === 'december' && new Date(t.date_published).getMonth() !== 11) return false;
+    if (sourceTypeFilter !== 'all' && t.source_type !== sourceTypeFilter) return false;
+    if (selectedYear !== 'all' && new Date(t.date_published).getFullYear().toString() !== selectedYear) return false;
+
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       const matchSubject = t.subject?.toLowerCase().includes(term);
@@ -351,36 +363,72 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* RED FLAGS FILTER BAR (z-dykty.pl inspired) */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 text-xs font-semibold">
-                  <span className="text-slate-500 uppercase tracking-widest text-[11px] mr-2">Rýchly audit:</span>
-                  <button
-                    onClick={() => { setRedFlagFilter('all'); setCurrentPage(1); }}
-                    className={`px-3 py-1 rounded-lg border transition-all ${redFlagFilter === 'all' ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-white'}`}
-                  >
-                    Všetky zmluvy
-                  </button>
-                  <button
-                    onClick={() => { setRedFlagFilter('high_amount'); setCurrentPage(1); }}
-                    className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'high_amount' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-amber-400'}`}
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                    Zmluvy nad 100 000 €
-                  </button>
-                  <button
-                    onClick={() => { setRedFlagFilter('missing_contract'); setCurrentPage(1); }}
-                    className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'missing_contract' ? 'bg-red-500/20 text-red-300 border-red-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-red-400'}`}
-                  >
-                    <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
-                    Chýba zmluva v CRZ
-                  </button>
-                  <button
-                    onClick={() => { setRedFlagFilter('december'); setCurrentPage(1); }}
-                    className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'december' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-purple-400'}`}
-                  >
-                    <Calendar className="w-3.5 h-3.5 text-purple-400" />
-                    Koncoročný zhonec (December)
-                  </button>
+                {/* RED FLAGS & SOURCE FILTER BAR (z-dykty.pl inspired) */}
+                <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-800/80 text-xs font-semibold">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-slate-500 uppercase tracking-widest text-[11px] mr-1">Rýchly audit:</span>
+                    <button
+                      onClick={() => { setRedFlagFilter('all'); setCurrentPage(1); }}
+                      className={`px-3 py-1 rounded-lg border transition-all ${redFlagFilter === 'all' ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-white'}`}
+                    >
+                      Všetky zmluvy
+                    </button>
+                    <button
+                      onClick={() => { setRedFlagFilter('high_amount'); setCurrentPage(1); }}
+                      className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'high_amount' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-amber-400'}`}
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                      Zmluvy nad 100 000 €
+                    </button>
+                    <button
+                      onClick={() => { setRedFlagFilter('missing_contract'); setCurrentPage(1); }}
+                      className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'missing_contract' ? 'bg-red-500/20 text-red-300 border-red-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-red-400'}`}
+                    >
+                      <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+                      Chýba zmluva v CRZ
+                    </button>
+                    <button
+                      onClick={() => { setRedFlagFilter('december'); setCurrentPage(1); }}
+                      className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'december' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-slate-800/50 text-slate-400 border-slate-800 hover:text-purple-400'}`}
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-purple-400" />
+                      Koncoročný zhonec (December)
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 border-l border-slate-800 pl-3 flex-wrap">
+                    <span className="text-slate-500 uppercase tracking-widest text-[11px] mr-1">Zdroj:</span>
+                    <button
+                      onClick={() => { setSourceTypeFilter('all'); setCurrentPage(1); }}
+                      className={`px-2.5 py-1 rounded-md border transition-all ${sourceTypeFilter === 'all' ? 'bg-emerald-600 text-white border-emerald-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'}`}
+                    >
+                      Všetky
+                    </button>
+                    <button
+                      onClick={() => { setSourceTypeFilter('CRZ_CONTRACT'); setCurrentPage(1); }}
+                      className={`px-2.5 py-1 rounded-md border transition-all ${sourceTypeFilter === 'CRZ_CONTRACT' ? 'bg-emerald-600 text-white border-emerald-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'}`}
+                    >
+                      CRZ Zmluvy
+                    </button>
+                    <button
+                      onClick={() => { setSourceTypeFilter('WEB_INVOICE'); setCurrentPage(1); }}
+                      className={`px-2.5 py-1 rounded-md border transition-all ${sourceTypeFilter === 'WEB_INVOICE' ? 'bg-amber-600 text-white border-amber-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'}`}
+                    >
+                      Faktúry z webu
+                    </button>
+
+                    <span className="text-slate-500 uppercase tracking-widest text-[11px] ml-2 mr-1">Rok:</span>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => { setSelectedYear(e.target.value); setCurrentPage(1); }}
+                      className="bg-slate-800 border border-slate-700 text-slate-200 rounded-md px-2 py-1 text-xs focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+                    >
+                      <option value="all">Všetky roky</option>
+                      {availableYears.map((y: any) => (
+                        <option key={y} value={y.toString()}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="w-full">
@@ -437,20 +485,43 @@ export default function Dashboard() {
                           </div>
                         </td>
                           <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1 items-start">
-                              {t.source_type === 'WEB_INVOICE' ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                                  Faktúra z webu
+                            {t.source_url ? (
+                              <a 
+                                href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="group inline-flex flex-col items-start gap-1 p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 transition-all"
+                                title="Otvoriť dokument zmluvy / faktúry"
+                              >
+                                {t.source_type === 'WEB_INVOICE' ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/10 border border-amber-500/20 text-amber-400 group-hover:bg-amber-500/20">
+                                    Faktúra z webu <ExternalLink className="w-3 h-3 text-amber-400" />
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/20">
+                                    CRZ Zmluva <ExternalLink className="w-3 h-3 text-emerald-400" />
+                                  </span>
+                                )}
+                                <span className="text-xs text-slate-400 font-mono mt-0.5 group-hover:text-white transition-colors">
+                                  {new Date(t.date_published).toLocaleDateString('sk-SK')}
                                 </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                                  CRZ Zmluva
-                                </span>
-                              )}
-                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-xs text-slate-400 hover:text-white transition-colors mt-1">
-                                {new Date(t.date_published).toLocaleDateString('sk-SK')}
                               </a>
-                            </div>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                {t.source_type === 'WEB_INVOICE' ? (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                                    Faktúra z webu
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                                    CRZ Zmluva
+                                  </span>
+                                )}
+                                <span className="text-xs text-slate-400 font-mono">
+                                  {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                                </span>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))
@@ -481,14 +552,39 @@ export default function Dashboard() {
                           <p>IČO: {t.supplier?.ico}</p>
                           <div className="flex justify-between items-center mt-2 border-t border-slate-800 pt-3">
                             <div className="flex flex-col gap-1.5">
-                              {t.source_type === 'WEB_INVOICE' ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 self-start">Faktúra z webu</span>
+                              {t.source_url ? (
+                                <a 
+                                  href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="group flex flex-col gap-1 items-start"
+                                  title="Otvoriť dokument"
+                                >
+                                  {t.source_type === 'WEB_INVOICE' ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:bg-amber-500/20">
+                                      Faktúra z webu <ExternalLink className="w-2.5 h-2.5" />
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:bg-emerald-500/20">
+                                      CRZ Zmluva <ExternalLink className="w-2.5 h-2.5" />
+                                    </span>
+                                  )}
+                                  <span className="text-slate-400 group-hover:text-white transition-colors font-mono text-xs">
+                                    {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                                  </span>
+                                </a>
                               ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">CRZ Zmluva</span>
+                                <div className="flex flex-col gap-1">
+                                  {t.source_type === 'WEB_INVOICE' ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 self-start">Faktúra z webu</span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">CRZ Zmluva</span>
+                                  )}
+                                  <span className="text-slate-400 font-mono text-xs">
+                                    {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                                  </span>
+                                </div>
                               )}
-                              <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors font-medium">
-                                {new Date(t.date_published).toLocaleDateString('sk-SK')}
-                              </a>
                             </div>
                             <div className="flex flex-col gap-1.5 items-end">
                               {t.suspicious && (
