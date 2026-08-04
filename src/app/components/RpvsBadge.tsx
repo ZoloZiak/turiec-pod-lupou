@@ -68,11 +68,19 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
   }
 
   if (status === 'inactive') {
+    const checkUrl = `/api/rpvs-redirect/${resolvedIco || ico}`;
     return (
-      <div className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded border border-red-200" title="Zákazka nad 100 000 € vyžaduje zápis v RPVS, no pre tento subjekt nebol nájdený aktívny zápis v RPVS!">
-        <XCircle className="w-3 h-3" />
-        POZOR! Zákazka nad 100k, ale firma NIE JE v RPVS!
-      </div>
+      <a 
+        href={checkUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 text-xs font-semibold rounded border border-red-200 transition-colors shadow-sm"
+        title="Kliknutím overíte zápis v Registri partnerov verejného sektora (RPVS)"
+      >
+        <XCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+        <span>POZOR! Zákazka nad 100k, ale firma NIE JE v RPVS!</span>
+        <ExternalLink className="w-3 h-3 text-red-500 ml-0.5 shrink-0" />
+      </a>
     );
   }
 
