@@ -140,7 +140,11 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: any[]
                       {alert.subject || "Neuvedený predmet"}
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4">
-                      <RpvsBadge ico={alert.supplier.ico} name={alert.supplier?.name} />
+                      {alert.supplier?.ico ? (
+                        <RpvsBadge ico={alert.supplier.ico} name={alert.supplier?.name} />
+                      ) : (
+                        <span className="text-xs text-slate-400 font-mono">Neznáme IČO</span>
+                      )}
                       
                       <div className="flex items-center gap-4 text-slate-500 text-xs font-medium ml-auto">
                         <span className="flex items-center gap-1 font-mono">
