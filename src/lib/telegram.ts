@@ -34,15 +34,22 @@ export async function checkRpvsStatus(
 ): Promise<RpvsCheckResult> {
   const cleanIco = ico && !ico.startsWith('NO_ICO_') ? ico.trim() : null;
 
-  // Banky a úverové inštitúcie poskytujúce úvery/úverové prísľuby mestám (§ 2 ods. 3 písm. g Zákona o RPVS)
+  // 1. Banky a úverové inštitúcie poskytujúce úvery/úverové prísľuby mestám (§ 2 ods. 3 písm. g Zákona o RPVS)
   const KNOWN_BANKS = ['00151653', '31320155', '36854140', '47251336', '31318762', '31575951'];
   if (cleanIco && KNOWN_BANKS.includes(cleanIco)) {
     return { ico: cleanIco, resolvedIco: cleanIco, hasIco: true, active: false, exempt: true, source: 'BANK_EXEMPTION' };
   }
 
-  // Ak je dodávateľ známy ako banka podľa názvu
   if (supplierName && /sporiteľňa|vúb|čsob|unicredit|tatra banka|prima banka/i.test(supplierName)) {
     return { ico: cleanIco || undefined, resolvedIco: cleanIco || undefined, hasIco: Boolean(cleanIco), active: false, exempt: true, source: 'BANK_EXEMPTION' };
+  }
+
+  // 2. Štát, ministerstvá, štátne fondy, verejné orgány, obce a mestá (§ 2 ods. 3 písm. a, b, c Zákona o RPVS)
+  // Štátne orgány a verejnoprávne subjekty nemajú povinnosť zápisu v RPVS, pretože ich konečným užívateľom výhod je verejnosť/štát.
+  const STATE_KEYWORDS = /ministerstvo|rezort|štátn|sociálna poisťovňa|environmentálny fond|fond rozvoja|slovenská pošta|železnice|lesy sr|úrad práce|úrad verejného|žilinský samosprávny|mesto |obec |slovenská akadémia|všeobecná zdravotná|všzp/i;
+  
+  if (supplierName && STATE_KEYWORDS.test(supplierName)) {
+    return { ico: cleanIco || undefined, resolvedIco: cleanIco || undefined, hasIco: Boolean(cleanIco), active: false, exempt: true, source: 'STATE_ENTITY_EXEMPTION' };
   }
 
   // Stage 1: Check by ICO via OData API

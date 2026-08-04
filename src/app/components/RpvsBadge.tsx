@@ -38,10 +38,10 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
     return (
       <div 
         className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 text-amber-400 text-xs font-semibold rounded border border-amber-500/20"
-        title="Firma nie je zapísaná v RPVS, no vzťahuje sa na ňu zákonná výnimka podľa § 2 ods. 3 Zákona č. 315/2016 Z. z. (napr. banky a úverové inštitúcie)."
+        title="Subjekt nie je zapísaný v RPVS, pretože podlieha zákonnej výnimke podľa § 2 ods. 3 Zákona č. 315/2016 Z. z. (štátne orgány, ministerstvá, štátne fondy, obce, banky)."
       >
         <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-        Firma nie je v RPVS (má výnimku)
+        Subjekt nie je v RPVS (má výnimku)
       </div>
     );
   }
