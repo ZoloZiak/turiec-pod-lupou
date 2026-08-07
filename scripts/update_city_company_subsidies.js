@@ -40,7 +40,8 @@ async function updateResults() {
       .from('city_companies')
       .select('id, name')
       .eq('ico', item.ico)
-      .single();
+      .eq('year', YEAR)
+      .maybeSingle();
 
     if (existing) {
       await supabase
