@@ -1,125 +1,103 @@
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config({ path: '.env.local' });
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+/**
+ * DIAGNOSE-ONLY audit dodávateľských IČO. NIKDY nezapisuje do DB.
+ * Krížovo overuje IČO->názov cez DVA registre (RÚZ registeruz.sk + RPO ŠÚ SR)
+ * a klasifikuje každý subjekt. Výsledok -> .audit/icos_candidates.json.
+ *
+ * Prečo diagnose-only: bezpečné auto-nájdenie SPRÁVNEHO IČO pre zle-uvedený
+ * subjekt sa cez registre spoľahlivo nedá (RÚZ nazov= nefiltruje). Preto tu
+ * len KLASIFIKUJEME; skutočnú opravu robí človek/cielený migračný skript
+ * (vzor migrate_swapped_icos.js: dry-run -> apply) len na vysoko-istých zhodách.
+ *
+ * Klasifikácia:
+ *  OK          - RÚZ/RPO názov sa po normalizácii zhoduje (líši sa len právna forma/medzery/diakritika).
+ *  FORMAT_ONLY - drobný rozdiel v písaní, ten istý subjekt (nemeniť).
+ *  MISMATCH    - IČO patrí PREUKÁZATEĽNE inému subjektu (oba registre sa zhodujú na inom mene). Kandidát na ručnú opravu.
+ *  NOT_FOUND   - IČO v ani jednom registri (možný preklep). Kandidát na ručnú kontrolu.
+ *  API_ERR     - dočasná chyba, preveriť neskôr.
+ */
+const fetchFn = global.fetch;
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error("Chýbajú Supabase kľúče!");
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}
-
-function cleanNameForSearch(name) {
-  if (!name) return '';
-  return name
-    .replace(/&quot;/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/s\.r\.o\.|a\.s\.|spol\. s r\.o\.|s\. r\.o\.| o\.z\.| spolek| k\.s\.| v\.o\.s\./gi, '')
+function norm(s) {
+  return (s || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')            // diakritika
+    .replace(/&quot;|&amp;|"|'|,|\./g, ' ')
+    .replace(/\b(s\s*r\s*o|a\s*s|spol|k\s*s|v\s*o\s*s|o\s*z|n\s*o|akciova spolocnost|spolocnost)\b/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 }
-
-async function deepAuditAllIcos() {
-  console.log("==================================================");
-  console.log("🕵️‍♂️ KRTKO: SPÚŠŤAM HLBOKÝ AUDIT VŠETKÝCH 342 ENTÍT CEZ RÚZ API");
-  console.log("==================================================\n");
-
-  const { data: entities, error } = await supabase
-    .from('entities')
-    .select('id, name, ico')
-    .order('name');
-
-  if (error) {
-    console.error("Chyba pri načítaní entít z DB:", error);
-    return;
-  }
-
-  const realEntities = entities.filter(e => e.ico && !e.ico.startsWith('NO_ICO_') && /^\d{8}$/.test(e.ico));
-  console.log(`📋 Načítaných ${realEntities.length} entít s 8-miestnym IČO na preverenie.`);
-
-  const suspicious = [];
-
-  const BATCH_SIZE = 15;
-  for (let i = 0; i < realEntities.length; i += BATCH_SIZE) {
-    const batch = realEntities.slice(i, i + BATCH_SIZE);
-
-    await Promise.all(batch.map(async (e) => {
-      try {
-        // Query RÚZ API by ICO
-        const ruzRes = await fetch(`https://www.ruzstat.sk/api/subjekty?ico=${e.ico}`);
-        if (ruzRes.ok) {
-          const ruzData = await ruzRes.json();
-          if (ruzData.id && ruzData.id.length > 0) {
-            const subRes = await fetch(`https://www.ruzstat.sk/api/subjekt?id=${ruzData.id[0]}`);
-            if (subRes.ok) {
-              const sub = await subRes.json();
-              const officialName = sub.pravneMeno || '';
-
-              const cleanDb = cleanNameForSearch(e.name).toLowerCase();
-              const cleanOff = cleanNameForSearch(officialName).toLowerCase();
-
-              const wordsDb = cleanDb.split(/\s+/).filter(w => w.length >= 3 && !['spol', 'sro', 'voa'].includes(w));
-              const hasMatch = wordsDb.some(w => cleanOff.includes(w));
-
-              if (!hasMatch && wordsDb.length > 0) {
-                suspicious.push({ entity: e, officialName, reason: `Meno nesúhlasí: DB "${e.name}" vs RÚZ "${officialName}"` });
-              }
-            }
-          } else {
-            suspicious.push({ entity: e, officialName: 'Nenájdené v RÚZ', reason: 'IČO sa nenachádza v RÚZ' });
-          }
-        }
-      } catch(err) {
-        suspicious.push({ entity: e, officialName: err.message, reason: 'Chyba API' });
-      }
-    }));
-
-    await sleep(100);
-  }
-
-  console.log(`\n==================================================`);
-  console.log(`🚨 ZISTENÉ PODOZRENIA / NESÚHLASY: ${suspicious.length}`);
-  console.log(`==================================================\n`);
-
-  for (const s of suspicious) {
-    console.log(`❌ DB: "${s.entity.name}" (IČO: ${s.entity.ico}) | ${s.reason}`);
-    
-    // Hľadať správne IČO v RÚZ podľa mena
-    try {
-      const searchName = cleanNameForSearch(s.entity.name);
-      const searchRes = await fetch(`https://www.ruzstat.sk/api/subjekty?nazov=${encodeURIComponent(searchName)}`);
-      if (searchRes.ok) {
-        const searchData = await searchRes.json();
-        if (searchData.id && searchData.id.length > 0) {
-          const subRes = await fetch(`https://www.ruzstat.sk/api/subjekt?id=${searchData.id[0]}`);
-          if (subRes.ok) {
-            const sub = await subRes.json();
-            if (sub.ico && sub.ico !== s.entity.ico) {
-              console.log(`   ✨ OPRAVA NÁJDENÁ: Skutočné IČO pre "${s.entity.name}" je ${sub.ico} (${sub.pravneMeno})`);
-              
-              // Slúčiť alebo aktualizovať v Supabase
-              const { data: existing } = await supabase.from('entities').select('id').eq('ico', sub.ico);
-              if (existing && existing.length > 0) {
-                const targetId = existing[0].id;
-                await supabase.from('transactions').update({ supplier_entity_id: targetId }).eq('supplier_entity_id', s.entity.id);
-                await supabase.from('transactions').update({ buyer_entity_id: targetId }).eq('buyer_entity_id', s.entity.id);
-                await supabase.from('entities').delete().eq('id', s.entity.id);
-              } else {
-                await supabase.from('entities').update({ ico: sub.ico, name: sub.pravneMeno }).eq('id', s.entity.id);
-              }
-            }
-          }
-        }
-      }
-    } catch(errFix) {}
-  }
-
-  console.log("\n🎉 HLBOKÝ AUDIT DOKONČENÝ.");
+function coreWords(s) {
+  return norm(s).split(' ').filter(w => w.length >= 3);
+}
+function sameSubject(a, b) {
+  const wa = coreWords(a), wb = new Set(coreWords(b));
+  if (!wa.length) return false;
+  const hit = wa.filter(w => wb.has(w)).length;
+  return hit / wa.length >= 0.5;   // väčšina jadrových slov sa zhoduje
 }
 
-deepAuditAllIcos();
+async function ruzName(ico) {
+  try {
+    const r = await fetchFn(`https://www.registeruz.sk/cruz-public/api/uctovne-jednotky?ico=${ico}&zmenene-od=2005-01-01`);
+    if (!r.ok) return { err: 'ruz http ' + r.status };
+    const j = await r.json();
+    if (!j.id || !j.id.length) return { name: null };
+    const d = await (await fetchFn(`https://www.registeruz.sk/cruz-public/api/uctovna-jednotka?id=${j.id[0]}`)).json();
+    return { name: d.nazovUJ || null };
+  } catch (e) { return { err: e.message }; }
+}
+async function rpoName(ico) {
+  try {
+    const r = await fetchFn(`https://api.statistics.sk/rpo/v1/search?identifier=${ico}`);
+    if (!r.ok) return { err: 'rpo http ' + r.status };
+    const j = await r.json();
+    for (const e of (j.results || [])) {
+      for (const idf of (e.identifiers || [])) {
+        if (idf.value === ico) return { name: (e.fullNames || [{}])[0].value || null };
+      }
+    }
+    return { name: null };
+  } catch (e) { return { err: e.message }; }
+}
+
+async function run() {
+  const { data: entities, error } = await supabase.from('entities').select('id, name, ico').order('name');
+  if (error) { console.error('DB:', error.message); process.exit(1); }
+  const real = entities.filter(e => e.ico && !e.ico.startsWith('NO_ICO_') && /^\d{8}$/.test(e.ico));
+  console.log(`Preverujem ${real.length} entít (diagnose-only, 2 registre)...`);
+
+  const out = { generated: new Date().toISOString(), total: real.length, ok: 0, format_only: [], mismatch: [], not_found: [], api_err: [] };
+  const B = 10;
+  for (let i = 0; i < real.length; i += B) {
+    await Promise.all(real.slice(i, i + B).map(async (e) => {
+      const ruz = await ruzName(e.ico);
+      const rpo = await rpoName(e.ico);
+      const names = [ruz.name, rpo.name].filter(Boolean);
+      if (ruz.err && rpo.err) { out.api_err.push({ ico: e.ico, db: e.name, ruz: ruz.err, rpo: rpo.err }); return; }
+      if (!names.length) { out.not_found.push({ ico: e.ico, db: e.name }); return; }
+      const anyMatch = names.some(n => sameSubject(e.name, n) || sameSubject(n, e.name));
+      if (anyMatch) {
+        const exact = names.some(n => norm(n) === norm(e.name));
+        if (exact) out.ok++;
+        else out.format_only.push({ ico: e.ico, db: e.name, reg: names });
+      } else {
+        out.mismatch.push({ ico: e.ico, db: e.name, ruz: ruz.name || null, rpo: rpo.name || null });
+      }
+    }));
+    if (i % 50 === 0) console.log(`  ${i}/${real.length}`);
+    await new Promise(r => setTimeout(r, 120));
+  }
+
+  const fs = require('fs');
+  const path = require('path');
+  const dir = path.join(process.cwd(), '.audit');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'icos_candidates.json'), JSON.stringify(out, null, 2));
+  console.log(`\nHOTOVO. ok=${out.ok} format_only=${out.format_only.length} MISMATCH=${out.mismatch.length} not_found=${out.not_found.length} api_err=${out.api_err.length}`);
+  console.log('Výsledok: .audit/icos_candidates.json (ŽIADNE DB zmeny). MISMATCH/not_found preveriť ručne — NEauto-fixovať bulk.');
+}
+run();
