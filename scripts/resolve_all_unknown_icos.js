@@ -15,7 +15,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const KNOWN_MAPPINGS = {
   'ministerstvo investícií, regionálneho rozvoja a informatizácie slovenskej republiky': '50349287',
   'slovenská sporiteľňa, a.s.': '00151653',
-  'mesto martin': '00316741',
+  'mesto martin': '00316792',
   'dopravný podnik mesta martin, s.r.o.': '53560922',
   'dopravný podnik mesta martin, s. r. o.': '53560922',
   'tucon, a.s,': '36423086',
@@ -63,10 +63,10 @@ const KNOWN_MAPPINGS = {
   'stefe martin, a.s.': '36395714',
   'martinská parkovacia spoločnosť, a.s.': '36387959',
   'sociálny podnik mesta martin, s. r. o.': '53584244',
-  'správa športových zariadení mesta martin': '37905185',
-  'kultúrna scéna martin': '53560795',
+  'správa športových zariadení mesta martin': '37806939',
+  'kultúrna scéna martin': '42386497',
   'oblastná organizácia cestovného ruchu turiec': '42220360',
-  'turčianska vodárenská spoločnosť, a.s.': '36402691'
+  'turčianska vodárenská spoločnosť, a.s.': '36672084'
 };
 
 /**

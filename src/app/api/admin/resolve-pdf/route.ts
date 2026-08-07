@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     // 2. Get Buyer (Mesto Martin)
     const { data: buyer } = await supabase.from('entities')
       .select('id')
-      .eq('ico', '00316741')
+      .eq('ico', '00316792')
       .single();
 
     if (!buyer) {

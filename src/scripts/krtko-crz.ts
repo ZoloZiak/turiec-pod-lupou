@@ -132,27 +132,27 @@ async function runKrtko() {
   try {
     // 1. Zaručiť existence mestskej entít
     const entitiesToInsert = [
-      { ico: '00316741', name: 'Mesto Martin', type: 'MUNICIPALITY', normalized_name: 'mesto martin' },
+      { ico: '00316792', name: 'Mesto Martin', type: 'MUNICIPALITY', normalized_name: 'mesto martin' },
       { ico: '36387959', name: 'Martinská parkovacia spoločnosť, a.s.', type: 'MUNICIPALITY', normalized_name: 'martinska parkovacia spolocnost a s' },
       { ico: '53560922', name: 'Dopravný podnik mesta Martin, s.r.o.', type: 'MUNICIPALITY', normalized_name: 'dopravny podnik mesta martin s r o' },
       { ico: '42220360', name: 'Oblastná organizácia cestovného ruchu Turiec', type: 'MUNICIPALITY', normalized_name: 'oblastna organizacia cestovneho ruchu turiec' },
-      { ico: '36402691', name: 'Turčianska vodárenská spoločnosť, a.s.', type: 'MUNICIPALITY', normalized_name: 'turcianska vodarenska spolocnost a s' },
-      { ico: '52402126', name: 'Sociálny podnik mesta Martin, s. r. o.', type: 'MUNICIPALITY', normalized_name: 'socialny podnik mesta martin s r o' },
-      { ico: '37905185', name: 'Správa športových zariadení mesta Martin', type: 'MUNICIPALITY', normalized_name: 'sprava sportovych zariadeni mesta martin' },
-      { ico: '53560795', name: 'Kultúrna scéna Martin', type: 'MUNICIPALITY', normalized_name: 'kulturna scena martin' }
+      { ico: '36672084', name: 'Turčianska vodárenská spoločnosť, a.s.', type: 'MUNICIPALITY', normalized_name: 'turcianska vodarenska spolocnost a s' },
+      { ico: '53584244', name: 'Sociálny podnik mesta Martin, s. r. o.', type: 'MUNICIPALITY', normalized_name: 'socialny podnik mesta martin s r o' },
+      { ico: '37806939', name: 'Správa športových zariadení mesta Martin', type: 'MUNICIPALITY', normalized_name: 'sprava sportovych zariadeni mesta martin' },
+      { ico: '42386497', name: 'Kultúrna scéna MARTIN', type: 'MUNICIPALITY', normalized_name: 'kulturna scena martin' }
     ];
 
     await supabase.from('entities').upsert(entitiesToInsert, { onConflict: 'ico' });
 
     const searchTargets = [
-      { name: 'Mesto Martin', ico: '00316741' },
+      { name: 'Mesto Martin', ico: '00316792' },
       { name: 'Dopravný podnik mesta Martin', ico: '53560922' },
       { name: 'Martinská parkovacia spoločnosť', ico: '36387959' },
       { name: 'Oblastná organizácia cestovného ruchu Turiec', ico: '42220360' },
-      { name: 'Turčianska vodárenská spoločnosť', ico: '36402691' },
-      { name: 'Sociálny podnik mesta Martin', ico: '52402126' },
-      { name: 'Správa športových zariadení mesta Martin', ico: '37905185' },
-      { name: 'Kultúrna scéna Martin', ico: '53560795' }
+      { name: 'Turčianska vodárenská spoločnosť', ico: '36672084' },
+      { name: 'Sociálny podnik mesta Martin', ico: '53584244' },
+      { name: 'Správa športových zariadení mesta Martin', ico: '37806939' },
+      { name: 'Kultúrna scéna Martin', ico: '42386497' }
     ];
 
     // Spustime vsetky organizacie paralelne (namiesto for...of)

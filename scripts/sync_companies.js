@@ -12,10 +12,10 @@ const targetCompanies = [
   { name: 'Martinská parkovacia spoločnosť, a.s.', ico: '36387959', type: 'Parkovanie' },
   { name: 'Dopravný podnik mesta Martin, s.r.o.', ico: '53560922', type: 'MHD' },
   { name: 'Oblastná organizácia cestovného ruchu Turiec', ico: '42220360', type: 'Cestovný ruch' },
-  { name: 'Turčianska vodárenská spoločnosť, a.s.', ico: '36402691', type: 'Vodárne' },
-  { name: 'Sociálny podnik mesta Martin, s. r. o.', ico: '52402126', type: 'Služby' },
-  { name: 'Správa športových zariadení mesta Martin', ico: '37905185', type: 'Šport' },
-  { name: 'Kultúrna scéna Martin', ico: '53560795', type: 'Kultúra' }
+  { name: 'Turčianska vodárenská spoločnosť, a.s.', ico: '36672084', type: 'Vodárne' },
+  { name: 'Sociálny podnik mesta Martin, s. r. o.', ico: '53584244', type: 'Služby' },
+  { name: 'Správa športových zariadení mesta Martin', ico: '37806939', type: 'Šport' },
+  { name: 'Kultúrna scéna Martin', ico: '42386497', type: 'Kultúra' }
 ];
 
 async function scrapeFinstatProfit(ico) {
@@ -48,7 +48,7 @@ async function scrapeFinstatProfit(ico) {
 // Vypočíta reálne sumy zmlúv (dotácií) pre daný podnik z našej CRZ databázy PRE DANÝ ROK
 async function getCitySubsidyFromCRZ(ico, year) {
   // Najprv nájdeme interné ID mesta Martin (aby sme rátali len dotácie od mesta)
-  const { data: mesto } = await supabase.from('entities').select('id').eq('ico', '00316741').single();
+  const { data: mesto } = await supabase.from('entities').select('id').eq('ico', '00316792').single();
   if (!mesto) return 0;
   
   // Získame názov cieľovej firmy pre textové porovnanie

@@ -57,7 +57,7 @@ async function extractFromPdf(url: string) {
         .upsert({ ico: ico, name: fallbackName, type: 'COMPANY', normalized_name: fallbackName.toLowerCase() }, { onConflict: 'ico' })
         .select('id').single();
       
-      const { data: buyer } = await supabase.from('entities').select('id').eq('ico', '00316741').single(); // Mesto Martin
+      const { data: buyer } = await supabase.from('entities').select('id').eq('ico', '00316792').single(); // Mesto Martin
 
       if (supplier && buyer) {
         // 2. Vytvoriť transakciu
