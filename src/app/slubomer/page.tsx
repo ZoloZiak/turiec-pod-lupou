@@ -66,6 +66,10 @@ export default async function SlubomerPage() {
               <p className="text-sm text-blue-700 mt-1">
                 Databáza predvolebných sľubov primátora a poslancov. Ku každému sľubu sa snažíme priradiť reálnu zmluvu alebo faktúru, aby sme videli, či sa na ňom skutočne pracuje a koľko nás to reálne stojí.
               </p>
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
+                <strong>Upozornenie:</strong> Stav plnenia sľubov zatiaľ nie je doložený konkrétnymi dokumentmi (uznesenie MsZ, VZN, zmluva v CRZ). Kým prebieha overovanie, sľuby uvádzame neutrálne a nehodnotíme ich ako splnené či nesplnené.
+              </p>
+
             </div>
           </div>
 
