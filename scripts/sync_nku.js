@@ -16,14 +16,6 @@ const VERIFIED_NKU_REPORTS = [
     penalty_eur: 0,
     year: 2024,
     report_url: "https://www.nku.gov.sk/-/cerpanie-financii-z-planu-obnovy-pri-nemocniciach-razsochy-a-martin-bolo-od-zaciatku-ohrozene"
-  },
-  {
-    title: "Kontrola hospodárenia s majetkom a finančnými prostriedkami samosprávy (Mesto Martin)",
-    status: "Dodržané pravidlá s odporúčaniami",
-    description: "Protokol NKÚ SR zameraný na dodržiavanie zákona o rozpočtových pravidlách samosprávy, nakladanie s mestským majetkom a efektivitu nákladov na Mestskom úrade v Martine.",
-    penalty_eur: 0,
-    year: 2022,
-    report_url: "https://www.nku.gov.sk/spravy-o-vysledkach-kontrol-od-roku-2012"
   }
 ];
 
