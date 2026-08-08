@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, FileText, Building2, TrendingUp, Filter, AlertTriangle, ExternalLink, Calendar, Link as LinkIcon, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck, Globe, Users, Activity } from "lucide-react";
+import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 import VerifiedBadge from "./components/VerifiedBadge";
@@ -11,8 +11,31 @@ import { isRpvsExempt } from "@/lib/telegram";
 import NumberFlow from "@number-flow/react";
 import SpotlightCard from "./components/SpotlightCard";
 
+type Entity = { name: string; ico: string };
+type Supplier = { name: string; ico: string };
+type Tx = {
+  id: string;
+  external_id?: string;
+  source_type: 'CRZ_CONTRACT' | 'WEB_INVOICE';
+  amount_eur: number;
+  subject: string;
+  date_published: string;
+  source_url?: string;
+  buyer?: Entity;
+  supplier?: Supplier;
+  suspicious?: boolean;
+};
+type SupplierAgg = { name: string; value: number };
+type DashboardData = {
+  success: boolean;
+  stats: { totalSpent: number; totalContracts: number; entitiesCount: number };
+  topSuppliers: SupplierAgg[];
+  transactions: Tx[];
+  entities: Entity[];
+};
+
 export default function Dashboard() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedIco, setSelectedIco] = useState("");
   const [selectedSupplierName, setSelectedSupplierName] = useState<string | null>(null);
@@ -24,24 +47,43 @@ export default function Dashboard() {
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const ITEMS_PER_PAGE = 20;
 
-  // Zrušiť filtre pri zmene organizácie
-  useEffect(() => {
+  const fetchData = useCallback(async (ico: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/data${ico ? `?ico=${ico}` : ""}`);
+      const json = await res.json();
+      if (json.success) setData(json);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const changeIco = useCallback((ico: string) => {
     setSelectedSupplierName(null);
     setSearchTerm("");
     setRedFlagFilter("all");
     setSourceTypeFilter("all");
     setSelectedYear("all");
     setCurrentPage(1);
+    setSelectedIco(ico);
+  }, []);
+
+  // Načítať dáta pri zmene organizácie (filtre resetuje changeIco).
+  // Legitímny data-fetch effekt (fetchData nastavuje loading/data) — zámerný vzor.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData(selectedIco);
-  }, [selectedIco]);
+  }, [selectedIco, fetchData]);
 
   // Dynamic list of available years
   const availableYears = Array.from(
-    new Set(data?.transactions?.map((t: any) => new Date(t.date_published).getFullYear()).filter(Boolean))
-  ).sort((a: any, b: any) => b - a);
+    new Set(data?.transactions?.map((t: Tx) => new Date(t.date_published).getFullYear()).filter(Boolean))
+  ).sort((a, b) => (b as number) - (a as number));
 
   // Compute filtered transactions
-  const filteredTransactions = data?.transactions?.filter((t: any) => {
+  const filteredTransactions = data?.transactions?.filter((t: Tx) => {
     if (selectedSupplierName && t.supplier?.name !== selectedSupplierName) return false;
     if (redFlagFilter === 'high_amount' && t.amount_eur < 100000) return false;
     if (redFlagFilter === 'missing_contract' && !t.suspicious) return false;
@@ -63,19 +105,6 @@ export default function Dashboard() {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
-  const fetchData = async (ico: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/data${ico ? `?ico=${ico}` : ""}`);
-      const json = await res.json();
-      if (json.success) setData(json);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatEur = (val: number) => {
     return new Intl.NumberFormat("sk-SK", { style: "currency", currency: "EUR" }).format(val);
@@ -141,15 +170,15 @@ export default function Dashboard() {
                <p className="text-xs font-bold text-slate-500 uppercase mb-3">Vyberte organizáciu</p>
                <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => { setSelectedIco(""); setIsMenuOpen(false); }}
+                    onClick={() => { changeIco(""); setIsMenuOpen(false); }}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === "" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
                   >
                     Všetky organizácie
                   </button>
-                  {data?.entities?.map((e: any) => (
+                  {data?.entities?.map((e: Entity) => (
                     <button
                       key={e.ico}
-                      onClick={() => { setSelectedIco(e.ico); setIsMenuOpen(false); }}
+                      onClick={() => { changeIco(e.ico); setIsMenuOpen(false); }}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === e.ico ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
                     >
                       {e.name}
@@ -164,15 +193,15 @@ export default function Dashboard() {
         <div className="hidden md:block bg-slate-900/80 backdrop-blur-md border-t md:border-t-0 border-slate-800 w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-2">
             <button
-              onClick={() => setSelectedIco("")}
+              onClick={() => changeIco("")}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === "" ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
             >
               Všetky organizácie
             </button>
-            {data?.entities?.map((e: any) => (
+            {data?.entities?.map((e: Entity) => (
               <button
                 key={e.ico}
-                onClick={() => setSelectedIco(e.ico)}
+                onClick={() => changeIco(e.ico)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-emerald-500 text-white shadow-md ring-2 ring-emerald-500 ring-offset-1 ring-offset-slate-900" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"}`}
               >
                 {e.name}
@@ -183,7 +212,7 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
+        {loading || !data ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
           </div>
@@ -269,7 +298,7 @@ export default function Dashboard() {
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <Tooltip 
-                        formatter={(val: any) => formatEur(val as number)} 
+                        formatter={(val) => formatEur(Number(val))} 
                         contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#f8fafc', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }} 
                         cursor={{ fill: '#1e293b' }}
                       />
@@ -277,13 +306,14 @@ export default function Dashboard() {
                         dataKey="value" 
                         radius={[0, 4, 4, 0]} 
                         className="cursor-pointer"
-                        onClick={(entry: any) => {
-                          if (entry?.name) {
-                            setSelectedSupplierName(entry.name === selectedSupplierName ? null : entry.name);
+                        onClick={(entry) => {
+                          const name = (entry as { name?: string })?.name;
+                          if (name) {
+                            setSelectedSupplierName(name === selectedSupplierName ? null : name);
                           }
                         }}
                       >
-                        {data.topSuppliers.map((entry: any, index: number) => (
+                        {data.topSuppliers.map((entry: SupplierAgg, index: number) => (
                           <Cell 
                             key={`cell-${index}`} 
                             fill={COLORS[index % COLORS.length]} 
@@ -309,13 +339,14 @@ export default function Dashboard() {
                         paddingAngle={5}
                         dataKey="value"
                         className="cursor-pointer"
-                        onClick={(entry: any) => {
-                          if (entry?.name) {
-                            setSelectedSupplierName(entry.name === selectedSupplierName ? null : entry.name);
+                        onClick={(entry) => {
+                          const name = (entry as { name?: string })?.name;
+                          if (name) {
+                            setSelectedSupplierName(name === selectedSupplierName ? null : name);
                           }
                         }}
                       >
-                        {data.topSuppliers.slice(0,5).map((entry: any, index: number) => (
+                        {data.topSuppliers.slice(0,5).map((entry: SupplierAgg, index: number) => (
                           <Cell 
                             key={`pie-${index}`} 
                             fill={COLORS[index % COLORS.length]} 
@@ -323,7 +354,7 @@ export default function Dashboard() {
                           />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(val: any) => formatEur(val as number)} />
+                      <Tooltip formatter={(val) => formatEur(Number(val))} />
                     </PieChart>
                   </ResponsiveContainer>
                  </div>
@@ -425,7 +456,7 @@ export default function Dashboard() {
                       className="bg-slate-800 border border-slate-700 text-slate-200 rounded-md px-2 py-1 text-xs focus:ring-1 focus:ring-emerald-500 cursor-pointer"
                     >
                       <option value="all">Všetky roky</option>
-                      {availableYears.map((y: any) => (
+                      {availableYears.map((y: number) => (
                         <option key={y} value={y.toString()}>{y}</option>
                       ))}
                     </select>
@@ -446,7 +477,7 @@ export default function Dashboard() {
                   </thead>
                    <tbody className="divide-y divide-slate-800">
                     {paginatedTransactions.length > 0 ? (
-                      paginatedTransactions.map((t: any) => (
+                      paginatedTransactions.map((t: Tx) => (
                         <tr key={t.id} className="hover:bg-slate-800/50 transition-colors">
                           <td className="px-6 py-4">
                             <p className="font-medium text-slate-200 line-clamp-2" title={t.subject}>{t.subject}</p>
@@ -543,7 +574,7 @@ export default function Dashboard() {
                 {/* MOBILE CARD VIEW */}
                 <div className="md:hidden flex flex-col gap-4 p-4 border-t border-slate-800 bg-slate-950">
                   {paginatedTransactions.length > 0 ? (
-                    paginatedTransactions.map((t: any) => (
+                    paginatedTransactions.map((t: Tx) => (
                       <div key={t.id} className="bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-800">
                         <div className="flex justify-between items-start mb-2">
                           <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-blue-600 hover:underline font-bold text-base truncate pr-2">

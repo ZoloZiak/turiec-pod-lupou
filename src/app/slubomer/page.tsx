@@ -4,6 +4,24 @@ import { CheckCircle, Clock, XCircle, FileText, ArrowLeft, Lightbulb, ExternalLi
 
 export const revalidate = 0;
 
+interface TxRow {
+  id: string;
+  subject?: string;
+  amount_eur?: number;
+  source_url?: string;
+  source_type?: string;
+}
+
+interface PromiseItem {
+  id: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  politician_name?: string;
+  source_url?: string;
+  related_transaction_ids?: string[];
+}
+
 function formatEur(amount: number) {
   return new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR' }).format(amount);
 }
@@ -37,7 +55,7 @@ export default async function SlubomerPage() {
     txMap = new Map((relatedTransactions || []).map(t => [t.id, t]));
   }
 
-  const getStatusUI = (status: string) => {
+  const getStatusUI = (status: string | undefined) => {
     switch(status) {
       case 'SPLNENÉ': return { icon: <CheckCircle className="w-5 h-5 text-emerald-500" />, bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
       case 'V RIEŠENÍ': return { icon: <Clock className="w-5 h-5 text-amber-500" />, bg: 'bg-amber-50 text-amber-700 border-amber-200' };
@@ -76,7 +94,7 @@ export default async function SlubomerPage() {
           <div className="divide-y divide-slate-100">
             {!promises || promises.length === 0 ? (
               <div className="p-8 text-center text-slate-500">Zatiaľ neboli do databázy vložené žiadne sľuby. (Alebo si ešte nespustil migráciu v databáze).</div>
-            ) : promises.map((promise: any) => {
+            ) : promises.map((promise: PromiseItem) => {
               const statusUI = getStatusUI(promise.status);
               const txs = (promise.related_transaction_ids || []).map((id: string) => txMap.get(id)).filter(Boolean);
 
@@ -111,7 +129,7 @@ export default async function SlubomerPage() {
                         <FileText className="w-4 h-4" /> Dôkazy z CRZ / Faktúr
                       </h4>
                       <div className="space-y-2">
-                        {txs.map((tx: any) => (
+                        {txs.map((tx: TxRow) => (
                           <div key={tx.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
                             <span className="text-sm font-medium text-slate-700 line-clamp-1 flex-1" title={tx.subject}>
                               {tx.subject}

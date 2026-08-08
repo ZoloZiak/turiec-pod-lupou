@@ -32,7 +32,7 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
   const startDate = process.env.SCAN_START_DATE || "";
   const endDate = process.env.SCAN_END_DATE || "";
   console.log(`🔍 Vyhľadávam zmluvy v CRZ pre: ${queryName}${startDate ? ` od ${startDate}` : ""}${endDate ? ` do ${endDate}` : ""}...`);
-  let allContracts: RealContract[] = [];
+  const allContracts: RealContract[] = [];
   let page = 0;
   let hasMore = true;
 
@@ -86,7 +86,7 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
             if (dateMatch) {
               realPublishedAt = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
             }
-          } catch(e) {
+          } catch {
              console.error("Nedalo sa ziskat detail pre " + id);
           }
           return {
@@ -165,7 +165,7 @@ async function runKrtko() {
 
       // Hromadne ulozenie zmluv pre dany podniku (vnutorna paralerizacia)
       await Promise.all(contracts.map(async (contract) => {
-        const fallbackIco = (contract as any).supplier_ico || `NO_ICO_${contract.supplier_name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15).toUpperCase()}`;
+        const fallbackIco = contract.supplier_ico || `NO_ICO_${contract.supplier_name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15).toUpperCase()}`;
         let { data: supplier } = await supabase.from('entities')
           .select('id')
           .eq('ico', fallbackIco)
@@ -204,7 +204,7 @@ async function runKrtko() {
           amount: contract.amount,
           buyer_name: target.name,
           supplier_name: contract.supplier_name,
-          supplier_ico: (contract as any).supplier_ico,
+          supplier_ico: contract.supplier_ico,
           url: contract.url,
           published_at: contract.published_at,
         });
@@ -214,9 +214,9 @@ async function runKrtko() {
     console.log('🎉 Sťahovanie a ukladanie reálnych zmlúv je DOKONČENÉ!');
     await supabase.from('system_logs').insert({ source: 'CRZ_KRTKO', message: 'Sťahovanie dokončené úspešne.' });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('❌ Chyba pri behu Krtka:', err);
-    await supabase.from('system_logs').insert({ source: 'CRZ_KRTKO', message: 'Kritická chyba pri behu skriptu', parsed_data: { error: err.message } });
+    await supabase.from('system_logs').insert({ source: 'CRZ_KRTKO', message: 'Kritická chyba pri behu skriptu', parsed_data: { error: err instanceof Error ? err.message : String(err) } });
   }
 }
 

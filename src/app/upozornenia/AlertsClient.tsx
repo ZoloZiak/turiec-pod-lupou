@@ -5,17 +5,26 @@ import { Search, AlertTriangle, ShieldAlert, Calendar, FileText, CheckCircle, Ex
 import Link from 'next/link';
 import RpvsBadge from '../components/RpvsBadge';
 
+interface Alert {
+  id: string;
+  amount_eur?: number;
+  subject?: string;
+  source_url?: string;
+  date_published?: string;
+  supplier?: { name?: string; ico?: string };
+}
+
 function formatEur(amount: number) {
   return new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR' }).format(amount);
 }
 
-function formatDate(dateStr: any) {
+function formatDate(dateStr: string | null | undefined) {
   if (!dateStr) return '—';
   const date = new Date(dateStr);
   return isNaN(date.getTime()) ? '—' : date.toLocaleDateString('sk-SK');
 }
 
-export default function AlertsClient({ over100k, missingCrz }: { over100k: any[], missingCrz: any[] }) {
+export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert[], missingCrz: Alert[] }) {
   const [activeTab, setActiveTab] = useState<'100k' | 'crz'>('100k');
   const [searchTerm, setSearchTerm] = useState('');
   const [minAmount, setMinAmount] = useState<number>(0);

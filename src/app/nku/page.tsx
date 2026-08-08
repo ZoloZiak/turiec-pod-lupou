@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldAlert, FileText, ArrowRight, XCircle, CheckCircle2 } from "lucide-react";
+import { ShieldAlert, ArrowRight, XCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
 import { createClient } from "@supabase/supabase-js";
@@ -11,7 +11,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function NkuPage() {
-  const [nkuReports, setNkuReports] = useState<any[]>([]);
+  const [nkuReports, setNkuReports] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

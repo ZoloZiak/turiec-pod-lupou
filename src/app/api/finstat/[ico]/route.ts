@@ -12,7 +12,7 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     
     // Fetch finstat html
-    // @ts-ignore
+    // @ts-expect-error cloudscraper nemá typové definície
     const html = await cloudscraper.get(`https://finstat.sk/${ico}`);
     const $ = cheerio.load(html);
     
@@ -29,7 +29,7 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
     if (trzbyMatch) trzby = parseInt(trzbyMatch[1].replace(/[\s\u00A0]/g, ''), 10);
     
     // Also extract name to be sure
-    let name = $('h1.title').text().trim() || $('title').text().replace(/ IČO.*/, '').trim();
+    const name = $('h1.title').text().trim() || $('title').text().replace(/ IČO.*/, '').trim();
 
     return NextResponse.json({ 
       success: true,
@@ -40,7 +40,7 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
         metaDescription
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Finstat fetch error:", error);
     return NextResponse.json({ success: false, error: 'Nepodarilo sa stiahnuť FinStat dáta' }, { status: 500 });
   }

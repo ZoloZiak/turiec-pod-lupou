@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CheckCircle, AlertTriangle, ArrowRight, Search, Lightbulb, Plus, Trash2, Edit2, Check, FileText } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { CheckCircle, AlertTriangle, ArrowRight, Search, Plus, Trash2, Edit2, Check, FileText } from "lucide-react";
+import Link from "next/link";
 
 export default function AdminPage() {
   const [unmapped, setUnmapped] = useState<any[]>([]);
@@ -34,13 +35,7 @@ export default function AdminPage() {
   const [editForm, setEditForm] = useState<any>({});
   const [isCreating, setIsCreating] = useState(false);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchData();
-    }
-  }, [isAuthenticated]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/admin/unmapped');
@@ -50,7 +45,7 @@ export default function AdminPage() {
         setRealEntities(json.realEntities);
         
         const initialMappings: Record<string, { ico: string, name: string }> = {};
-        json.unmapped.forEach((u: any) => {
+        json.unmapped.forEach((u: { id: string; name: string }) => {
           initialMappings[u.id] = { ico: "", name: u.name };
         });
         setMappings(initialMappings);
@@ -79,7 +74,13 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, fetchData]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -250,9 +251,9 @@ export default function AdminPage() {
         <div className="max-w-6xl mx-auto">
           <header className="mb-8">
             <div className="mb-4">
-              <a href="/" className="text-sm font-medium text-blue-600 hover:underline">
+              <Link href="/" className="text-sm font-medium text-blue-600 hover:underline">
                 &larr; Späť na Dashboard
-              </a>
+              </Link>
             </div>
             <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
               <AlertTriangle className="text-amber-500 w-8 h-8" />

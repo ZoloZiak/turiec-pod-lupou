@@ -6,11 +6,23 @@ import AlertsClient from "./AlertsClient";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Vždy fetchnúť čerstvé dáta
 
+interface Transaction {
+  id: string;
+  amount_eur?: number;
+  subject?: string;
+  source_type?: string;
+  source_url?: string;
+  date_published?: string;
+  supplier?: { ico?: string; name?: string };
+  buyer?: { name?: string };
+  suspicious?: boolean;
+}
+
 export default async function AlertsPage() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-  let allTransactions: any[] = [];
+  let allTransactions: Transaction[] = [];
   if (supabaseUrl && supabaseKey) {
     try {
       const supabase = createClient(supabaseUrl, supabaseKey);
@@ -27,19 +39,19 @@ export default async function AlertsPage() {
       } else if (data) {
         allTransactions = data;
       }
-    } catch (err: any) {
-      console.error("Exception in AlertsPage:", err.message);
+    } catch (err) {
+      console.error("Exception in AlertsPage:", err instanceof Error ? err.message : err);
     }
   }
 
   // Krížová kontrola
   const crzSuppliers = new Set(
     allTransactions
-      .filter((t: any) => t.source_type === 'CRZ_CONTRACT' && t.supplier && t.supplier.ico)
-      .map((t: any) => t.supplier.ico)
+      .filter((t: Transaction) => t.source_type === 'CRZ_CONTRACT' && t.supplier && t.supplier.ico)
+      .map((t: Transaction) => t.supplier!.ico)
   );
 
-  const enrichedTransactions = allTransactions.map((t: any) => {
+  const enrichedTransactions = allTransactions.map((t: Transaction) => {
     let suspicious = false;
     if (t.source_type === 'WEB_INVOICE' && t.supplier && t.supplier.ico) {
       if (!crzSuppliers.has(t.supplier.ico)) {

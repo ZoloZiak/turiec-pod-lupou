@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, MapPin, Building, Calendar, ArrowRight } from "lucide-react";
+import { Globe, Building, Calendar } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
 import { createClient } from "@supabase/supabase-js";
@@ -11,7 +11,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function EurofondyPage() {
-  const [dotacie, setDotacie] = useState<any[]>([]);
+  const [dotacie, setDotacie] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
-// @ts-ignore
+// @ts-expect-error pdf-parse nemá typové definície
 import pdf from 'pdf-parse';
 
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
@@ -93,12 +93,12 @@ async function extractFromPdf(url: string) {
       });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`❌ Chyba pri spracovaní PDF: ${url}`, error);
     await supabase.from('system_logs').insert({ 
       source: 'MANUAL_REVIEW_NEEDED', 
       message: 'Súbor sa nedal stiahnuť alebo prečítať.',
-      parsed_data: { url: url, error: error.message }
+      parsed_data: { url: url, error: error instanceof Error ? error.message : String(error) }
     });
   }
 }

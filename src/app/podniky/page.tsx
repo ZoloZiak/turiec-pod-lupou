@@ -1,8 +1,7 @@
 "use client";
 
-import { Building2, TrendingDown, ArrowRight, Activity, ArrowRightLeft, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Building2, TrendingDown, ArrowRight, Activity, ArrowRightLeft } from "lucide-react";
 import Link from "next/link";
-import VerifiedBadge from "../components/VerifiedBadge";
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 
@@ -11,7 +10,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function PodnikyPage() {
-  const [podniky, setPodniky] = useState<any[]>([]);
+  const [podniky, setPodniky] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Interactive Comparison Mode (Bliźniak)

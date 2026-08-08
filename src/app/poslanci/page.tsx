@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, ThumbsUp, ThumbsDown, Filter, FileText } from "lucide-react";
+import { Users, ThumbsUp, ThumbsDown, FileText } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
 import { createClient } from "@supabase/supabase-js";
@@ -11,7 +11,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function PoslanciPage() {
-  const [hlasovania, setHlasovania] = useState<any[]>([]);
+  const [hlasovania, setHlasovania] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

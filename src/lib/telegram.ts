@@ -12,6 +12,29 @@ export interface TransactionForAudit {
   published_at?: string;
 }
 
+interface RpvsPartner {
+  PartnerId?: number;
+  Ico?: string;
+  TypOsoby?: string;
+}
+
+interface RpvsODataRecord {
+  PlatnostDo?: string | null;
+}
+
+interface RpvsODataResponse {
+  value?: RpvsODataRecord[];
+}
+
+interface TelegramApiResponse {
+  ok: boolean;
+  [key: string]: unknown;
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
 export interface RpvsCheckResult {
   ico?: string;
   resolvedIco?: string;
@@ -66,9 +89,9 @@ export async function checkRpvsStatus(
       const getPartnersUrl = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`;
       const getPartnersRes = await fetch(getPartnersUrl);
       if (getPartnersRes.ok) {
-        const list = (await getPartnersRes.json()) as any[];
+        const list = (await getPartnersRes.json()) as RpvsPartner[];
         if (Array.isArray(list) && list.length > 0) {
-          const partner = list.find((p: any) => p.TypOsoby === 'Partner verejného sektora' || p.PartnerId);
+          const partner = list.find((p: RpvsPartner) => p.TypOsoby === 'Partner verejného sektora' || p.PartnerId);
           if (partner && partner.PartnerId) {
             return {
               ico: cleanIco,
@@ -81,8 +104,8 @@ export async function checkRpvsStatus(
           }
         }
       }
-    } catch (err: any) {
-      console.warn(`[RPVS GetPartners Error] ICO ${cleanIco}:`, err.message);
+    } catch (err: unknown) {
+      console.warn(`[RPVS GetPartners Error] ICO ${cleanIco}:`, errorMessage(err));
     }
   }
 
@@ -92,8 +115,8 @@ export async function checkRpvsStatus(
       const url = `https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?%24filter=${encodeURIComponent(`Ico eq '${cleanIco}'`)}`;
       const res = await fetch(url);
       if (res.ok) {
-        const data = (await res.json()) as any;
-        const isActive = data.value?.some((record: any) => {
+        const data = (await res.json()) as RpvsODataResponse;
+        const isActive = data.value?.some((record: RpvsODataRecord) => {
           if (!record.PlatnostDo) return true;
           return new Date(record.PlatnostDo) > new Date();
         });
@@ -102,17 +125,17 @@ export async function checkRpvsStatus(
           try {
             const gpRes = await fetch(`https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`);
             if (gpRes.ok) {
-              const gpList = await gpRes.json();
+              const gpList = (await gpRes.json()) as RpvsPartner[];
               if (Array.isArray(gpList) && gpList.length > 0 && gpList[0].PartnerId) {
                 resolvedPartnerId = gpList[0].PartnerId;
               }
             }
-          } catch(e) {}
+          } catch {}
           return { ico: cleanIco, resolvedIco: cleanIco, partnerId: resolvedPartnerId, hasIco: true, active: true, source: 'ODATA_ICO' };
         }
       }
-    } catch (err: any) {
-      console.warn(`[RPVS OData Error] ICO ${cleanIco}:`, err.message);
+    } catch (err: unknown) {
+      console.warn(`[RPVS OData Error] ICO ${cleanIco}:`, errorMessage(err));
     }
   }
 
@@ -122,16 +145,16 @@ export async function checkRpvsStatus(
       const url = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`;
       const res = await fetch(url);
       if (res.ok) {
-        const list = (await res.json()) as any[];
+        const list = (await res.json()) as RpvsPartner[];
         if (Array.isArray(list) && list.length > 0) {
-          const partner = list.find((p: any) => p.TypOsoby === 'Partner verejného sektora');
+          const partner = list.find((p: RpvsPartner) => p.TypOsoby === 'Partner verejného sektora');
           if (partner) {
             return { ico: cleanIco, resolvedIco: partner.Ico || cleanIco, hasIco: true, active: true, source: 'GET_PARTNERS_ICO' };
           }
         }
       }
-    } catch (err: any) {
-      console.warn(`[RPVS Stage 2 Error] ICO ${cleanIco}:`, err.message);
+    } catch (err: unknown) {
+      console.warn(`[RPVS Stage 2 Error] ICO ${cleanIco}:`, errorMessage(err));
     }
   }
 
@@ -149,15 +172,15 @@ export async function checkRpvsStatus(
         const url = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(term)}`;
         const res = await fetch(url);
         if (res.ok) {
-          const list = (await res.json()) as any[];
+          const list = (await res.json()) as RpvsPartner[];
           if (Array.isArray(list) && list.length > 0) {
-            const partner = list.find((p: any) => p.TypOsoby === 'Partner verejného sektora' && p.Ico);
+            const partner = list.find((p: RpvsPartner) => p.TypOsoby === 'Partner verejného sektora' && p.Ico);
             if (partner) {
               const odataUrl = `https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?%24filter=${encodeURIComponent(`Ico eq '${partner.Ico}'`)}`;
               const odataRes = await fetch(odataUrl);
               if (odataRes.ok) {
-                const odataData = (await odataRes.json()) as any;
-                const isActive = odataData.value?.some((record: any) => {
+                const odataData = (await odataRes.json()) as RpvsODataResponse;
+                const isActive = odataData.value?.some((record: RpvsODataRecord) => {
                   if (!record.PlatnostDo) return true;
                   return new Date(record.PlatnostDo) > new Date();
                 });
@@ -168,8 +191,8 @@ export async function checkRpvsStatus(
             }
           }
         }
-      } catch (err: any) {
-        console.warn(`[RPVS Stage 3 Error] Name ${term}:`, err.message);
+      } catch (err: unknown) {
+        console.warn(`[RPVS Stage 3 Error] Name ${term}:`, errorMessage(err));
       }
     }
   }
@@ -201,7 +224,7 @@ export async function sendTelegramMessage(text: string, parseMode: 'HTML' | 'Mar
       }),
     });
 
-    const json = (await res.json()) as any;
+    const json = (await res.json()) as TelegramApiResponse;
     if (!json.ok) {
       console.error('❌ Telegram API error:', json);
       return false;

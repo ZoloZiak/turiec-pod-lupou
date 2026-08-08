@@ -3,6 +3,23 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+interface EntityRef {
+  name: string;
+  ico: string;
+}
+
+interface TransactionRow {
+  id: string;
+  external_id: string;
+  source_type: string;
+  amount_eur: number | string;
+  subject: string;
+  date_published: string;
+  source_url: string;
+  buyer: EntityRef | null;
+  supplier: EntityRef | null;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -22,30 +39,31 @@ export async function GET(request: Request) {
     if (entitiesError) throw entitiesError;
 
     // Načítať transakcie so spojenými entitami (Kto kupoval, kto dodával)
-    let query = supabase
+    const query = supabase
       .from('transactions')
       .select('id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)')
       .order('date_published', { ascending: false });
 
-    const { data: transactions, error: txError } = await query;
+    const { data: transactionsData, error: txError } = await query;
     if (txError) throw txError;
+    const transactions = (transactionsData || []) as unknown as TransactionRow[];
 
     // Ak bol zadaný IČO filter pre konkrétnu organizáciu
-    let filteredTransactions = transactions || [];
+    let filteredTransactions: TransactionRow[] = transactions;
     if (filterIco) {
       filteredTransactions = filteredTransactions.filter(
-        (t: any) => t.buyer?.ico === filterIco || t.supplier?.ico === filterIco
+        (t) => t.buyer?.ico === filterIco || t.supplier?.ico === filterIco
       );
     }
 
     // Agregácie (Štatistiky) a Krížová kontrola (Cross-check)
     const crzSuppliers = new Set(
       transactions
-        .filter((t: any) => t.source_type === 'CRZ_CONTRACT' && t.supplier)
-        .map((t: any) => t.supplier.ico)
+        .filter((t) => t.source_type === 'CRZ_CONTRACT' && t.supplier)
+        .map((t) => t.supplier!.ico)
     );
 
-    const enrichedTransactions = filteredTransactions.map((t: any) => {
+    const enrichedTransactions = filteredTransactions.map((t) => {
       let suspicious = false;
       if (t.source_type === 'WEB_INVOICE' && t.supplier) {
         // Skontrolujeme, či dodávateľ má vôbec nejakú zmluvu v CRZ
@@ -59,7 +77,7 @@ export async function GET(request: Request) {
     const totalSpent = enrichedTransactions.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
     
     // Top dodávatelia (Sumár výdavkov podľa dodávateľa)
-    const supplierAgg = filteredTransactions.reduce((acc: any, curr: any) => {
+    const supplierAgg = filteredTransactions.reduce((acc: Record<string, number>, curr) => {
       if (!curr.supplier) return acc;
       const supplierName = curr.supplier.name;
       if (!acc[supplierName]) {
@@ -85,8 +103,8 @@ export async function GET(request: Request) {
       transactions: enrichedTransactions,
       entities: entities || [],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("API Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }

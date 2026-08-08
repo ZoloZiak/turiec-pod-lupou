@@ -13,7 +13,7 @@ const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supa
 
 export default function MajetkyPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [assets, setAssets] = useState<any[]>([]);
+  const [assets, setAssets] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -2,24 +2,75 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search, Share2, Copy, Check } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search, Share2, Check } from "lucide-react";
 import Link from "next/link";
 import { isRpvsExempt } from "@/lib/telegram";
+
+interface Transaction {
+  id: string;
+  subject: string;
+  amount_eur: number;
+  buyer?: { name: string };
+  source_type?: string;
+  source_url?: string;
+  date_published: string;
+}
+
+interface SupplierData {
+  supplier: { name: string; ico: string };
+  transactions: Transaction[];
+  stats: {
+    totalAmount: number;
+    totalCount: number;
+    chartData: { year: string; value: number }[];
+  };
+}
+
+interface FinstatData {
+  zisk: number | null;
+  trzby?: number | null;
+}
 
 export default function SupplierProfilePage() {
   const params = useParams();
   const ico = params.ico as string;
 
-  const [data, setData] = useState<any>(null);
-  const [finstatData, setFinstatData] = useState<any>(null);
+  const [data, setData] = useState<SupplierData | null>(null);
+  const [finstatData, setFinstatData] = useState<FinstatData | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (ico) {
-      fetchSupplierData(ico);
-    }
+    if (!ico) return;
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/supplier?ico=${ico}`);
+        const json = await res.json();
+        if (!cancelled && json.success) setData(json);
+
+        // Súbežné fetchnutie Finstat live dát cez cloudscraper API
+        try {
+          const finstatRes = await fetch(`/api/finstat/${ico}`);
+          const finstatJson = await finstatRes.json();
+          if (!cancelled && finstatJson.success) setFinstatData(finstatJson.data);
+        } catch (e) {
+          console.error("Finstat nepodarilo načítať", e);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [ico]);
 
   const handleShare = () => {
@@ -28,28 +79,6 @@ export default function SupplierProfilePage() {
     navigator.clipboard.writeText(shareText);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
-  };
-
-  const fetchSupplierData = async (icoStr: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/supplier?ico=${icoStr}`);
-      const json = await res.json();
-      if (json.success) setData(json);
-
-      // Súbežné fetchnutie Finstat live dát cez cloudscraper API
-      try {
-        const finstatRes = await fetch(`/api/finstat/${icoStr}`);
-        const finstatJson = await finstatRes.json();
-        if (finstatJson.success) setFinstatData(finstatJson.data);
-      } catch (e) {
-        console.error("Finstat nepodarilo načítať", e);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const formatEur = (val: number) => {
@@ -179,7 +208,7 @@ export default function SupplierProfilePage() {
                   <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                   <YAxis tickFormatter={(val) => `€${(val/1000).toFixed(0)}k`} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} width={60} />
                   <Tooltip 
-                    formatter={(val: any) => formatEur(val as number)} 
+                    formatter={(val) => formatEur(Number(Array.isArray(val) ? val[0] : val))} 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
                     cursor={{ fill: '#f1f5f9' }}
                   />
@@ -204,7 +233,7 @@ export default function SupplierProfilePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {transactions.map((t: any) => (
+                  {transactions.map((t: Transaction) => (
                     <tr key={t.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
                         <p className="font-medium text-slate-800 line-clamp-2" title={t.subject}>{t.subject}</p>
