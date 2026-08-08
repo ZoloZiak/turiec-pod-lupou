@@ -1,0 +1,106 @@
+-- add_direction_column.sql
+-- Vygenerovane z .audit/income_verdicts.json (klasifikacia Opus/Palantir).
+-- DDL prava z app klienta NIE su dostupne -> SPUSTI RUCNE v Supabase SQL editore
+-- (Dashboard -> SQL Editor) alebo cez psql so service/db heslom.
+--
+-- Smer penazi z pohladu mesta: EXPENSE = mesto plati (default), INCOME = mesto dostava.
+
+-- 1. Pridaj stlpec direction (default EXPENSE pre vsetky existujuce zaznamy).
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS direction text NOT NULL DEFAULT 'EXPENSE';
+
+-- 2. Oznac INCOME zmluvy (87 kusov).
+UPDATE transactions SET direction = 'INCOME' WHERE id IN (
+  '04526fab-476f-4e29-bb0f-7fe439c7c60a',
+  '9989c1a5-68bf-46f7-9260-8605cd5914cf',
+  'b06d4e68-60b7-44b0-92db-775b7596ae01',
+  '01ea158d-fc34-46a9-9c99-43a1b5b26f42',
+  '663e69f9-c5cd-43f0-b05c-62f003e28595',
+  '92ae46d4-e41b-4c23-91ad-e30acba3206b',
+  '031a658b-e07d-4938-ad65-1864eb87bbeb',
+  '17a4cd24-a5a5-47a2-8200-a44a18339c8e',
+  'b67bf561-7f34-423e-a343-15ceb4b4b63c',
+  'c8ca9dd4-cee4-47a8-8b54-98a220cab648',
+  'ac226491-62a7-4cad-b4a9-5f476308c66c',
+  '74adee98-5556-4ae0-b35e-4b78003d8757',
+  'c7278b96-55b4-42a4-b451-87de5a6d7af5',
+  'de16e034-3f72-4310-a8e8-709723a69800',
+  'cae4400f-d0df-4087-bde1-d22cd07b7e4e',
+  '273def1b-8e3b-492e-a3e9-dc62958ca516',
+  '7cbf96b5-c229-40b9-82f0-2f03f2204400',
+  '5cf803d3-200a-4ceb-b9bc-4dd1ee37f31f',
+  'db0f2e33-71ec-42b9-925e-e44891a4a216',
+  '684c01ab-b021-4788-ad3a-158f0a6f5da8',
+  '2e8f3a34-798f-4c9f-91cb-14e81ab14ffd',
+  'b57360c5-1061-4e87-b549-4b0bc0bc3d83',
+  'c10d0639-a82c-4994-8111-10fa69728f92',
+  '7b5d841f-7232-4bf2-979c-f9b9fa64b806',
+  'aa5ff74e-142a-443b-939f-82dd4bda748f',
+  '881d2865-890f-4669-ad54-849b1cbfeb5f',
+  'ac81aa8a-9a0c-47c3-9053-35de424dad59',
+  '8b97b1bc-318d-4b0b-a957-2eca528a2471',
+  '066c6250-a810-4620-992a-b2baa1058d1a',
+  '642c8876-c7d5-49f4-bfd7-858a8e488600',
+  '7d386be0-f011-446c-a57c-2c684e13edcb',
+  '77cd7ee3-18d9-48a1-8296-431e590a17d7',
+  '3ef3ac9f-13ac-4592-86bd-b2b2bb745623',
+  'fef0847c-3cc2-4359-aff7-8f3ac347a686',
+  'd67d4235-1a9a-407b-be4a-8ca9ece45a16',
+  'e9acf728-870a-4c26-8bd2-9955fe770ccd',
+  '1f7b3167-e3f9-4000-b491-9b17ab206cc7',
+  '6d22c49d-f087-4559-9046-aa5f4d4e989e',
+  '5d4280af-c10a-4caa-a43f-66c259a62bfc',
+  '34a9f40f-4445-4a3b-ab2d-872ca5725930',
+  'a8412dda-686a-4f17-91a0-2703179c26a5',
+  '1980375f-a523-4164-b971-ac5f501336c5',
+  '9aa59ad4-3947-4e87-8787-918e510981d3',
+  '3bf82977-c893-42b9-8c05-745dc1dd2eb2',
+  '10661662-1c32-430d-9110-edcf90eb4310',
+  '4b4b90e9-0530-4278-9cd5-1e0824fced6b',
+  '40588769-bfd7-4776-ac02-b21fc89700ca',
+  '981d6fbf-3192-47a4-83eb-2394e679f839',
+  'f79156b9-842d-484c-9442-2f6cb90df524',
+  '9647e007-6e0c-455a-b962-2557f090a18d',
+  '878cf8f4-66a9-4a61-8b72-8bd415f3ca4c',
+  '9655e46d-2d4c-4572-a683-4ef098a42dfe',
+  '8cb4850d-86ee-4e75-b82d-0400bc9794a4',
+  '14076439-0596-4a0c-a532-005d8c5d0874',
+  'f022601e-7856-4732-bc7a-71f0600bf1ab',
+  'f2775021-7c80-4b1c-9172-df1b1336d23f',
+  'ba0f71f9-62c6-4a26-b9cf-a2b5ea0c1dd7',
+  'edd01bab-8b8c-4965-80dc-cd2f3c9e4551',
+  '9f4ec91d-0d35-45da-8b69-5b3058724303',
+  'badd055f-fae7-4d60-acfc-70fc602309d8',
+  'ba75215c-592d-47af-9a13-6409be90b55b',
+  '012454a9-2d37-4e0f-9bde-869c8f9d832b',
+  '033e0d85-83d8-4ed6-97b0-82603d17ad1c',
+  '26590b2e-b391-41e9-adb9-c11ec4e2b571',
+  '996dce23-d694-4cd0-ab40-6449c211145b',
+  '2fa5674b-5f17-4527-b18b-2641ee7f402d',
+  'a74f4035-9f82-4f62-a3ba-4a91cf65d097',
+  'b9703893-e792-4de2-ac92-2a09b922e11b',
+  '21ed0c7d-3560-41bd-9eaf-2374b5ec725b',
+  '99213adf-68da-43dd-85cb-c827310643d1',
+  'bac13c73-7a28-4bbe-8b9d-cf2d16056ec2',
+  'fa289a2f-8898-412e-98e3-54e9edf06918',
+  '0d6b4d06-4f61-4e24-b4a0-652111e91138',
+  '3377a063-0e53-41ca-8ae8-0b4077b1def2',
+  '3032189d-2853-436e-93a8-d372da1433aa',
+  '6e5771cb-9014-4107-b768-1c7990630cc2',
+  '0c6fc039-24d5-42f7-95de-68391e01efb3',
+  '652d30d5-35ae-4d36-9407-eccfa9145fe2',
+  '638bd6d7-1363-4b01-abe0-b4c77bbd8cd7',
+  'e97f99ff-e4bb-4b3b-b783-1b2a2da92296',
+  '4860266b-5cad-4693-bf5c-5cfe6e1a6cac',
+  'e9ebf1c7-c29e-4602-822b-1781aa4473d2',
+  'd5bc1822-8f5d-4ba3-9af4-fb8ba53b9d29',
+  '490523d1-8e67-4e3d-86ac-7b6af4a4368b',
+  '9d468a5e-03c7-4189-b016-0e8be4b274a8',
+  'f8b0fba1-e066-4372-b85f-e07eddb45080',
+  '2cf1b203-2ed7-4314-b1ea-02acc1aef0be'
+);
+
+-- 3. (volitelne) index pre filtrovanie podla smeru
+CREATE INDEX IF NOT EXISTS idx_transactions_direction ON transactions(direction);
+
+-- Overenie po spusteni:
+-- SELECT direction, count(*), sum(amount_eur) FROM transactions GROUP BY direction;

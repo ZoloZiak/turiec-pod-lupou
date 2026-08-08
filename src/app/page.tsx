@@ -24,11 +24,12 @@ type Tx = {
   buyer?: Entity;
   supplier?: Supplier;
   suspicious?: boolean;
+  is_income?: boolean;
 };
 type SupplierAgg = { name: string; value: number };
 type DashboardData = {
   success: boolean;
-  stats: { totalSpent: number; totalContracts: number; entitiesCount: number };
+  stats: { totalSpent: number; totalIncome: number; totalContracts: number; incomeCount: number; entitiesCount: number };
   topSuppliers: SupplierAgg[];
   transactions: Tx[];
   entities: Entity[];
@@ -221,7 +222,7 @@ export default function Dashboard() {
             
             {/* LICZBA-BOHATER (Hero Stat) */}
             <SpotlightCard className="bg-slate-900 border border-slate-800 rounded-3xl p-10 flex flex-col items-center justify-center text-center mb-8 shadow-2xl" glowColor="rgba(16, 185, 129, 0.2)">
-              <p className="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">Celkový objem zákaziek a zmlúv</p>
+              <p className="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">Celkové výdavky mesta a podnikov (zmluvy a faktúry)</p>
               <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]">
                 <NumberFlow 
                   value={data.stats.totalSpent} 
@@ -235,7 +236,15 @@ export default function Dashboard() {
             </SpotlightCard>
 
             {/* SECONDARY STATS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <SpotlightCard className="bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-800 flex flex-col items-start" glowColor="rgba(16, 185, 129, 0.18)">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Získané dotácie a granty (príjmy)</p>
+                <div className="text-4xl font-black text-emerald-400">
+                  {formatEur(data.stats.totalIncome)}
+                </div>
+                <p className="text-xs text-slate-500 mt-2">{data.stats.incomeCount} zmlúv o NFP/dotácii — peniaze pre mesto, nie výdavky</p>
+                <div className="mt-4 w-12 h-1 bg-emerald-500/50 rounded-full"></div>
+              </SpotlightCard>
               <SpotlightCard className="bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-800 flex flex-col items-start" glowColor="rgba(59, 130, 246, 0.15)">
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Analyzované zmluvy (CRZ)</p>
                 <div className="text-5xl font-black text-white">
@@ -514,9 +523,14 @@ export default function Dashboard() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex items-center justify-end">
-                            <span className="font-bold text-white bg-slate-800 px-2 py-1 rounded border border-slate-700">
-                              {formatEur(t.amount_eur)}
+                          <div className="flex items-center justify-end gap-2">
+                            {t.is_income && (
+                              <span className="text-[10px] font-bold uppercase tracking-wide bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded" title="Nenávratný finančný príspevok / dotácia — príjem mesta, nie výdavok">
+                                Príjem
+                              </span>
+                            )}
+                            <span className={`font-bold px-2 py-1 rounded border ${t.is_income ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-white bg-slate-800 border-slate-700'}`}>
+                              {t.is_income ? '+' : ''}{formatEur(t.amount_eur)}
                             </span>
                             <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />
                           </div>

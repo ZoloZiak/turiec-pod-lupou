@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { INCOME_TX_IDS } from '@/lib/income-ids';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,20 +65,27 @@ export async function GET(request: Request) {
     );
 
     const enrichedTransactions = filteredTransactions.map((t) => {
+      const is_income = INCOME_TX_IDS.has(t.id);
       let suspicious = false;
-      if (t.source_type === 'WEB_INVOICE' && t.supplier) {
+      // Príjmy (NFP/dotácie od štátu) nikdy neoznačujeme červenou vlajkou —
+      // druhá strana je ministerstvo/agentúra, nie dodávateľ mesta.
+      if (!is_income && t.source_type === 'WEB_INVOICE' && t.supplier) {
         // Skontrolujeme, či dodávateľ má vôbec nejakú zmluvu v CRZ
         if (!crzSuppliers.has(t.supplier.ico)) {
           suspicious = true;
         }
       }
-      return { ...t, suspicious };
+      return { ...t, suspicious, is_income };
     });
 
-    const totalSpent = enrichedTransactions.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
-    
-    // Top dodávatelia (Sumár výdavkov podľa dodávateľa)
-    const supplierAgg = filteredTransactions.reduce((acc: Record<string, number>, curr) => {
+    // Výdavky = všetko okrem príjmov (NFP/dotácie mestu). Príjmy sčítame zvlášť.
+    const expenseTx = enrichedTransactions.filter((t) => !t.is_income);
+    const incomeTx = enrichedTransactions.filter((t) => t.is_income);
+    const totalSpent = expenseTx.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
+    const totalIncome = incomeTx.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
+
+    // Top dodávatelia (Sumár výdavkov podľa dodávateľa) — bez príjmov (tam je "dodávateľ" štát).
+    const supplierAgg = expenseTx.reduce((acc: Record<string, number>, curr) => {
       if (!curr.supplier) return acc;
       const supplierName = curr.supplier.name;
       if (!acc[supplierName]) {
@@ -96,7 +104,9 @@ export async function GET(request: Request) {
       success: true,
       stats: {
         totalSpent,
-        totalContracts: filteredTransactions.length,
+        totalIncome,
+        totalContracts: expenseTx.length,
+        incomeCount: incomeTx.length,
         entitiesCount: entities?.length || 0,
       },
       topSuppliers,
