@@ -56,7 +56,7 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
         countOnPage++;
         const id = match[1];
         const title = match[2].trim();
-        const amountStr = match[3].replace(/\\s/g, '').replace(',', '.');
+        const amountStr = match[3].replace(/\s/g, '').replace(/&nbsp;|&#160;/g, '').replace(/\u00a0/g, '').replace(',', '.');
         const amount = parseFloat(amountStr) || 0;
         const osoba1 = match[4].trim();
         const osoba2 = match[5].trim();
