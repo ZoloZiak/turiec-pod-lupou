@@ -17,6 +17,7 @@ interface TransactionRow {
   subject: string;
   date_published: string;
   source_url: string;
+  direction?: string | null;
   buyer: EntityRef | null;
   supplier: EntityRef | null;
 }
@@ -30,6 +31,17 @@ export async function GET(request: Request) {
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Detekcia stlpca 'direction' (raz na zaciatku requestu). Ak existuje,
+    // preferujeme rucne admin rozhodnutia z DB pred statickym INCOME_TX_IDS.
+    const { error: dirProbeError } = await supabase
+      .from('transactions')
+      .select('direction')
+      .limit(1);
+    const dirMsg = (dirProbeError?.message || '').toLowerCase();
+    const hasDirectionColumn = !(
+      dirProbeError && dirMsg.includes('column') && dirMsg.includes('direction')
+    );
+
     // Načítať všetky mestské organizácie (Entities)
     const { data: entities, error: entitiesError } = await supabase
       .from('entities')
@@ -40,9 +52,12 @@ export async function GET(request: Request) {
     if (entitiesError) throw entitiesError;
 
     // Načítať transakcie so spojenými entitami (Kto kupoval, kto dodával)
+    const selectCols = hasDirectionColumn
+      ? 'id, external_id, source_type, amount_eur, subject, date_published, source_url, direction, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)'
+      : 'id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)';
     const query = supabase
       .from('transactions')
-      .select('id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)')
+      .select(selectCols)
       .order('date_published', { ascending: false });
 
     const { data: transactionsData, error: txError } = await query;
@@ -65,7 +80,10 @@ export async function GET(request: Request) {
     );
 
     const enrichedTransactions = filteredTransactions.map((t) => {
-      const is_income = INCOME_TX_IDS.has(t.id);
+      // Preferuj DB stlpec direction (rucne admin rozhodnutia) pred INCOME_TX_IDS.
+      const is_income = hasDirectionColumn && t.direction
+        ? t.direction === 'INCOME'
+        : INCOME_TX_IDS.has(t.id);
       let suspicious = false;
       // Príjmy (NFP/dotácie od štátu) nikdy neoznačujeme červenou vlajkou —
       // druhá strana je ministerstvo/agentúra, nie dodávateľ mesta.

@@ -19,8 +19,14 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Tabs & Logs
-  const [activeTab, setActiveTab] = useState<"merge" | "logs" | "pdf_logs" | "pdfs" | "entities" | "promises">("merge");
+  const [activeTab, setActiveTab] = useState<"merge" | "logs" | "pdf_logs" | "pdfs" | "entities" | "promises" | "direction">("merge");
   const [logs, setLogs] = useState<any[]>([]);
+
+  // Smer transakcii (human-in-the-loop review)
+  const [directionItems, setDirectionItems] = useState<any[]>([]);
+  const [directionNeedsMigration, setDirectionNeedsMigration] = useState(false);
+  const [directionLoading, setDirectionLoading] = useState(false);
+  const [savingDirectionId, setSavingDirectionId] = useState<string | null>(null);
   
   // Dashboard state
   const [promises, setPromises] = useState<any[]>([]);
@@ -81,6 +87,55 @@ export default function AdminPage() {
       fetchData();
     }
   }, [isAuthenticated, fetchData]);
+
+  const fetchDirection = useCallback(async () => {
+    setDirectionLoading(true);
+    try {
+      const res = await fetch('/api/admin/direction?filter=unsure');
+      const json = await res.json();
+      if (json.needsMigration) {
+        setDirectionNeedsMigration(true);
+        setDirectionItems([]);
+      } else if (json.success) {
+        setDirectionNeedsMigration(false);
+        setDirectionItems(json.items || []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch direction data", e);
+    } finally {
+      setDirectionLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && activeTab === "direction") {
+      fetchDirection();
+    }
+  }, [isAuthenticated, activeTab, fetchDirection]);
+
+  const handleSetDirection = async (id: string, direction: "INCOME" | "EXPENSE") => {
+    setSavingDirectionId(id);
+    try {
+      const res = await fetch('/api/admin/direction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, direction })
+      });
+      const json = await res.json();
+      if (json.needsMigration) {
+        setDirectionNeedsMigration(true);
+      } else if (json.success) {
+        setDirectionItems(prev => prev.map(it => it.id === id ? { ...it, current_direction: direction, done: true } : it));
+      } else {
+        alert("Chyba pri ukladaní smeru: " + json.error);
+      }
+    } catch (e) {
+      console.error("Direction save error:", e);
+      alert("Systémová chyba pri ukladaní smeru.");
+    } finally {
+      setSavingDirectionId(null);
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -291,6 +346,12 @@ export default function AdminPage() {
               className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "logs" ? "border-slate-800 text-slate-800" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
               Audítorské Logy
+            </button>
+            <button 
+              onClick={() => setActiveTab("direction")}
+              className={`pb-3 font-medium text-sm border-b-2 transition-colors ${activeTab === "direction" ? "border-teal-600 text-teal-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+            >
+              Smer transakcií
             </button>
             <button 
               onClick={() => setActiveTab("promises")}
@@ -593,6 +654,103 @@ export default function AdminPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {activeTab === "direction" && (
+            <div>
+              <div className="mb-4 p-4 bg-teal-50 border border-teal-100 rounded-xl text-sm text-teal-900">
+                <p className="font-semibold mb-1">Ručná kontrola smeru transakcií (príjem vs. výdavok)</p>
+                <p className="text-teal-800">NFP/dotácia od ministerstva = <strong>Príjem</strong> (peniaze pre mesto). Bežná zmluva/faktúra = <strong>Výdavok</strong>.</p>
+              </div>
+
+              {directionLoading && (
+                <div className="flex justify-center p-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                </div>
+              )}
+
+              {!directionLoading && directionNeedsMigration && (
+                <div className="bg-amber-50 border border-amber-300 rounded-2xl p-6">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="text-amber-500 w-6 h-6 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-bold text-amber-900 mb-1">Chýba stĺpec „direction“ v databáze</h3>
+                      <p className="text-amber-800 text-sm mb-2">
+                        Perzistencia smeru transakcií zatiaľ nie je aktívna. Spustite jednorazovo SQL skript
+                        v Supabase SQL editore (Dashboard &rarr; SQL Editor):
+                      </p>
+                      <pre className="text-xs bg-amber-100 text-amber-900 p-3 rounded-lg border border-amber-200 overflow-x-auto">database/add_direction_column.sql</pre>
+                      <button
+                        onClick={fetchDirection}
+                        className="mt-3 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium text-sm"
+                      >
+                        Skúsiť znova
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!directionLoading && !directionNeedsMigration && (
+                <div className="space-y-4">
+                  {directionItems.length === 0 ? (
+                    <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
+                      <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                      <h2 className="text-xl font-bold text-slate-800">Žiadne sporné zmluvy na kontrolu.</h2>
+                    </div>
+                  ) : directionItems.map(item => (
+                    <div
+                      key={item.id}
+                      className={`bg-white p-6 rounded-2xl shadow-sm border transition-colors ${item.done ? 'border-emerald-200 opacity-70' : 'border-slate-200'}`}
+                    >
+                      <div className="flex justify-between items-start gap-4 flex-wrap">
+                        <div className="flex-1 min-w-[280px]">
+                          <div className="flex items-center gap-2 mb-1">
+                            {item.done && <CheckCircle className="w-4 h-4 text-emerald-500" />}
+                            <h3 className="font-bold text-slate-800">{item.subject}</h3>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-2">
+                            <span className="font-medium">{item.buyer}</span>
+                            <span className="text-slate-400"> &larr; </span>
+                            <span className="font-medium">{item.supplier}</span>
+                          </p>
+                          <p className="text-lg font-bold text-slate-900 mb-1">
+                            {Number(item.amount_eur).toLocaleString('sk-SK', { style: 'currency', currency: 'EUR' })}
+                          </p>
+                          <p className="text-xs text-slate-500 mb-2 italic">{item.reason}</p>
+                          <div className="flex items-center gap-3 text-xs">
+                            <span className={`px-2 py-1 rounded-full font-semibold ${item.current_direction === 'INCOME' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}>
+                              Aktuálne: {item.current_direction === 'INCOME' ? 'Príjem' : 'Výdavok'}
+                            </span>
+                            {item.source_url && (
+                              <a href={item.source_url} target="_blank" rel="noreferrer" className="text-teal-600 hover:underline inline-flex items-center gap-1">
+                                <FileText className="w-3 h-3" /> Zobraziť zmluvu
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 min-w-[160px]">
+                          <button
+                            onClick={() => handleSetDirection(item.id, "INCOME")}
+                            disabled={savingDirectionId === item.id}
+                            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 ${item.current_direction === 'INCOME' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'}`}
+                          >
+                            {savingDirectionId === item.id ? '...' : 'Príjem (dotácia)'}
+                          </button>
+                          <button
+                            onClick={() => handleSetDirection(item.id, "EXPENSE")}
+                            disabled={savingDirectionId === item.id}
+                            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 ${item.current_direction === 'EXPENSE' ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}`}
+                          >
+                            {savingDirectionId === item.id ? '...' : 'Výdavok'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
