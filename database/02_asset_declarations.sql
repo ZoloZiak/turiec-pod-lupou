@@ -10,10 +10,10 @@ CREATE TABLE asset_declarations (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Insert sample data
-INSERT INTO asset_declarations (person_name, role, year, official_salary_eur, declared_assets, source_url) VALUES
-('Ján Danko', 'Primátor Mesta Martin', 2023, 76200, 'Byt v Martine, 2x Garáž, Auto VW Touareg, Úspory 45 000 €', 'https://www.nrsr.sk/web/'),
-('Ján Danko', 'Primátor Mesta Martin', 2022, 74100, 'Byt v Martine, 2x Garáž, Auto VW Touareg, Úspory 32 000 €', 'https://www.nrsr.sk/web/');
+-- POZOR: pôvodné 'sample data' (Ján Danko, primátor) boli VYMYSLENÉ, neoverené
+-- údaje o menovanej osobe, zverejnené pod falošným 'Certifikát dát z NRSR'.
+-- Boli odstránené (audit). Tabuľka ostáva prázdna, kým nebude reálny overený zdroj.
+-- NEVKLADAJ sem neoverené majetkové priznania.
 
 -- Enable RLS
 ALTER TABLE asset_declarations ENABLE ROW LEVEL SECURITY;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Search, ArrowRight, ShieldCheck, TrendingUp, AlertTriangle } from "lucide-react";
+import { Building2, Search, ArrowRight, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import VerifiedBadge from "../components/VerifiedBadge";
@@ -79,10 +79,10 @@ export default function MajetkyPage() {
         </div>
 
         {/* ALERTS */}
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex gap-3 items-start mb-8">
-          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-          <p className="text-sm text-emerald-800">
-            <strong>Certifikát dát:</strong> Všetky údaje na tejto stránke pochádzajú z oficiálnych majetkových priznaní zverejnených na NRSR alebo stránkach mesta Martin. Majetok je uvádzaný presne v znení, ako ho funkcionár priznal.
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start mb-8">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800">
+            <strong>Modul sa pripravuje:</strong> Tento modul zatiaľ neobsahuje overené majetkové priznania. Pracujeme na napojení na oficiálny zdroj (napr. zverejnené priznania funkcionárov mesta Martin). Kým nebude zdroj overený, žiadne údaje o majetku tu nezverejňujeme.
           </p>
         </div>
 
@@ -91,6 +91,14 @@ export default function MajetkyPage() {
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            </div>
+          ) : assets.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-10 text-center">
+              <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-slate-800 mb-2">Zatiaľ žiadne overené priznania</h2>
+              <p className="text-slate-500 max-w-lg mx-auto leading-relaxed">
+                V tomto module momentálne nezobrazujeme žiadne majetkové priznania. Údaje doplníme až po overení voči oficiálnemu zdroju. Neuvádzame neoverené ani odhadované čísla.
+              </p>
             </div>
           ) : (
             assets
