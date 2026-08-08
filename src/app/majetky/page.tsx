@@ -52,7 +52,7 @@ export default function MajetkyPage() {
             </Link>
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 flex items-center gap-3">
-            <Building2 className="w-10 h-10 text-emerald-400" />
+            <Building2 className="w-10 h-10 text-emerald-400" aria-hidden="true" />
             Majetkové priznania
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
@@ -67,9 +67,10 @@ export default function MajetkyPage() {
         {/* SEARCH & FILTERS */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-4 flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" aria-hidden="true" />
             <input 
               type="text" 
+              aria-label="Vyhľadať funkcionára"
               placeholder="Vyhľadať funkcionára (napr. Ján Danko)..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -80,7 +81,7 @@ export default function MajetkyPage() {
 
         {/* ALERTS */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start mb-8">
-          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
           <p className="text-sm text-amber-800">
             <strong>Modul sa pripravuje:</strong> Tento modul zatiaľ neobsahuje overené majetkové priznania. Pracujeme na napojení na oficiálny zdroj (napr. zverejnené priznania funkcionárov mesta Martin). Kým nebude zdroj overený, žiadne údaje o majetku tu nezverejňujeme.
           </p>
@@ -94,7 +95,7 @@ export default function MajetkyPage() {
             </div>
           ) : assets.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-10 text-center">
-              <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-xl font-semibold text-slate-800 mb-2">Zatiaľ žiadne overené priznania</h2>
               <p className="text-slate-500 max-w-lg mx-auto leading-relaxed">
                 V tomto module momentálne nezobrazujeme žiadne majetkové priznania. Údaje doplníme až po overení voči oficiálnemu zdroju. Neuvádzame neoverené ani odhadované čísla.
@@ -123,11 +124,11 @@ export default function MajetkyPage() {
               <div className="md:w-2/3 md:border-l border-slate-100 md:pl-6 w-full">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-emerald-500" />
+                    <TrendingUp className="w-5 h-5 text-emerald-500" aria-hidden="true" />
                     Priznaný majetok ({asset.year})
                   </h3>
                   <a href={asset.source_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
-                    Zdrojový dokument <ArrowRight className="w-3 h-3" />
+                    Zdrojový dokument <ArrowRight className="w-3 h-3" aria-hidden="true" />
                   </a>
                 </div>
                 
@@ -143,7 +144,7 @@ export default function MajetkyPage() {
                 </div>
                 
                 <div className="mt-4 flex items-center gap-2 text-sm text-slate-500">
-                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                  <AlertTriangle className="w-4 h-4 text-amber-500" aria-hidden="true" />
                   Analýza odchýlky majetku voči príjmu zatiaľ nie je k dispozícii pre tento rok.
                 </div>
               </div>

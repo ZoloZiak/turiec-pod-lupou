@@ -50,7 +50,7 @@ export default function PodnikyPage() {
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white mb-4 block">&larr; Dashboard</Link>
           <h1 className="text-4xl font-extrabold flex items-center gap-3">
-            <Building2 className="w-10 h-10 text-emerald-400" /> Hospodárenie mestských podnikov
+            <Building2 className="w-10 h-10 text-emerald-400" aria-hidden="true" /> Hospodárenie mestských podnikov
           </h1>
           <p className="text-lg text-slate-400 mt-4 max-w-2xl">
             Finančné zdravie firiem vlastnených alebo spoluvlastnených mestom Martin. Integrácia z FinStat API & RÚZ.
@@ -73,7 +73,7 @@ export default function PodnikyPage() {
             {/* POROVNÁVAČ PODNIKOV (Bliźniak z-dykty) */}
             <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
               <div className="flex items-center gap-2 mb-6">
-                <ArrowRightLeft className="w-5 h-5 text-emerald-400" />
+                <ArrowRightLeft className="w-5 h-5 text-emerald-400" aria-hidden="true" />
                 <h2 className="text-xl font-bold text-white tracking-wide">Porovnávač dvoch podnikov</h2>
               </div>
 
@@ -83,6 +83,7 @@ export default function PodnikyPage() {
                   <select 
                     value={compAId} 
                     onChange={e => setCompAId(e.target.value)}
+                    aria-label="Vybrať podnik A na porovnanie"
                     className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500"
                   >
                     {podniky.map(p => (
@@ -96,6 +97,7 @@ export default function PodnikyPage() {
                   <select 
                     value={compBId} 
                     onChange={e => setCompBId(e.target.value)}
+                    aria-label="Vybrať podnik B na porovnanie"
                     className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500"
                   >
                     {podniky.map(p => (
@@ -161,7 +163,7 @@ export default function PodnikyPage() {
                     <div className="flex gap-4 mt-2">
                       {p.finstat_url && (
                         <a href={p.finstat_url} target="_blank" rel="noreferrer" className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1">
-                          FinStat <ArrowRight className="w-3 h-3"/>
+                          FinStat <ArrowRight className="w-3 h-3" aria-hidden="true"/>
                         </a>
                       )}
                       <Link href={`/dodavatel/${p.ico}`} className="text-xs text-emerald-400 hover:underline font-semibold">
@@ -173,7 +175,7 @@ export default function PodnikyPage() {
                     <div className="text-right">
                       <p className="text-xs text-slate-500 mb-1">Hospodársky výsledok ({p.year})</p>
                       <p className={`text-2xl font-bold flex items-center gap-2 justify-end font-mono ${p.profit_loss_eur < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {p.profit_loss_eur < 0 ? <TrendingDown className="w-5 h-5"/> : <Activity className="w-5 h-5"/>}
+                        {p.profit_loss_eur < 0 ? <TrendingDown className="w-5 h-5" aria-hidden="true"/> : <Activity className="w-5 h-5" aria-hidden="true"/>}
                         {formatEur(p.profit_loss_eur)}
                       </p>
                     </div>

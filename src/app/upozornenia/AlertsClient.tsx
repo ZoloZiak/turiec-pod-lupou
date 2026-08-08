@@ -74,9 +74,10 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
       {/* FILTER BAR FOR ALERTS */}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div className="flex-1 min-w-[240px] relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" aria-hidden="true" />
           <input
             type="text"
+            aria-label="Hľadať firmu, IČO alebo predmet zákazky"
             placeholder="Hľadať firmu, IČO alebo predmet zákazky..."
             value={searchTerm}
             onChange={(e) => {
@@ -90,7 +91,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
 
         <div className="flex items-center gap-2 text-xs font-semibold">
           <span className="text-slate-500 uppercase tracking-widest text-[11px] flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" /> Min. suma:
+            <Filter className="w-3.5 h-3.5" aria-hidden="true" /> Min. suma:
           </span>
           <button
             onClick={() => { setMinAmount(0); setPage100k(1); setPageCrz(1); }}
@@ -137,7 +138,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
             <div className="bg-amber-50 border-b border-amber-100 p-6 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                  <AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
                   Zákazky nad 100 000 € (Kontrola RPVS)
                 </h2>
                 <p className="text-xs text-amber-700 mt-1">
@@ -181,7 +182,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
                       
                       <div className="flex items-center gap-4 text-slate-500 text-xs font-medium ml-auto">
                         <span className="flex items-center gap-1 font-mono">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> {formatDate(alert.date_published)}
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" /> {formatDate(alert.date_published)}
                         </span>
                       </div>
                     </div>
@@ -200,16 +201,18 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
                   <button
                     disabled={page100k === 1}
                     onClick={() => setPage100k(p => Math.max(1, p - 1))}
+                    aria-label="Predchádzajúca strana"
                     className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
                   >
-                    <ChevronLeft className="w-4 h-4 text-slate-600" />
+                    <ChevronLeft className="w-4 h-4 text-slate-600" aria-hidden="true" />
                   </button>
                   <button
                     disabled={page100k === totalPages100k}
                     onClick={() => setPage100k(p => Math.min(totalPages100k, p + 1))}
+                    aria-label="Ďalšia strana"
                     className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
                   >
-                    <ChevronRight className="w-4 h-4 text-slate-600" />
+                    <ChevronRight className="w-4 h-4 text-slate-600" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -223,7 +226,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
             <div className="bg-red-50 border-b border-red-100 p-6 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-red-900 flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-red-500" />
+                  <ShieldAlert className="w-5 h-5 text-red-500" aria-hidden="true" />
                   Faktúry bez zmluvy v CRZ
                 </h2>
                 <p className="text-xs text-red-700 mt-1">
@@ -238,7 +241,7 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
             <div className="divide-y divide-slate-100">
               {paginatedMissingCrz.length === 0 ? (
                 <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-2">
-                  <CheckCircle className="w-8 h-8 text-emerald-500 mb-2" />
+                  <CheckCircle className="w-8 h-8 text-emerald-500 mb-2" aria-hidden="true" />
                   Pre zadané filtre neboli nájdené žiadne nezrovnalosti.
                 </div>
               ) : (
@@ -269,14 +272,14 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
                           rel="noreferrer" 
                           className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:underline font-semibold bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100"
                         >
-                          <FileText className="w-3.5 h-3.5" />
-                          Otvoriť PDF faktúru <ExternalLink className="w-3 h-3" />
+                          <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+                          Otvoriť PDF faktúru <ExternalLink className="w-3 h-3" aria-hidden="true" />
                         </a>
                       ) : <div></div>}
                       
                       <div className="flex items-center gap-4 text-slate-500 text-xs font-medium ml-auto font-mono">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" /> {formatDate(alert.date_published)}
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" /> {formatDate(alert.date_published)}
                         </span>
                       </div>
                     </div>
@@ -295,16 +298,18 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
                   <button
                     disabled={pageCrz === 1}
                     onClick={() => setPageCrz(p => Math.max(1, p - 1))}
+                    aria-label="Predchádzajúca strana"
                     className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
                   >
-                    <ChevronLeft className="w-4 h-4 text-slate-600" />
+                    <ChevronLeft className="w-4 h-4 text-slate-600" aria-hidden="true" />
                   </button>
                   <button
                     disabled={pageCrz === totalPagesCrz}
                     onClick={() => setPageCrz(p => Math.min(totalPagesCrz, p + 1))}
+                    aria-label="Ďalšia strana"
                     className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
                   >
-                    <ChevronRight className="w-4 h-4 text-slate-600" />
+                    <ChevronRight className="w-4 h-4 text-slate-600" aria-hidden="true" />
                   </button>
                 </div>
               </div>

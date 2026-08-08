@@ -57,9 +57,9 @@ export default async function SlubomerPage() {
 
   const getStatusUI = (status: string | undefined) => {
     switch(status) {
-      case 'SPLNENÉ': return { icon: <CheckCircle className="w-5 h-5 text-emerald-500" />, bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
-      case 'V RIEŠENÍ': return { icon: <Clock className="w-5 h-5 text-amber-500" />, bg: 'bg-amber-50 text-amber-700 border-amber-200' };
-      case 'ZABUDNUTÉ': return { icon: <XCircle className="w-5 h-5 text-red-500" />, bg: 'bg-red-50 text-red-700 border-red-200' };
+      case 'SPLNENÉ': return { icon: <CheckCircle className="w-5 h-5 text-emerald-500" aria-hidden="true" />, bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+      case 'V RIEŠENÍ': return { icon: <Clock className="w-5 h-5 text-amber-500" aria-hidden="true" />, bg: 'bg-amber-50 text-amber-700 border-amber-200' };
+      case 'ZABUDNUTÉ': return { icon: <XCircle className="w-5 h-5 text-red-500" aria-hidden="true" />, bg: 'bg-red-50 text-red-700 border-red-200' };
       default: return { icon: null, bg: 'bg-slate-100 text-slate-700 border-slate-200' };
     }
   };
@@ -68,11 +68,11 @@ export default async function SlubomerPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 sm:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <Link href="/" className="text-slate-500 hover:text-slate-800 transition-colors p-2 bg-white rounded-full shadow-sm border border-slate-200">
-            <ArrowLeft className="w-5 h-5" />
+          <Link href="/" className="text-slate-500 hover:text-slate-800 transition-colors p-2 bg-white rounded-full shadow-sm border border-slate-200" aria-label="Späť na dashboard">
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </Link>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Lightbulb className="w-6 h-6 text-amber-400" />
+            <Lightbulb className="w-6 h-6 text-amber-400" aria-hidden="true" />
             Sľubomer (Predvolebné sľuby)
           </h1>
         </div>
@@ -117,7 +117,7 @@ export default async function SlubomerPage() {
                   
                   {promise.source_url && (
                     <a href={promise.source_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-4 w-fit">
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-4 h-4" aria-hidden="true" />
                       Zdroj sľubu (Volebný program)
                     </a>
                   )}
@@ -126,7 +126,7 @@ export default async function SlubomerPage() {
                   {txs.length > 0 && (
                     <div className="mt-4 bg-slate-50 rounded-xl border border-slate-200 p-4">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1">
-                        <FileText className="w-4 h-4" /> Dôkazy z CRZ / Faktúr
+                        <FileText className="w-4 h-4" aria-hidden="true" /> Dôkazy z CRZ / Faktúr
                       </h4>
                       <div className="space-y-2">
                         {txs.map((tx: TxRow) => (
@@ -138,8 +138,8 @@ export default async function SlubomerPage() {
                               <span className="font-bold text-slate-800 whitespace-nowrap bg-slate-100 px-2 py-1 rounded">
                                 {formatEur(tx.amount_eur)}
                               </span>
-                              <a href={tx.source_url?.startsWith('http') ? tx.source_url : `https://${tx.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:bg-blue-50 p-1.5 rounded-md transition-colors">
-                                <ExternalLink className="w-4 h-4" />
+                              <a href={tx.source_url?.startsWith('http') ? tx.source_url : `https://${tx.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:bg-blue-50 p-1.5 rounded-md transition-colors" aria-label="Otvoriť zdrojový dokument">
+                                <ExternalLink className="w-4 h-4" aria-hidden="true" />
                               </a>
                             </div>
                           </div>

@@ -40,7 +40,7 @@ export default function MacroStats() {
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
       <div className="p-6 bg-slate-900 border-b border-slate-800">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-blue-400" />
+          <Building2 className="w-5 h-5 text-blue-400" aria-hidden="true" />
           Makro-porovnanie (Samosprávy SR)
         </h2>
         <p className="text-sm text-slate-400 mt-1">
@@ -87,7 +87,7 @@ export default function MacroStats() {
         </div>
 
         <div className="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 items-start">
-          <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" aria-hidden="true" />
           <p className="text-sm text-blue-800">
             <strong>Analýza:</strong> Mesto Martin vykazuje podľa účtovných závierok za rok {ROK}
             {" "}{poloha} celkové náklady na jedného obyvateľa (<strong>{martin.naklady_na_hlavu} €</strong>)
@@ -109,7 +109,7 @@ export default function MacroStats() {
             >
               <span className="font-semibold text-slate-700">{m.mesto}</span>
               <span className="text-slate-400 group-hover:text-blue-600 flex items-center gap-1">
-                RÚZ <ExternalLink className="w-3 h-3" />
+                RÚZ <ExternalLink className="w-3 h-3" aria-hidden="true" />
               </span>
             </a>
           ))}

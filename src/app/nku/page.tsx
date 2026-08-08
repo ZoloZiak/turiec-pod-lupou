@@ -38,7 +38,7 @@ export default function NkuPage() {
       <header className="bg-slate-900 text-white pt-16 pb-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white mb-4 block">&larr; Dashboard</Link>
-          <h1 className="text-4xl font-extrabold flex items-center gap-3"><ShieldAlert className="w-10 h-10 text-red-400" /> Kontroly NKÚ SR</h1>
+          <h1 className="text-4xl font-extrabold flex items-center gap-3"><ShieldAlert className="w-10 h-10 text-red-400" aria-hidden="true" /> Kontroly NKÚ SR</h1>
           <p className="text-lg text-slate-400 mt-4 max-w-2xl">Záznamy a protokoly z kontrol Najvyššieho kontrolného úradu na Mestskom úrade a v mestských podnikoch.</p>
         </div>
       </header>
@@ -59,14 +59,14 @@ export default function NkuPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${r.penalty_eur > 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                    {r.penalty_eur > 0 ? <XCircle className="w-4 h-4"/> : <CheckCircle2 className="w-4 h-4"/>}
+                    {r.penalty_eur > 0 ? <XCircle className="w-4 h-4" aria-hidden="true"/> : <CheckCircle2 className="w-4 h-4" aria-hidden="true"/>}
                     {r.status}
                   </span>
                   <span className="text-slate-400 font-mono text-sm">Rok: {r.year}</span>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">{r.title}</h2>
                 <p className="text-slate-600 max-w-3xl">{r.description}</p>
-                <a href={r.report_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-4">Protokol o kontrole <ArrowRight className="w-3 h-3"/></a>
+                <a href={r.report_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-4">Protokol o kontrole <ArrowRight className="w-3 h-3" aria-hidden="true"/></a>
               </div>
               
               {r.penalty_eur > 0 && (

@@ -38,7 +38,7 @@ export default function EurofondyPage() {
       <header className="bg-slate-900 text-white pt-16 pb-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white mb-4 block">&larr; Dashboard</Link>
-          <h1 className="text-4xl font-extrabold flex items-center gap-3"><Globe className="w-10 h-10 text-blue-400" /> Eurofondy a Dotácie</h1>
+          <h1 className="text-4xl font-extrabold flex items-center gap-3"><Globe className="w-10 h-10 text-blue-400" aria-hidden="true" /> Eurofondy a Dotácie</h1>
           <p className="text-lg text-slate-400 mt-4 max-w-2xl">Prehľad externých grantov mesta (ITMS, Plán obnovy) a kto z nich reálne profitoval (víťazi tendrov).</p>
         </div>
       </header>
@@ -59,13 +59,13 @@ export default function EurofondyPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">{d.program_name}</span>
-                  <span className="text-slate-400 font-mono text-sm flex items-center gap-1"><Calendar className="w-4 h-4"/> {d.year}</span>
+                  <span className="text-slate-400 font-mono text-sm flex items-center gap-1"><Calendar className="w-4 h-4" aria-hidden="true"/> {d.year}</span>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 mb-4">{d.project_name}</h2>
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                   <p className="text-sm text-slate-500 mb-1">Kto zákazku realizoval (Víťaz obstarávania):</p>
                   <div className="flex items-center gap-2">
-                    <Building className="w-5 h-5 text-slate-400"/>
+                    <Building className="w-5 h-5 text-slate-400" aria-hidden="true"/>
                     {d.winner_ico ? (
                       <>
                         <Link href={`/dodavatel/${d.winner_ico}`} className="text-lg font-bold text-blue-600 hover:underline">{d.winner_name}</Link>

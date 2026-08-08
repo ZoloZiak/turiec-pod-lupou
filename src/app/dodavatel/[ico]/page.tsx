@@ -98,7 +98,7 @@ export default function SupplierProfilePage() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center flex-col gap-4">
         <h2 className="text-xl font-bold text-slate-800">Dodávateľ nenájdený</h2>
         <Link href="/" className="text-blue-600 hover:underline flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" /> Späť na prehľad
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Späť na prehľad
         </Link>
       </div>
     );
@@ -113,11 +113,11 @@ export default function SupplierProfilePage() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+            <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" aria-label="Späť na prehľad">
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </Link>
             <div className="flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-blue-600" />
+              <Building2 className="w-6 h-6 text-blue-600" aria-hidden="true" />
               <h1 className="text-xl font-bold tracking-tight text-slate-800 truncate">
                 {supplier.name}
               </h1>
@@ -126,16 +126,17 @@ export default function SupplierProfilePage() {
 
           <button
             onClick={handleShare}
+            aria-label="Zdieľať profil dodávateľa"
             className="flex items-center gap-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-all shadow-sm active:scale-95"
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4 text-white" />
+                <Check className="w-4 h-4 text-white" aria-hidden="true" />
                 <span>Kopírované do schránky!</span>
               </>
             ) : (
               <>
-                <Share2 className="w-4 h-4" />
+                <Share2 className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">Zdieľať profil</span>
               </>
             )}
@@ -153,15 +154,15 @@ export default function SupplierProfilePage() {
             {!isNoIco && (
               <div className="flex gap-3 mt-3">
                 <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
-                  <Search className="w-3 h-3" /> ORSR
+                  <Search className="w-3 h-3" aria-hidden="true" /> ORSR
                 </a>
                 {!isRpvsExempt(supplier.ico, supplier.name) && (
                   <a href={`/api/rpvs-redirect/${supplier.ico}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline font-semibold">
-                    <Search className="w-3 h-3" /> RPVS
+                    <Search className="w-3 h-3" aria-hidden="true" /> RPVS
                   </a>
                 )}
                 <a href={`https://finstat.sk/${supplier.ico}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
-                  <Search className="w-3 h-3" /> FinStat
+                  <Search className="w-3 h-3" aria-hidden="true" /> FinStat
                 </a>
               </div>
             )}
@@ -179,7 +180,7 @@ export default function SupplierProfilePage() {
 
           <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl shadow-sm border border-indigo-100 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10">
-              <TrendingUp className="w-16 h-16 text-indigo-600" />
+              <TrendingUp className="w-16 h-16 text-indigo-600" aria-hidden="true" />
             </div>
             <p className="text-sm font-medium text-indigo-700 uppercase tracking-wider mb-1 relative z-10">Zisk (FinStat AI Proxy)</p>
             {finstatData === null ? (
@@ -240,7 +241,7 @@ export default function SupplierProfilePage() {
                         <p className="text-xs text-slate-500 mt-1">Odberateľ: {t.buyer?.name}</p>
                         {t.amount_eur >= 100000 && (
                           <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-100">
-                            <AlertTriangle className="w-3 h-3" /> RPVS
+                            <AlertTriangle className="w-3 h-3" aria-hidden="true" /> RPVS
                           </div>
                         )}
                       </td>

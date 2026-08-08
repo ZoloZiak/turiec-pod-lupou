@@ -42,7 +42,7 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
         className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 text-amber-400 text-xs font-semibold rounded border border-amber-500/20"
         title="Subjekt nie je zapísaný v RPVS, pretože podlieha zákonnej výnimke podľa § 2 ods. 3 Zákona č. 315/2016 Z. z. (štátne orgány, ministerstvá, štátne fondy, obce, banky)."
       >
-        <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+        <AlertTriangle className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
         Subjekt nie je v RPVS (má výnimku)
       </div>
     );
@@ -61,7 +61,7 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
         className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded border border-emerald-200 transition-colors" 
         title="Zákonná povinnosť splnená: Subjekt je zapísaný v Registri partnerov verejného sektora."
       >
-        <CheckCircle className="w-3 h-3" />
+        <CheckCircle className="w-3 h-3" aria-hidden="true" />
         Firma je zapísaná v RPVS
       </a>
     );
@@ -77,16 +77,16 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
         className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 text-xs font-semibold rounded border border-red-200 transition-colors shadow-sm"
         title="Kliknutím overíte zápis v Registri partnerov verejného sektora (RPVS)"
       >
-        <XCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+        <XCircle className="w-3.5 h-3.5 text-red-600 shrink-0" aria-hidden="true" />
         <span>POZOR! Zákazka nad 100k, ale firma NIE JE v RPVS!</span>
-        <ExternalLink className="w-3 h-3 text-red-500 ml-0.5 shrink-0" />
+        <ExternalLink className="w-3 h-3 text-red-500 ml-0.5 shrink-0" aria-hidden="true" />
       </a>
     );
   }
 
   return (
     <div className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-200">
-      <AlertTriangle className="w-3 h-3" />
+      <AlertTriangle className="w-3 h-3" aria-hidden="true" />
       Zákazka nad 100k (RPVS nedostupné)
     </div>
   );
