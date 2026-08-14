@@ -42,3 +42,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python diag/temp v scripts (jednorazove, necommitovat)
+__pycache__/
+scripts/_*.js
+scripts/_*.py
