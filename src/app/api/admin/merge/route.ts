@@ -1,8 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function POST(request: Request) {
   try {
+    const denied = requireAdmin(request);
+    if (denied) return denied;
+
     const { sourceEntityId, targetIco, targetName } = await request.json();
 
     if (!sourceEntityId || !targetIco || !targetName) {
