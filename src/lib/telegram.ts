@@ -49,7 +49,7 @@ async function fetchWithTimeout(url: string) {
 
 export interface RpvsCheckResult {
   ico?: string;
-  resolvedIco?: string;
+  resolvedIco?: string | null;
   partnerId?: number;
   hasIco: boolean;
   active: boolean;
