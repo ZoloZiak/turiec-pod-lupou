@@ -18,6 +18,17 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Admin API auth: heslo == ADMIN_PASSWORD (server-side v /api/admin/*).
+  // Posiela sa ako Bearer pri KAZDOM admin volani. Heslo drzime len v pamati
+  // (state), nikdy nie v bundli/localStorage.
+  const authHeaders = useCallback(
+    (extra?: Record<string, string>): Record<string, string> => ({
+      Authorization: `Bearer ${password}`,
+      ...(extra || {}),
+    }),
+    [password]
+  );
+
   // Tabs & Logs
   const [activeTab, setActiveTab] = useState<"merge" | "logs" | "pdf_logs" | "pdfs" | "entities" | "promises" | "direction">("merge");
   const [logs, setLogs] = useState<any[]>([]);
@@ -44,7 +55,8 @@ export default function AdminPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/unmapped');
+      const res = await fetch('/api/admin/unmapped', { headers: authHeaders() });
+      if (res.status === 401) { setIsAuthenticated(false); alert("Neplatné heslo (401)."); return; }
       const json = await res.json();
       if (json.success) {
         setUnmapped(json.unmapped);
@@ -57,20 +69,20 @@ export default function AdminPage() {
         setMappings(initialMappings);
       }
       
-      const logsRes = await fetch('/api/admin/logs');
+      const logsRes = await fetch('/api/admin/logs', { headers: authHeaders() });
       const logsJson = await logsRes.json();
       if (logsJson.success) {
         setLogs(logsJson.logs);
       }
 
-      const dashRes = await fetch('/api/admin/dashboard');
+      const dashRes = await fetch('/api/admin/dashboard', { headers: authHeaders() });
       const dashJson = await dashRes.json();
       if (dashJson.success) {
         setAllEntities(dashJson.entities);
         setWebPdfs(dashJson.pdfs);
       }
 
-      const promRes = await fetch('/api/admin/promises');
+      const promRes = await fetch('/api/admin/promises', { headers: authHeaders() });
       const promJson = await promRes.json();
       if (promJson.success) {
         setPromises(promJson.promises);
@@ -80,7 +92,7 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authHeaders]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -91,7 +103,7 @@ export default function AdminPage() {
   const fetchDirection = useCallback(async () => {
     setDirectionLoading(true);
     try {
-      const res = await fetch('/api/admin/direction?filter=unsure');
+      const res = await fetch('/api/admin/direction?filter=unsure', { headers: authHeaders() });
       const json = await res.json();
       if (json.needsMigration) {
         setDirectionNeedsMigration(true);
@@ -105,7 +117,7 @@ export default function AdminPage() {
     } finally {
       setDirectionLoading(false);
     }
-  }, []);
+  }, [authHeaders]);
 
   useEffect(() => {
     if (isAuthenticated && activeTab === "direction") {
@@ -118,7 +130,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/direction', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ id, direction })
       });
       const json = await res.json();
@@ -139,10 +151,12 @@ export default function AdminPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "turiec123") {
+    // Overenie robi SERVER: heslo sa posle ako Bearer pri prvom fetchi.
+    // Ak je nespravne, /api/admin/* vrati 401 a fetchData odhlasi (alert).
+    if (password) {
       setIsAuthenticated(true);
     } else {
-      alert("Nesprávne heslo!");
+      alert("Zadajte heslo!");
     }
   };
 
@@ -154,7 +168,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/merge', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ sourceEntityId: sourceId, targetIco: target.ico, targetName: target.name })
       });
       const json = await res.json();
@@ -186,7 +200,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/resolve-pdf', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           logId: log.id,
           ico: pdfData.ico,
@@ -216,10 +230,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/promises', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer Krtko2024`
-        },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           action: isNew ? 'CREATE' : 'UPDATE',
           promise
@@ -244,10 +255,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/promises', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer Krtko2024`
-        },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           action: 'DELETE',
           promise: { id }
