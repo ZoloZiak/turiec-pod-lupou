@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Droplets,
-  TreePine,
   CheckCircle2,
   Ruler,
   AlertTriangle,
@@ -15,7 +14,7 @@ import {
 export const metadata = {
   title: "Voda späť do Martina — vodný koridor Medokýš | Turiec pod Lupou",
   description:
-    "Podklad pre urbanistickú štúdiu: odkrytie potoka Medokýš v lesoparku pod Malou Horou a zelený okruh okolo centra. Overené fakty z verejných registrov (SVP, OSM, Wikipédia) oddelené od toho, čo musí zamerať geodet.",
+    "Podklad pre urbanistickú štúdiu: odkrytie potoka Medokýš v lesoparku pod Malou Horou. Overené fakty z verejných registrov (SVP, OSM, Wikipédia) oddelené od toho, čo musí zamerať geodet.",
 };
 
 // Statická stránka — podklad k diskusii, bez databázy.
@@ -41,8 +40,8 @@ export default function VodaPage() {
         {/* Perex */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
           <p className="text-lg text-slate-700 leading-relaxed">
-            Centrom Martina tečie potok <strong>Medokýš</strong> — dnes na
-            viacerých úsekoch zakrytý pod zemou. Tento dokument je{" "}
+            Centrom Martina tečie potok <strong>Medokýš</strong> — na súvislom
+            úseku cez centrum je zakrytý pod zemou. Tento dokument je{" "}
             <strong>podklad pre urbanistickú štúdiu</strong>: zhŕňa, čo sa dá
             o toku overiť z verejných zdrojov, a rozlišuje{" "}
             <strong>lacné a realistické</strong> riešenie od{" "}
@@ -130,58 +129,6 @@ export default function VodaPage() {
           />
         </div>
 
-        {/* 2. Zelený okruh */}
-        <SectionTitle
-          icon={<TreePine className="w-6 h-6 text-emerald-600" />}
-          title="Zelený okruh okolo centra (návrh)"
-        />
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
-          <p className="text-slate-700 leading-relaxed mb-4">
-            Myšlienka: zelený peší okruh okolo jadra mesta — inšpirácia{" "}
-            <strong>Planty Krakowskie</strong> (park do kruhu okolo Starého
-            mesta) a <strong>krakovské nábrežné bulváre</strong> (chodníky
-            priamo pri rieke). Časť okruhu už fyzicky existuje, len nie je
-            pospájaná.
-          </p>
-          <div className="space-y-3">
-            <RingItem
-              tone="ok"
-              label="Vodná strana (prirodzená)"
-              body="Lesopark pod Malou Horou → zelená os Šoltésovej/Holubyho → sútok → odkrytá Silava → Turiec. Vzniká odkrytím toku + promenádou pri vode."
-            />
-            <RingItem
-              tone="ok"
-              label="Východná strana (voľná, zelená)"
-              body="Od tržnice popod Národný cintorín k parku Malá Hora a arborétu. Prevažne voľné / už zelené plochy — reálna chrbtica okruhu."
-            />
-            <RingItem
-              tone="ok"
-              label="Spiatočná strana — ľahká časť: premena obytných ulíc"
-              body="Robotnícka → Bernolákova → popri bývalej stoličkárni. Existujúce obytné mestské ulice (verejný pozemok). Nemusia zostať iba vozovkou — dá sa z nich spraviť zelený bulvár: stromoradie, chodník, cyklotrasa, lavičky. Lacné: pozemok už mesto vlastní, netreba vykupovať ani búrať budovy — mení sa profil ulice."
-            />
-            <RingItem
-              tone="warn"
-              label="Spiatočná strana — ťažká časť: úsek pri tržnici a galérii je I/65"
-              body="Kľúčová korekcia (overené z máp + miestnej znalosti): úsek medzi galériou a tržnicou NIE je pešia zóna — posledný kus pri tržnici a celý zadok OC Galérie tvorí cesta I. triedy I/65 (Kohútova, 4 pruhy, regionálny tranzit). Aby tade prešiel súvislý zelený bulvár, cesta by sa musela na cca 300 m ZAHĹBIŤ (zhruba od miesta bývalej synagógy po zadnú časť galérie). To je najdrahší a najzložitejší prvok celej vízie — veľká dopravná stavba, nie sadenie stromov."
-            />
-            <RingItem
-              tone="warn"
-              label="Tá istá I/65 sa vracia aj pri cintoríne"
-              body="Kohútova (pri tržnici) a Jesenského (pri Národnom cintoríne) sú dva body jedného súvislého ťahu I/65. Okruh sa teda s hlavnou cestou stretáva na viacerých miestach — riešenie tranzitu (obchvat / zahĺbenie / presmerovanie) je predpokladom, nie detailom."
-            />
-          </div>
-          <p className="text-sm text-slate-500 mt-5 border-t border-slate-100 pt-4">
-            Poctivé pomenovanie: nejde o dokonale uzavretý prstenec ako v Krakove
-            (Martin nemá historické hradby, ktoré by ho definovali), ale o{" "}
-            <strong>zelený polokruh + vodný bulvár</strong>, budovateľný po
-            etapách. <strong>Dôležité rozlíšenie nákladov:</strong> vodná a
-            lesoparková strana je lacná a rýchla (odkrytie toku, zeleň). Uzavrieť
-            okruh na juhu naráža na cestu I/65 — to je už veľká dopravná
-            investícia (zahĺbenie ~300 m), ktorú treba priznať vopred, nie
-            predávať ako lacnú.
-          </p>
-        </div>
-
         {/* 3. Čo treba zamerať */}
         <SectionTitle
           icon={<Ruler className="w-6 h-6 text-slate-600" />}
@@ -209,7 +156,7 @@ export default function VodaPage() {
           />
           <RefCard
             city="Krakov"
-            note="Planty (park do kruhu okolo centra) + nábrežné bulváre pri Visle. Vzor pre zelený okruh a pobyt pri vode."
+            note="Nábrežné bulváre pri Visle — chodníky priamo pri rieke. Vzor pre pobyt a pohyb pri vode v meste."
             tone="ok"
           />
           <RefCard
@@ -232,8 +179,8 @@ export default function VodaPage() {
             Hore výskumno-zdravotnícke zázemie (JLF UK + UNM + nová univerzitná
             nemocnica), pod ním oživený lesopark s vodou, zelené ulice smerom k
             námestiu a kvalitne (nie iba čiastočne) obnovené centrálne námestie.
-            Detailný podklad je vedený samostatne; táto stránka sa venuje vode a
-            zelenému okruhu.
+            Detailný podklad je vedený samostatne; táto stránka sa venuje odkrytiu
+            potoka Medokýš.
           </p>
         </div>
 
@@ -298,39 +245,6 @@ function Fact({
           <p className="text-xs text-slate-400 mt-2">Zdroj: {src}</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function RingItem({
-  tone,
-  label,
-  body,
-}: {
-  tone: "ok" | "warn" | "stop";
-  label: string;
-  body: string;
-}) {
-  const toneMap = {
-    ok: "border-emerald-200 bg-emerald-50",
-    warn: "border-amber-200 bg-amber-50",
-    stop: "border-red-200 bg-red-50",
-  };
-  const dotMap = {
-    ok: "bg-emerald-500",
-    warn: "bg-amber-500",
-    stop: "bg-red-500",
-  };
-  return (
-    <div className={`rounded-xl border p-4 ${toneMap[tone]}`}>
-      <div className="flex items-center gap-2 mb-1">
-        <span
-          className={`w-2.5 h-2.5 rounded-full ${dotMap[tone]}`}
-          aria-hidden="true"
-        />
-        <h3 className="font-bold text-slate-800">{label}</h3>
-      </div>
-      <p className="text-sm text-slate-600 leading-relaxed pl-4">{body}</p>
     </div>
   );
 }
