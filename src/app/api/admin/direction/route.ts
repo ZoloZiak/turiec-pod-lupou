@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { INCOME_TX_IDS } from '@/lib/income-ids';
 import { UNSURE_REVIEW } from '@/lib/unsure-ids';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,9 @@ function getClient() {
 
 export async function GET(request: Request) {
   try {
+    const denied = requireAdmin(request);
+    if (denied) return denied;
+
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get('filter') || 'unsure';
 
@@ -138,6 +142,9 @@ function enrich(t: DirectionRow, hasColumn: boolean) {
 
 export async function POST(request: Request) {
   try {
+    const denied = requireAdmin(request);
+    if (denied) return denied;
+
     const body = await request.json();
     const { id, direction } = body || {};
 

@@ -12,7 +12,10 @@ export async function GET(
   }
 
   try {
-    const res = await fetch(`https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`);
+    const res = await fetch(
+      `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`,
+      { signal: AbortSignal.timeout(8000) }
+    );
     if (res.ok) {
       const list = await res.json();
       if (Array.isArray(list) && list.length > 0 && list[0].PartnerId) {

@@ -40,9 +40,10 @@ export async function GET(request: Request) {
     const yearlyVolume: Record<string, number> = {};
 
     transactions?.forEach(t => {
-      totalAmount += Number(t.amount_eur);
+      const amount = Number(t.amount_eur) || 0;
+      totalAmount += amount;
       const year = new Date(t.date_published).getFullYear().toString();
-      yearlyVolume[year] = (yearlyVolume[year] || 0) + Number(t.amount_eur);
+      yearlyVolume[year] = (yearlyVolume[year] || 0) + amount;
     });
 
     // Format for chart

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAdmin } from "@/lib/admin-auth";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
   const { data, error } = await supabase
     .from('promises')
@@ -12,10 +16,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get("Authorization");
-  if (authHeader !== `Bearer ${process.env.ADMIN_PASSWORD}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = requireAdmin(request);
+  if (denied) return denied;
 
   const json = await request.json();
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);

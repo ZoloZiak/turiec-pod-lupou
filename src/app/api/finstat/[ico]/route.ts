@@ -5,6 +5,9 @@ import * as cheerio from 'cheerio';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request, context: { params: Promise<{ ico: string }> }) {
+  // Uchovaj povodnu hodnotu, aby sa TLS verifikacia obnovila po requeste (finally),
+  // a neostala globalne vypnuta pre cely proces (vratane paralelnych Supabase volani).
+  const prevTlsReject = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
   try {
     const { ico } = await context.params;
     if (!ico) return NextResponse.json({ error: 'Missing ICO' }, { status: 400 });
@@ -43,5 +46,12 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
   } catch (error: unknown) {
     console.error("Finstat fetch error:", error);
     return NextResponse.json({ success: false, error: 'Nepodarilo sa stiahnuť FinStat dáta' }, { status: 500 });
+  } finally {
+    // Obnov povodny stav TLS verifikacie, aby vypnutie neuniklo do zvysku procesu.
+    if (prevTlsReject === undefined) {
+      delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    } else {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = prevTlsReject;
+    }
   }
 }

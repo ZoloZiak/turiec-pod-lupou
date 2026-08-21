@@ -35,9 +35,21 @@ function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+const RPVS_FETCH_TIMEOUT_MS = 8000;
+
+/**
+ * fetch s hornou hranicou cakania. Ak externy RPVS portal visi, AbortSignal.timeout
+ * request preruzi po RPVS_FETCH_TIMEOUT_MS -> vyhodi AbortError, ktory zachyti volajuci
+ * try/catch (kazdy stage checkRpvsStatus ma vlastny catch). Bez timeoutu sa mohol cely
+ * audit zablokovat na pomalom/nedostupnom rpvs.gov.sk.
+ */
+async function fetchWithTimeout(url: string) {
+  return fetch(url, { signal: AbortSignal.timeout(RPVS_FETCH_TIMEOUT_MS) });
+}
+
 export interface RpvsCheckResult {
   ico?: string;
-  resolvedIco?: string;
+  resolvedIco?: string | null;
   partnerId?: number;
   hasIco: boolean;
   active: boolean;
@@ -87,7 +99,7 @@ export async function checkRpvsStatus(
   if (cleanIco) {
     try {
       const getPartnersUrl = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`;
-      const getPartnersRes = await fetch(getPartnersUrl);
+      const getPartnersRes = await fetchWithTimeout(getPartnersUrl);
       if (getPartnersRes.ok) {
         const list = (await getPartnersRes.json()) as RpvsPartner[];
         if (Array.isArray(list) && list.length > 0) {
@@ -113,7 +125,7 @@ export async function checkRpvsStatus(
   if (cleanIco) {
     try {
       const url = `https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?%24filter=${encodeURIComponent(`Ico eq '${cleanIco}'`)}`;
-      const res = await fetch(url);
+      const res = await fetchWithTimeout(url);
       if (res.ok) {
         const data = (await res.json()) as RpvsODataResponse;
         const isActive = data.value?.some((record: RpvsODataRecord) => {
@@ -123,7 +135,7 @@ export async function checkRpvsStatus(
         if (isActive) {
           let resolvedPartnerId: number | undefined = undefined;
           try {
-            const gpRes = await fetch(`https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`);
+            const gpRes = await fetchWithTimeout(`https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`);
             if (gpRes.ok) {
               const gpList = (await gpRes.json()) as RpvsPartner[];
               if (Array.isArray(gpList) && gpList.length > 0 && gpList[0].PartnerId) {
@@ -143,7 +155,7 @@ export async function checkRpvsStatus(
   if (cleanIco) {
     try {
       const url = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`;
-      const res = await fetch(url);
+      const res = await fetchWithTimeout(url);
       if (res.ok) {
         const list = (await res.json()) as RpvsPartner[];
         if (Array.isArray(list) && list.length > 0) {
@@ -170,14 +182,14 @@ export async function checkRpvsStatus(
       if (!term || term.length < 3) continue;
       try {
         const url = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(term)}`;
-        const res = await fetch(url);
+        const res = await fetchWithTimeout(url);
         if (res.ok) {
           const list = (await res.json()) as RpvsPartner[];
           if (Array.isArray(list) && list.length > 0) {
             const partner = list.find((p: RpvsPartner) => p.TypOsoby === 'Partner verejného sektora' && p.Ico);
             if (partner) {
               const odataUrl = `https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?%24filter=${encodeURIComponent(`Ico eq '${partner.Ico}'`)}`;
-              const odataRes = await fetch(odataUrl);
+              const odataRes = await fetchWithTimeout(odataUrl);
               if (odataRes.ok) {
                 const odataData = (await odataRes.json()) as RpvsODataResponse;
                 const isActive = odataData.value?.some((record: RpvsODataRecord) => {

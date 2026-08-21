@@ -1,8 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function POST(request: Request) {
   try {
+    const denied = requireAdmin(request);
+    if (denied) return denied;
+
     const { sourceEntityId, targetIco, targetName } = await request.json();
 
     if (!sourceEntityId || !targetIco || !targetName) {
@@ -30,6 +34,18 @@ export async function POST(request: Request) {
     }
 
     const targetEntityId = realEntity.id;
+
+    // Poistka: ak zdrojova (fake) entita uz mala cielove ICO, upsert (onConflict: 'ico')
+    // vrati tu istu entitu -> targetEntityId === sourceEntityId. Bez tejto poistky by
+    // krok 4 zmazal prave tu entitu, na ktoru sme v krokoch 2-3 presunuli transakcie,
+    // takze vsetky faktury/zmluvy by osireli (supplier_entity_id -> neexistujuca entita).
+    if (String(targetEntityId) === String(sourceEntityId)) {
+      return NextResponse.json({
+        success: true,
+        noop: true,
+        message: 'Zdrojová entita už má cieľové IČO — zlúčenie nie je potrebné.',
+      });
+    }
 
     // 2. Presunúť všetky transakcie (faktúry/zmluvy), kde bol zdrojový (fake) entity dodávateľ
     const { error: updateSupplierError } = await supabase
