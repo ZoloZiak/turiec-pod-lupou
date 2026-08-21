@@ -124,7 +124,7 @@ export default function VodaPage() {
           />
           <Fact
             label="Sútok a vyústenie sú známe"
-            body="Medokýš ústi do Silavy pri ulici Holubyho (~398 m n.m.). Silava potom tečie ~600 m zakrytá a vynára sa pri predajni Lidl (ul. Červenej armády), ďalej smeruje k rieke Turiec. Prepojenie na Turiec je teda prirodzené — netreba ho stavať cez železničnú stanicu."
+            body="Medokýš ústi do Silavy pri ulici Holubyho (~398 m n.m.). Silava potom tečie ~600 m zakrytá a vynára sa pri predajni Lidl (ul. Červenej armády), ďalej smeruje k rieke Turiec. Prepojenie na Turiec je teda prirodzené."
             src="OpenStreetMap, voda.oma.sk, Wikipédia (2026)"
           />
         </div>
