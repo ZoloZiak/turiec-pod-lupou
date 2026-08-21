@@ -194,7 +194,7 @@ export default function VodaPage() {
           <p>• Stratégia adaptácie mesta Martin na zmenu klímy — Útvar hlavného architekta mesta Martin (2024)</p>
           <p>• OpenStreetMap / Overpass — geometria tokov a ulíc (2026, licencia ODbL)</p>
           <p>• voda.oma.sk — hydrologická vrstva OSM (2026)</p>
-          <p>• Wikipédia: Medokýš (prítok Silavy); Bachkonzept; Planty Krakowskie; Rawa (2026)</p>
+          <p>• Wikipédia: Medokýš (prítok Silavy); Bachkonzept; Rawa (2026)</p>
           <p>• Výškopis SRTM / ASTER cez OpenTopoData (2026) — orientačný, nie geodetický</p>
         </div>
 
