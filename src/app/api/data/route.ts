@@ -51,18 +51,27 @@ export async function GET(request: Request) {
 
     if (entitiesError) throw entitiesError;
 
-    // Načítať transakcie so spojenými entitami (Kto kupoval, kto dodával)
+    // Načítať VŠETKY transakcie — Supabase .select() ticho limituje na 1000 riadkov,
+    // preto paginujeme cez .range(), kým nedostaneme všetko (overené: 2223+ riadkov).
+    const PAGE_SIZE = 1000;
     const selectCols = hasDirectionColumn
       ? 'id, external_id, source_type, amount_eur, subject, date_published, source_url, direction, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)'
       : 'id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)';
-    const query = supabase
-      .from('transactions')
-      .select(selectCols)
-      .order('date_published', { ascending: false });
-
-    const { data: transactionsData, error: txError } = await query;
-    if (txError) throw txError;
-    const transactions = (transactionsData || []) as unknown as TransactionRow[];
+    const transactionsData: TransactionRow[] = [];
+    let from = 0;
+    while (true) {
+      const { data: pageRows, error: txError } = await supabase
+        .from('transactions')
+        .select(selectCols)
+        .order('date_published', { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+      if (txError) throw txError;
+      const page = (pageRows || []) as unknown as TransactionRow[];
+      transactionsData.push(...page);
+      if (page.length < PAGE_SIZE) break;
+      from += PAGE_SIZE;
+    }
+    const transactions = transactionsData;
 
     // Ak bol zadaný IČO filter pre konkrétnu organizáciu
     let filteredTransactions: TransactionRow[] = transactions;
