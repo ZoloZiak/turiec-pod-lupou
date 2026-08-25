@@ -114,7 +114,7 @@ async function runInvoiceSanitizerPipeline() {
   const sources = [
     { buyerIco: '36387959', targetWeb: 'https://www.parkovaniemartin.sk/faktury-a-objednavky' },
     { buyerIco: '53560922', targetWeb: 'https://www.dpmmartin.sk/zverejnovanie/faktury' },
-    { buyerIco: '42220360', targetWeb: 'https://www.turiec.com/povinne-zverejnovanie' }
+    { buyerIco: '42220360', targetWeb: 'https://turiec.com/dokumenty-faktury-objednavky' }
   ];
 
   for (const source of sources) {
