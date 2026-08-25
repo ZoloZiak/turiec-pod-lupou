@@ -21,8 +21,17 @@ CREATE TABLE promises (
 -- Index pre rýchlejšie vyhľadávanie podľa politika
 CREATE INDEX idx_promises_politician ON promises(politician_name);
 
--- 3. Vzorové dáta (Sľuby Jána Danka z volieb)
-INSERT INTO promises (title, description, status, politician_name, source_url) VALUES 
-('Zelenšie mesto a údržba parkov', 'Záväzok zintenzívniť kosenie a revitalizáciu mestských parkov.', 'V RIEŠENÍ', 'Ján Danko', 'https://martin.sk/volebny-program'),
-('Nové parkovacie miesta', 'Vybudovanie 500 nových parkovacích miest na sídliskách do konca volebného obdobia.', 'ZABUDNUTÉ', 'Ján Danko', 'https://martin.sk/volebny-program'),
-('Transparentnejšie obstarávanie', 'Zavedenie nového elektronického systému pre zverejňovanie všetkých menších zákaziek pod limit.', 'SPLNENÉ', 'Ján Danko', 'https://martin.sk/volebny-program');
+-- 3. Vzorové dáta — ODSTRÁNENÉ (audit cyklus 2, T18 fabrication-sweep)
+-- POZOR: pôvodný seed obsahoval NEOVERENÉ statusy sľubov menovanej osoby
+-- (Ján Danko: 'ZABUDNUTÉ' / 'SPLNENÉ') — hodnotiace tvrdenia o plnení
+-- volebného programu bez doloženého zdroja. source_url 'martin.sk/volebny-program'
+-- je navyše MŔTVY (404). V DB boli tieto statusy neutralizované na 'V RIEŠENÍ'
+-- a mŕtvy link opravený (audit T10). Aby re-spustenie tejto schémy nevrátilo
+-- nepravdivé statusy ani duplicity, seed je odstránený.
+-- NEVKLADAJ sem statusy plnenia sľubov menovaných osôb bez overeného zdroja
+-- a bez ľudského posúdenia (poistka menovaných osôb).
+--
+-- INSERT INTO promises (title, description, status, politician_name, source_url) VALUES
+-- ('Zelenšie mesto a údržba parkov', '...', 'V RIEŠENÍ', 'Ján Danko', 'https://www.martin.sk/'),
+-- ('Nové parkovacie miesta', '...', 'V RIEŠENÍ', 'Ján Danko', 'https://www.martin.sk/'),
+-- ('Transparentnejšie obstarávanie', '...', 'V RIEŠENÍ', 'Ján Danko', 'https://www.martin.sk/');
