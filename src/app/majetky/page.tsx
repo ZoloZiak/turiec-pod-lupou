@@ -3,7 +3,6 @@
 import { Building2, Search, ArrowRight, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
-import VerifiedBadge from "../components/VerifiedBadge";
 import { useState, useEffect } from "react";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -114,9 +113,9 @@ export default function MajetkyPage() {
                 <p className="text-slate-500 font-medium">{asset.role}</p>
                 <div className="mt-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                   <p className="text-sm text-slate-500 mb-1">Oficiálny ročný príjem (Mesto)</p>
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-slate-800">{formatEur(asset.official_salary_eur)}</span>
-                    <VerifiedBadge source="NRSR" date={`Za rok ${asset.year}`} />
+                    <span className="text-xs text-slate-400">{`Za rok ${asset.year}`}</span>
                   </div>
                 </div>
               </div>
