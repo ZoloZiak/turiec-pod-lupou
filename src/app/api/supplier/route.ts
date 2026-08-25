@@ -26,14 +26,36 @@ export async function GET(request: Request) {
     if (supplierError) throw supplierError;
     if (!supplier) return NextResponse.json({ success: false, error: 'Dodávateľ nenájdený' }, { status: 404 });
 
-    // Get all transactions where they are the supplier
-    const { data: transactions, error: txError } = await supabase
-      .from('transactions')
-      .select('id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico)')
-      .eq('supplier_entity_id', supplier.id)
-      .order('date_published', { ascending: false });
+    // Get all transactions where they are the supplier.
+    // Supabase ticho seka .select() na default limit 1000 -> pri dodavatelovi s >1000
+    // zmluvami by boli totalAmount aj totalCount PODHODNOTENE. Paginujeme cez .range()
+    // (rovnaka oprava ako /api/data hero, T01). Pod 1000 zmluv = jeden request, spravanie
+    // nezmenene; nad 1000 dobehne spravny sucet.
+    const PAGE = 1000;
+    interface TxRow {
+      id: string;
+      external_id: string | null;
+      source_type: string | null;
+      amount_eur: number | null;
+      subject: string | null;
+      date_published: string;
+      source_url: string | null;
+      buyer: unknown;
+    }
+    const transactions: TxRow[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data: page, error: txError } = await supabase
+        .from('transactions')
+        .select('id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico)')
+        .eq('supplier_entity_id', supplier.id)
+        .order('date_published', { ascending: false })
+        .range(from, from + PAGE - 1);
 
-    if (txError) throw txError;
+      if (txError) throw txError;
+      if (!page || page.length === 0) break;
+      transactions.push(...(page as unknown as TxRow[]));
+      if (page.length < PAGE) break;
+    }
 
     // Calculate stats
     let totalAmount = 0;
