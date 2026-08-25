@@ -124,7 +124,7 @@ export default function Dashboard() {
           </div>
 
           {/* DESKTOP BUTTONS */}
-          <div className="hidden sm:flex gap-4 items-center">
+          <div className="hidden md:flex gap-4 items-center">
             <Link href="/slubomer" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-lg text-amber-400 border border-amber-500/20 transition-all flex items-center gap-2">
               <Lightbulb className="w-4 h-4" aria-hidden="true" />
               Sľubomer
@@ -143,7 +143,7 @@ export default function Dashboard() {
           </div>
 
           {/* MOBILE MENU TOGGLE */}
-          <div className="sm:flex md:hidden items-center">
+          <div className="flex md:hidden items-center">
              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400 hover:text-white rounded-lg" aria-label={isMenuOpen ? "Zavrieť menu" : "Otvoriť menu"} aria-expanded={isMenuOpen}>
                {isMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
              </button>
@@ -157,6 +157,10 @@ export default function Dashboard() {
                <a href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center justify-center gap-2">
                  <Lightbulb className="w-4 h-4" aria-hidden="true" />
                  Sľubomer
+               </a>
+               <a href="/majetky" className="text-sm font-medium bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg text-indigo-600 transition-colors flex items-center justify-center gap-2">
+                 <ShieldAlert className="w-4 h-4" aria-hidden="true" />
+                 Majetky
                </a>
                <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center justify-center gap-2">
                  <AlertTriangle className="w-4 h-4" aria-hidden="true" />
