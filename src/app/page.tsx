@@ -517,7 +517,7 @@ export default function Dashboard() {
                                   Chýba zmluva v CRZ!
                                 </div>
                               )}
-                              {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
+                              {t.amount_eur >= 100000 && t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
                                 <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} />
                               )}
                             </div>
