@@ -1,14 +1,16 @@
 -- add_direction_column.sql
--- Vygenerovane z .audit/income_verdicts.json (klasifikacia Opus/Palantir).
+-- AUTO-GENEROVANE cez scripts/gen_direction_sql.js zo zdroja pravdy src/lib/income-ids.ts.
+-- NEUPRAVUJ RUCNE — uprav income-ids.ts a re-generuj, inak sa SQL a appka rozidu.
 -- DDL prava z app klienta NIE su dostupne -> SPUSTI RUCNE v Supabase SQL editore
 -- (Dashboard -> SQL Editor) alebo cez psql so service/db heslom.
 --
 -- Smer penazi z pohladu mesta: EXPENSE = mesto plati (default), INCOME = mesto dostava.
+-- Pocet INCOME zmluv: 129 (musi sediet s INCOME_TX_COUNT v income-ids.ts).
 
 -- 1. Pridaj stlpec direction (default EXPENSE pre vsetky existujuce zaznamy).
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS direction text NOT NULL DEFAULT 'EXPENSE';
 
--- 2. Oznac INCOME zmluvy (87 kusov).
+-- 2. Oznac INCOME zmluvy (129 kusov, NFP/dotacie/granty od statu — mesto je prijimatel).
 UPDATE transactions SET direction = 'INCOME' WHERE id IN (
   '04526fab-476f-4e29-bb0f-7fe439c7c60a',
   '9989c1a5-68bf-46f7-9260-8605cd5914cf',
@@ -96,7 +98,49 @@ UPDATE transactions SET direction = 'INCOME' WHERE id IN (
   '490523d1-8e67-4e3d-86ac-7b6af4a4368b',
   '9d468a5e-03c7-4189-b016-0e8be4b274a8',
   'f8b0fba1-e066-4372-b85f-e07eddb45080',
-  '2cf1b203-2ed7-4314-b1ea-02acc1aef0be'
+  '2cf1b203-2ed7-4314-b1ea-02acc1aef0be',
+  '0d0588c4-9258-45d5-81d9-b1ac31a1d146',
+  'cfa74337-e12d-4c79-9a3b-dbafff900eca',
+  'bac3d81b-5612-4be9-a2be-ccf53565e9fa',
+  '52aabe3b-f05d-4ce7-9181-7db5c3a62d79',
+  'c40ed17c-97af-4fd3-b3e3-264ca968b10a',
+  '3543c595-748d-4981-bc66-d2158f7426fa',
+  'c7da13f9-7ae5-4efc-9dec-c1d82092d8a8',
+  'adacc256-f741-4220-971d-1b20f1bc01e2',
+  'c55f441f-c68a-4dff-99c8-88be16d2be4f',
+  'adf9ec7a-570a-44e8-b8c6-4521b6b00eac',
+  '0b313004-599f-453d-ae07-75aff24b6908',
+  '69a922a5-9868-45df-9645-ebed01c20c91',
+  'a0269d4e-c3ee-44c9-970a-151ce433e880',
+  '50fa31aa-3178-4c44-b538-44fb6e3c4909',
+  'be80b8b3-afa2-4a8f-a58e-584f44ae6ec0',
+  '28803dff-bca6-408d-b3e6-5f0fe88a75fb',
+  '9f22d36e-98d6-41ee-baf4-b4c68a6c704b',
+  '2ffa39b5-24cd-4727-a9c8-3c627920a255',
+  '0cf297b7-3b73-4ac2-ab8e-43df268d2f74',
+  '5ffd6efd-4108-4f2e-b068-6b0608db3c31',
+  'ea9a89e1-2fa8-4382-834f-cabf1ac499c8',
+  '1b6963d6-2142-4c22-99b0-c327ecf099d7',
+  '70fe8e28-261d-471b-80be-d7d1b390faba',
+  '29a0e5cc-38f1-4c32-a755-f482d29c52ca',
+  '5ec7ec54-9be4-46f5-b4c1-13515676db1d',
+  '018d665d-9d64-490f-9af4-ce66f7f01f61',
+  'd18464c9-e5e9-48e0-97eb-7d3e5f9857af',
+  '5a9aa41f-385d-4607-96fc-eaed765027f6',
+  '70212972-aac3-41bc-8ac2-0a7b490f1a04',
+  'f01a68e0-65fb-4322-b0ff-7f27b62687b1',
+  '0d811235-8ce8-497e-a669-bff7b4a3b3f1',
+  '8e1fd408-cfb3-4946-95a0-ed8bb5437aab',
+  '8241a930-adef-44b8-a9bf-60596a2e1d44',
+  '0ed101a3-beba-4eb9-89fe-d16cb2d3459a',
+  '41e98a0e-1f5e-4697-badb-f520a094bbe8',
+  '7237ba4d-4dcb-49a4-9740-1904f1439d7a',
+  'e68a7b1b-f90b-49f5-8b97-c43a739d538e',
+  '74b6d31d-d701-41f3-9d4a-516bb424eef5',
+  '2086a9f2-67c7-4d4a-b12a-567a35a0b5a8',
+  'ca1e8392-a5fb-4683-b20a-3c6ff8f4a0ca',
+  'd0f4b2a9-62eb-458e-b649-c12bc34dbfcb',
+  'fe823299-7d36-4f31-892e-0040a5e6a223'
 );
 
 -- 3. (volitelne) index pre filtrovanie podla smeru
