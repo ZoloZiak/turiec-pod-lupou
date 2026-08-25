@@ -26,18 +26,29 @@ export default async function AlertsPage() {
   if (supabaseUrl && supabaseKey) {
     try {
       const supabase = createClient(supabaseUrl, supabaseKey);
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          *,
-          supplier:entities!transactions_supplier_entity_id_fkey(ico, name),
-          buyer:entities!transactions_buyer_entity_id_fkey(name)
-        `);
+      // Supabase .select() ticho seká na 1000 riadkov. DB ma >2200 transakcii, preto
+      // musime paginovat cez .range() az kym prislusna strana nevrati < PAGE, inak by
+      // krizova kontrola (crzSuppliers set, missingCrz, over100k) bezala len z prvych
+      // 1000 riadkov -> podhodnotene upozornenia a riziko falosnych "chyba v CRZ" oznaceni.
+      const PAGE = 1000;
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select(`
+            *,
+            supplier:entities!transactions_supplier_entity_id_fkey(ico, name),
+            buyer:entities!transactions_buyer_entity_id_fkey(name)
+          `)
+          .order('id', { ascending: true })
+          .range(from, from + PAGE - 1);
 
-      if (error) {
-        console.error("Supabase Error in AlertsPage:", error);
-      } else if (data) {
-        allTransactions = data;
+        if (error) {
+          console.error("Supabase Error in AlertsPage:", error);
+          break;
+        }
+        if (!data || data.length === 0) break;
+        allTransactions.push(...data);
+        if (data.length < PAGE) break;
       }
     } catch (err) {
       console.error("Exception in AlertsPage:", err instanceof Error ? err.message : err);
