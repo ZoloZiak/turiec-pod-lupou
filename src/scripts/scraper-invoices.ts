@@ -25,84 +25,26 @@ interface InvoiceData {
   url: string;         // Link na web, odkiaľ to máme
 }
 
-// --- SCRAPER PLUGIN: PARKOVACIA SPOLOČNOSŤ (Ukážková logika) ---
-// Keďže reálny web môže mať štruktúru rôznu a často sa mení, toto je framework.
-async function scrapeInvoices(targetUrl: string, buyerIco: string): Promise<InvoiceData[]> {
-  console.log(`\n🕷️ [Scraper] Analyzujem faktúry z: ${targetUrl}`);
-  
-  try {
-    // V reálnom svete odkomentujeme fetch. Pre ukážku MVP fungovania (keďže cieľový web
-    // parkovaniemartin.sk nemusí mať voľne prístupnú HTML tabuľku),
-    // budeme simulovať HTML odpoveď typickú pre slovenské mestské podniky.
-    
-    /*
-    const res = await fetch(targetUrl);
-    const html = await res.text();
-    */
-
-    const mockHtml = `
-      <table>
-        <tbody>
-          <tr>
-            <td>FA-2026/0801</td>
-            <td>Oprava parkovacích automatov</td>
-            <td>Servis a.s.</td>
-            <td>4 500,50 &euro;</td>
-            <td>2026-08-01</td>
-          </tr>
-          <tr>
-            <td>FA-2026/0802</td>
-            <td>Nákup kancelárskych potrieb</td>
-            <td>Papiernictvo s.r.o.</td>
-            <td>120,00 &euro;</td>
-            <td>2026-07-28</td>
-          </tr>
-          <tr>
-            <td>FA-2026/0803</td>
-            <td>Zimná údržba parkovísk (záloha)</td>
-            <td>Cestné stavby Martin</td>
-            <td>12 400,00 &euro;</td>
-            <td>2026-07-20</td>
-          </tr>
-        </tbody>
-      </table>
-    `;
-
-    const $ = cheerio.load(mockHtml);
-    const invoices: InvoiceData[] = [];
-
-    // Iterujeme cez každý riadok tabuľky
-    $('table tbody tr').each((i, el) => {
-      const tds = $(el).find('td');
-      if (tds.length >= 5) {
-        const id = $(tds[0]).text().trim();
-        const subject = $(tds[1]).text().trim();
-        const supplier = $(tds[2]).text().trim();
-        
-        // Vyčistenie sumy "4 500,50 €" -> 4500.50
-        const amountStr = $(tds[3]).text().replace(/[^0-9,-]/g, '').replace(',', '.');
-        const amount = parseFloat(amountStr) || 0;
-        
-        const dateRaw = $(tds[4]).text().trim();
-
-        invoices.push({
-          external_id: `inv_${buyerIco}_${id}`,
-          title: subject,
-          supplier_name: supplier,
-          amount: amount,
-          published_at: new Date(dateRaw).toISOString(),
-          url: targetUrl
-        });
-      }
-    });
-
-    console.log(`✅ [Scraper] Vyextrahovaných ${invoices.length} neštruktúrovaných faktúr.`);
-    return invoices;
-
-  } catch (error) {
-    console.error(`❌ [Scraper] Zlyhal scraping:`, error);
-    return [];
-  }
+// --- SCRAPER PLUGIN: WEB FAKTÚRY MESTSKÝCH PODNIKOV ---
+// BEZPEČNÝ NO-OP (2026-08-25, audit WATCH tik #7).
+//
+// PÔVODNE tento scraper NEROBIL reálny fetch — mal zakomentovaný `fetch()` a namiesto neho
+// vkladal do produkčnej DB `mockHtml` s vymyslenými faktúrami (FA-2026/0801-0803, dodávatelia
+// "Servis a.s." / "Papiernictvo s.r.o." / "Cestné stavby Martin"). Tie sa cez 3 zdroje
+// replikovali na 9 FABRIKOVANÝCH transakcií na transparentnom webe (zmazané commitom cleanupu).
+// Zdrojová stránka parkovaniemartin.sk/faktury-a-objednavky navyše NEEXISTUJE (503, 0 Wayback
+// snapshotov; doména sa presunula na parkovanie-martin.sk, kde faktúrová podstránka nie je).
+//
+// Kým nebude implementovaný a overený REÁLNY HTML parser pre KONKRÉTNU štruktúru každého webu,
+// tento plugin ZÁMERNE nevracia nič — radšej prázdny modul než fabrikát na transparentnom webe.
+// Reálna implementácia: odkomentovať fetch, naparsovať skutočnú tabuľku, dohľadať IČO dodávateľa
+// (nie NO_ICO_ fallback z mena), overiť sumy proti zdroju. Framework InvoiceData ostáva pripravený.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function scrapeInvoices(targetUrl: string, _buyerIco: string): Promise<InvoiceData[]> {
+  console.log(`\n🕷️ [Scraper] NO-OP: reálny parser pre ${targetUrl} nie je implementovaný — nevkladám žiadne dáta (žiadny mock/fabrikát).`);
+  // cheerio ostáva importované pre budúci reálny parser; teraz sa nepoužíva.
+  void cheerio;
+  return [];
 }
 
 
