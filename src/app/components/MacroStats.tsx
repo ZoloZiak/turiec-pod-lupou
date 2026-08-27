@@ -53,27 +53,30 @@ export default function MacroStats() {
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--line)" />
               <XAxis
                 dataKey="mesto"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#64748b', fontWeight: 600 }}
+                tick={{ fill: 'var(--muted)', fontWeight: 600 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#94a3b8' }}
+                tick={{ fill: 'var(--muted)' }}
                 tickFormatter={(value) => `${value} €`}
               />
               <Tooltip
-                cursor={{ fill: '#f1f5f9' }}
+                cursor={{ fill: 'var(--elevated)' }}
+                allowEscapeViewBox={{ x: false, y: false }}
                 formatter={(value: number) => [`${value} €`, 'Náklady na obyvateľa']}
                 labelFormatter={(label: string) => {
                   const m = data.find((x) => x.mesto === label)!;
                   return `${label} — ${m.obyvatelov.toLocaleString('sk-SK')} obyv.`;
                 }}
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ borderRadius: '12px', border: '1px solid var(--line)', background: 'var(--card)', color: 'var(--body)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.2)' }}
+                labelStyle={{ color: 'var(--body)' }}
+                itemStyle={{ color: 'var(--body)' }}
               />
               <Bar
                 dataKey="naklady_na_hlavu"
@@ -88,7 +91,7 @@ export default function MacroStats() {
 
         <div className="mt-6 bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 rounded-xl p-4 flex gap-3 items-start">
           <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" aria-hidden="true" />
-          <p className="text-sm text-blue-800">
+          <p className="text-sm text-blue-800 dark:text-blue-200/90">
             <strong>Analýza:</strong> Mesto Martin vykazuje podľa účtovných závierok za rok {ROK}
             {" "}{poloha} celkové náklady na jedného obyvateľa (<strong>{martin.naklady_na_hlavu} €</strong>)
             v porovnaní s demograficky podobnými mestami (Prievidza, Poprad, Trenčín; ich priemer

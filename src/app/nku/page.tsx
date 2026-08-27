@@ -71,7 +71,7 @@ export default function NkuPage() {
               
               {r.penalty_eur > 0 && (
                 <div className="bg-red-50 dark:bg-red-950/40 p-4 rounded-xl border border-red-100 dark:border-red-900 text-right min-w-[200px]">
-                  <p className="text-sm text-red-800 font-medium mb-1">Udelená pokuta / Manká</p>
+                  <p className="text-sm text-red-800 dark:text-red-300 font-medium mb-1">Udelená pokuta / Manká</p>
                   <div className="flex items-center justify-end">
                     <span className="text-3xl font-black text-red-600">{formatEur(r.penalty_eur)}</span>
                     <VerifiedBadge source="NKÚ SR" />

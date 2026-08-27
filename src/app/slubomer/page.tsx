@@ -80,8 +80,8 @@ export default async function SlubomerPage() {
         <div className="bg-card rounded-2xl shadow-sm border border-line overflow-hidden mb-8">
           <div className="p-6 bg-blue-50 dark:bg-blue-950/40 border-b border-blue-100 dark:border-blue-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h2 className="text-lg font-bold text-blue-900">Sledujeme plnenie sľubov</h2>
-              <p className="text-sm text-blue-700 mt-1">
+              <h2 className="text-lg font-bold text-blue-900 dark:text-blue-200">Sledujeme plnenie sľubov</h2>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                 Databáza predvolebných sľubov primátora a poslancov. Ku každému sľubu sa snažíme priradiť reálnu zmluvu alebo faktúru, aby sme videli, či sa na ňom skutočne pracuje a koľko nás to reálne stojí.
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-lg px-3 py-2 mt-3">

@@ -137,11 +137,11 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
           <div className="bg-card rounded-2xl shadow-sm border border-line overflow-hidden flex flex-col">
             <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-100 dark:border-amber-900 p-6 flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
                   Zákazky nad 100 000 € (Kontrola RPVS)
                 </h2>
-                <p className="text-xs text-amber-700 mt-1">
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
                   Zákazky od subjektov s faktúrou nad 100 000 €. Zákon prikazuje komerčným firmám zápis v RPVS.
                 </p>
               </div>
@@ -225,11 +225,11 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
           <div className="bg-card rounded-2xl shadow-sm border border-line overflow-hidden flex flex-col">
             <div className="bg-red-50 dark:bg-red-950/40 border-b border-red-100 dark:border-red-900 p-6 flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-bold text-red-900 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-red-900 dark:text-red-200 flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 text-red-500" aria-hidden="true" />
                   Faktúry bez zmluvy v CRZ
                 </h2>
-                <p className="text-xs text-red-700 mt-1">
+                <p className="text-xs text-red-700 dark:text-red-300 mt-1">
                   Dodávatelia, ktorí fakturujú mestu, ale v CRZ nebola nájdená žiadna zverejnená zmluva.
                 </p>
               </div>

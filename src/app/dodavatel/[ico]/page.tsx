@@ -206,12 +206,15 @@ export default function SupplierProfilePage() {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={(val) => `€${(val/1000).toFixed(0)}k`} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} width={60} />
-                  <Tooltip 
-                    formatter={(val) => [formatEur(Number(Array.isArray(val) ? val[0] : val)), 'Suma']} 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
-                    cursor={{ fill: '#f1f5f9' }}
+                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: 'var(--muted)' }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={(val) => `€${(val/1000).toFixed(0)}k`} tick={{ fontSize: 12, fill: 'var(--muted)' }} axisLine={false} tickLine={false} width={60} />
+                  <Tooltip
+                    formatter={(val) => [formatEur(Number(Array.isArray(val) ? val[0] : val)), 'Suma']}
+                    allowEscapeViewBox={{ x: false, y: false }}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid var(--line)', background: 'var(--card)', color: 'var(--body)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.25)' }}
+                    labelStyle={{ color: 'var(--body)' }}
+                    itemStyle={{ color: 'var(--body)' }}
+                    cursor={{ fill: 'var(--elevated)' }}
                   />
                   <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>

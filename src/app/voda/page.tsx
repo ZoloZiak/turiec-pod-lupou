@@ -64,11 +64,11 @@ export default function VodaPage() {
                 className="w-5 h-5 text-emerald-600"
                 aria-hidden="true"
               />
-              <h2 className="text-lg font-bold text-emerald-900">
+              <h2 className="text-lg font-bold text-emerald-900 dark:text-emerald-200">
                 Lacné a gravitačné
               </h2>
             </div>
-            <p className="text-sm text-emerald-800 leading-relaxed">
+            <p className="text-sm text-emerald-800 dark:text-emerald-200/90 leading-relaxed">
               Odkryť potok tam, kade už dnes tečie —{" "}
               <strong>v lesoparku na úpätí Malej Hory</strong>. Voda tečie sama
               dole (gravitáciou), koryto je vo voľnej zeleni, netreba búrať ani
@@ -83,11 +83,11 @@ export default function VodaPage() {
                 className="w-5 h-5 text-amber-600"
                 aria-hidden="true"
               />
-              <h2 className="text-lg font-bold text-amber-900">
+              <h2 className="text-lg font-bold text-amber-900 dark:text-amber-200">
                 Drahé a rizikové
               </h2>
             </div>
-            <p className="text-sm text-amber-800 leading-relaxed">
+            <p className="text-sm text-amber-800 dark:text-amber-200/90 leading-relaxed">
               Ťahať vodu <strong>do pešej zóny / na námestie</strong> ako
               regulované rameno. Prevýšenie v centre je malé — čím vyššie treba
               vodu dostať, tým viac čerpania a nákladov navždy (prevádzka,

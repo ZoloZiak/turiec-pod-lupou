@@ -207,7 +207,7 @@ export default function Dashboard() {
               <button
                 key={e.ico}
                 onClick={() => changeIco(e.ico)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-emerald-500 text-white shadow-md ring-2 ring-emerald-500 ring-offset-1 ring-offset-slate-900" : "bg-elevated text-muted hover:bg-elevated hover:text-white"}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-emerald-500 text-white shadow-md ring-2 ring-emerald-500 ring-offset-1 ring-offset-surface" : "bg-elevated text-muted hover:bg-elevated hover:text-body"}`}
               >
                 {e.name}
               </button>
@@ -310,13 +310,14 @@ export default function Dashboard() {
                       margin={{ left: 50 }}
                     >
                       <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <Tooltip 
-                        formatter={(val) => [formatEur(Number(val)), 'Suma']} 
-                        contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', border: '1px solid #334155', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }} 
-                        itemStyle={{ color: '#f8fafc' }}
-                        labelStyle={{ color: '#94a3b8' }}
-                        cursor={{ fill: '#1e293b' }}
+                      <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: 'var(--muted)' }} axisLine={false} tickLine={false} />
+                      <Tooltip
+                        formatter={(val) => [formatEur(Number(val)), 'Suma']}
+                        allowEscapeViewBox={{ x: false, y: false }}
+                        contentStyle={{ borderRadius: '12px', backgroundColor: 'var(--card)', border: '1px solid var(--line)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }}
+                        itemStyle={{ color: 'var(--body)' }}
+                        labelStyle={{ color: 'var(--muted)' }}
+                        cursor={{ fill: 'var(--elevated)' }}
                       />
                       <Bar 
                         dataKey="value" 
@@ -370,11 +371,12 @@ export default function Dashboard() {
                           />
                         ))}
                       </Pie>
-                      <Tooltip 
-                        formatter={(val) => [formatEur(Number(val)), 'Suma']} 
-                        contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', border: '1px solid #334155', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }} 
-                        itemStyle={{ color: '#f8fafc' }}
-                        labelStyle={{ color: '#94a3b8' }}
+                      <Tooltip
+                        formatter={(val) => [formatEur(Number(val)), 'Suma']}
+                        allowEscapeViewBox={{ x: false, y: false }}
+                        contentStyle={{ borderRadius: '12px', backgroundColor: 'var(--card)', border: '1px solid var(--line)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }}
+                        itemStyle={{ color: 'var(--body)' }}
+                        labelStyle={{ color: 'var(--muted)' }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -387,7 +389,7 @@ export default function Dashboard() {
             <div className="bg-card rounded-2xl shadow-lg border border-line overflow-hidden">
               <div className="p-6 border-b border-line space-y-4">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                  <h3 className="text-lg font-semibold whitespace-nowrap text-body">Najnovšie zverejnené zmluvy a faktúry</h3>
+                  <h3 className="text-lg font-semibold text-body">Najnovšie zverejnené zmluvy a faktúry</h3>
                   <div className="flex items-center gap-3 w-full md:w-auto">
                     {selectedSupplierName && (
                       <button 
@@ -541,7 +543,7 @@ export default function Dashboard() {
                                 Príjem
                               </span>
                             )}
-                            <span className={`font-bold px-2 py-1 rounded border ${t.is_income ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-white bg-elevated border-line'}`}>
+                            <span className={`font-bold px-2 py-1 rounded border ${t.is_income ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-body bg-elevated border-line'}`}>
                               {t.is_income ? '+' : ''}{formatEur(t.amount_eur)}
                             </span>
                             <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />

@@ -81,7 +81,7 @@ export default function MajetkyPage() {
         {/* ALERTS */}
         <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl p-4 flex gap-3 items-start mb-8">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
-          <p className="text-sm text-amber-800">
+          <p className="text-sm text-amber-800 dark:text-amber-200/90">
             <strong>Modul sa pripravuje:</strong> Tento modul zatiaľ neobsahuje overené majetkové priznania. Pracujeme na napojení na oficiálny zdroj (napr. zverejnené priznania funkcionárov mesta Martin). Kým nebude zdroj overený, žiadne údaje o majetku tu nezverejňujeme.
           </p>
         </div>

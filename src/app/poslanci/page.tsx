@@ -45,7 +45,7 @@ export default function PoslanciPage() {
         <div className="bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 p-4 rounded-xl flex items-center justify-between mb-8">
            <div className="flex items-center gap-3">
              <FileText className="w-5 h-5 text-purple-600" aria-hidden="true"/>
-             <span className="font-bold text-purple-900">Vyberte kauzu zo zoznamu (čoskoro)</span>
+             <span className="font-bold text-purple-900 dark:text-purple-200">Vyberte kauzu zo zoznamu (čoskoro)</span>
            </div>
            <VerifiedBadge source="Záznam zo zastupiteľstva" />
         </div>
