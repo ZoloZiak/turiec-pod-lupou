@@ -54,6 +54,20 @@ html.dark {
 }
 
 /*
+ * Tapping/clicking a chart focuses its SVG group, and the browser draws a thick
+ * 5px focus outline around the whole chart. Charts aren't keyboard widgets, so
+ * suppress the outline on recharts SVG surfaces (keep focus-visible elsewhere).
+ */
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-surface:focus,
+.recharts-surface *:focus,
+.recharts-wrapper:focus-visible,
+.recharts-surface :focus-visible {
+  outline: none !important;
+}
+
+/*
  * Mobile: recharts positions the tooltip at the touch point, so tapping a bar
  * near the right/bottom edge pushes the popup half off-screen. allowEscapeViewBox
  * doesn't fix touch reliably across browsers. So on small screens we stop trusting
