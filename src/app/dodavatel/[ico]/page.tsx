@@ -209,7 +209,7 @@ export default function SupplierProfilePage() {
                   <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                   <YAxis tickFormatter={(val) => `€${(val/1000).toFixed(0)}k`} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} width={60} />
                   <Tooltip 
-                    formatter={(val) => formatEur(Number(Array.isArray(val) ? val[0] : val))} 
+                    formatter={(val) => [formatEur(Number(Array.isArray(val) ? val[0] : val)), 'Suma']} 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
                     cursor={{ fill: '#f1f5f9' }}
                   />

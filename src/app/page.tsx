@@ -312,8 +312,10 @@ export default function Dashboard() {
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <Tooltip 
-                        formatter={(val) => formatEur(Number(val))} 
-                        contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#f8fafc', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }} 
+                        formatter={(val) => [formatEur(Number(val)), 'Suma']} 
+                        contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', border: '1px solid #334155', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }} 
+                        itemStyle={{ color: '#f8fafc' }}
+                        labelStyle={{ color: '#94a3b8' }}
                         cursor={{ fill: '#1e293b' }}
                       />
                       <Bar 
@@ -368,7 +370,12 @@ export default function Dashboard() {
                           />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(val) => formatEur(Number(val))} />
+                      <Tooltip 
+                        formatter={(val) => [formatEur(Number(val)), 'Suma']} 
+                        contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', border: '1px solid #334155', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }} 
+                        itemStyle={{ color: '#f8fafc' }}
+                        labelStyle={{ color: '#94a3b8' }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                  </div>
