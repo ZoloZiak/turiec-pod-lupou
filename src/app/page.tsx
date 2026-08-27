@@ -7,7 +7,7 @@ import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 import VerifiedBadge from "./components/VerifiedBadge";
 import MacroStats from "./components/MacroStats";
-import { isRpvsExempt } from "@/lib/telegram";
+import { isRpvsExempt } from "@/lib/rpvs-exempt";
 import NumberFlow from "@number-flow/react";
 import SpotlightCard from "./components/SpotlightCard";
 
@@ -152,31 +152,31 @@ export default function Dashboard() {
         
         {/* MOBILE DROPDOWN MENU */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-slate-800 bg-slate-900 px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
+          <div className="md:hidden border-t border-slate-800 bg-slate-900 px-4 py-4 space-y-4 shadow-lg absolute w-full left-0 max-h-[calc(100vh-4rem)] overflow-y-auto z-30">
              <div className="flex flex-col gap-2">
-               <a href="/slubomer" className="text-sm font-medium bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg text-amber-600 transition-colors flex items-center justify-center gap-2">
+               <a href="/slubomer" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2.5 rounded-lg text-amber-400 transition-colors flex items-center justify-center gap-2">
                  <Lightbulb className="w-4 h-4" aria-hidden="true" />
                  Sľubomer
                </a>
-               <a href="/majetky" className="text-sm font-medium bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg text-indigo-600 transition-colors flex items-center justify-center gap-2">
+               <a href="/majetky" className="text-sm font-medium bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 px-4 py-2.5 rounded-lg text-indigo-400 transition-colors flex items-center justify-center gap-2">
                  <ShieldAlert className="w-4 h-4" aria-hidden="true" />
                  Majetky
                </a>
-               <a href="/upozornenia" className="text-sm font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors flex items-center justify-center gap-2">
+               <a href="/upozornenia" className="text-sm font-medium bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-4 py-2.5 rounded-lg text-red-400 transition-colors flex items-center justify-center gap-2">
                  <AlertTriangle className="w-4 h-4" aria-hidden="true" />
                  Upozornenia
                </a>
-               <a href="/admin" className="text-sm font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-slate-700 transition-colors text-center">
+               <a href="/admin" className="text-sm font-medium bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2.5 rounded-lg text-slate-300 transition-colors text-center">
                  Administrácia
                </a>
              </div>
              
-             <div className="pt-4 border-t border-slate-100">
+             <div className="pt-4 border-t border-slate-800">
                <p className="text-xs font-bold text-slate-500 uppercase mb-3">Vyberte organizáciu</p>
                <div className="flex flex-col gap-2">
                   <button
                     onClick={() => { changeIco(""); setIsMenuOpen(false); }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === "" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                    className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === "" ? "bg-emerald-500 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
                   >
                     Všetky organizácie
                   </button>
@@ -184,7 +184,7 @@ export default function Dashboard() {
                     <button
                       key={e.ico}
                       onClick={() => { changeIco(e.ico); setIsMenuOpen(false); }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === e.ico ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === e.ico ? "bg-emerald-500 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
                     >
                       {e.name}
                     </button>
@@ -225,11 +225,12 @@ export default function Dashboard() {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             
             {/* LICZBA-BOHATER (Hero Stat) */}
-            <SpotlightCard className="bg-slate-900 border border-slate-800 rounded-3xl p-10 flex flex-col items-center justify-center text-center mb-8 shadow-2xl" glowColor="rgba(16, 185, 129, 0.2)">
-              <p className="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">Celkové výdavky mesta a podnikov (zmluvy a faktúry)</p>
-              <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+            <SpotlightCard className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 flex flex-col items-center justify-center text-center mb-8 shadow-2xl" glowColor="rgba(16, 185, 129, 0.2)">
+              <p className="text-emerald-300 font-bold uppercase tracking-widest text-xs sm:text-sm mb-4">Celkové výdavky mesta a podnikov (zmluvy a faktúry)</p>
+              <div className="w-full text-[2rem] leading-tight sm:text-6xl md:text-8xl font-black text-white font-mono tracking-tight sm:tracking-tighter break-words drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]">
                 <NumberFlow 
                   value={data.stats.totalSpent} 
+                  locales="sk-SK"
                   format={{ style: "currency", currency: "EUR", maximumFractionDigits: 0 }} 
                 />
               </div>
@@ -251,15 +252,15 @@ export default function Dashboard() {
               </SpotlightCard>
               <SpotlightCard className="bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-800 flex flex-col items-start" glowColor="rgba(59, 130, 246, 0.15)">
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Analyzované zmluvy (CRZ)</p>
-                <div className="text-5xl font-black text-white">
-                  <NumberFlow value={data.stats.totalContracts} />
+                <div className="text-4xl sm:text-5xl font-black text-white">
+                  <NumberFlow value={data.stats.totalContracts} locales="sk-SK" />
                 </div>
                 <div className="mt-4 w-12 h-1 bg-blue-500/50 rounded-full"></div>
               </SpotlightCard>
               <SpotlightCard className="bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-800 flex flex-col items-start" glowColor="rgba(168, 85, 247, 0.15)">
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Sledované subjekty</p>
-                <div className="text-5xl font-black text-white">
-                  <NumberFlow value={data.stats.entitiesCount} />
+                <div className="text-4xl sm:text-5xl font-black text-white">
+                  <NumberFlow value={data.stats.entitiesCount} locales="sk-SK" />
                 </div>
                 <div className="mt-4 w-12 h-1 bg-purple-500/50 rounded-full"></div>
               </SpotlightCard>
@@ -597,12 +598,12 @@ export default function Dashboard() {
                     paginatedTransactions.map((t: Tx) => (
                       <div key={t.id} className="bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-800">
                         <div className="flex justify-between items-start mb-2">
-                          <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-blue-600 hover:underline font-bold text-base truncate pr-2">
+                          <Link href={`/dodavatel/${t.supplier?.ico}`} className="text-emerald-400 hover:text-emerald-300 hover:underline font-bold text-base break-words pr-2">
                             {t.supplier?.name || "Neznámy"}
                           </Link>
                         </div>
-                        <p className="text-sm font-medium text-slate-800 mb-2">{t.subject}</p>
-                        <div className="flex flex-col gap-2 text-xs text-slate-500">
+                        <p className="text-sm font-medium text-slate-200 mb-2">{t.subject}</p>
+                        <div className="flex flex-col gap-2 text-xs text-slate-400">
                           <p>Odberateľ: {t.buyer?.name}</p>
                           <p>IČO: {t.supplier?.ico}</p>
                           <div className="flex justify-between items-center mt-2 border-t border-slate-800 pt-3">
@@ -643,11 +644,11 @@ export default function Dashboard() {
                             </div>
                             <div className="flex flex-col gap-1.5 items-end">
                               {t.suspicious && (
-                                <span className="text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-100 flex items-center gap-1 font-bold">
-                                  <AlertTriangle className="w-3 h-3" /> Chýba zmluva
+                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-semibold rounded" title="Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.">
+                                  <AlertTriangle className="w-3 h-3" /> Chýba zmluva v CRZ!
                                 </span>
                               )}
-                              {t.amount_eur >= 100000 && t.supplier?.ico && (
+                              {t.amount_eur >= 100000 && t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
                                 <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} />
                               )}
                             </div>

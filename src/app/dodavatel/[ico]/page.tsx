@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search, Share2, Check } from "lucide-react";
 import Link from "next/link";
-import { isRpvsExempt } from "@/lib/telegram";
+import { isRpvsExempt } from "@/lib/rpvs-exempt";
 
 interface Transaction {
   id: string;
@@ -224,7 +224,8 @@ export default function SupplierProfilePage() {
             <div className="p-6 border-b border-slate-100">
               <h3 className="text-lg font-semibold">História všetkých zákaziek</h3>
             </div>
-            <div className="overflow-x-auto">
+            {/* DESKTOP TABLE VIEW */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
                   <tr>
@@ -273,6 +274,43 @@ export default function SupplierProfilePage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* MOBILE CARD VIEW */}
+            <div className="md:hidden flex flex-col divide-y divide-slate-100">
+              {transactions.map((t: Transaction) => (
+                <div key={t.id} className="p-4">
+                  <p className="font-medium text-slate-800 mb-1" title={t.subject}>{t.subject}</p>
+                  <p className="text-xs text-slate-500 mb-3">Odberateľ: {t.buyer?.name}</p>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                      {formatEur(t.amount_eur)}
+                    </span>
+                    {t.source_type === 'WEB_INVOICE' ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                        Faktúra z webu
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        CRZ Zmluva
+                      </span>
+                    )}
+                  </div>
+                  {t.amount_eur >= 100000 && (
+                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-100">
+                      <AlertTriangle className="w-3 h-3" aria-hidden="true" /> RPVS
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                    <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs font-medium">
+                      Otvoriť dokument &rarr;
+                    </a>
+                    <span className="text-xs text-slate-400">
+                      {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
