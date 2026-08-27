@@ -52,3 +52,32 @@ html {
 html.dark {
   color-scheme: dark;
 }
+
+/*
+ * Mobile: recharts positions the tooltip at the touch point, so tapping a bar
+ * near the right/bottom edge pushes the popup half off-screen. allowEscapeViewBox
+ * doesn't fix touch reliably across browsers. So on small screens we stop trusting
+ * recharts' placement entirely and pin the tooltip to the bottom-center of its own
+ * chart, capped at 88% width — it physically cannot leave the viewport.
+ */
+@media (max-width: 640px) {
+  .recharts-tooltip-wrapper {
+    position: fixed !important;
+    transform: none !important;
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: 16px !important;
+    translate: -50% 0 !important;
+    max-width: 88vw !important;
+    z-index: 50;
+    pointer-events: none;
+    transition: none !important;
+  }
+  .recharts-tooltip-wrapper .recharts-default-tooltip,
+  .recharts-tooltip-wrapper > div {
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word;
+  }
+}
