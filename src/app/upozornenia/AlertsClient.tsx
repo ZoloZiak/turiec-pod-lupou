@@ -72,9 +72,9 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
   return (
     <div className="space-y-6">
       {/* FILTER BAR FOR ALERTS */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-card p-4 rounded-2xl shadow-sm border border-line flex flex-wrap items-center justify-between gap-4">
         <div className="flex-1 min-w-[240px] relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" aria-hidden="true" />
+          <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" aria-hidden="true" />
           <input
             type="text"
             aria-label="Hľadať firmu, IČO alebo predmet zákazky"
@@ -85,29 +85,29 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
               setPage100k(1);
               setPageCrz(1);
             }}
-            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 placeholder:text-slate-400"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-surface border border-line rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-body placeholder:text-muted"
           />
         </div>
 
         <div className="flex items-center gap-2 text-xs font-semibold">
-          <span className="text-slate-500 uppercase tracking-widest text-[11px] flex items-center gap-1">
+          <span className="text-muted uppercase tracking-widest text-[11px] flex items-center gap-1">
             <Filter className="w-3.5 h-3.5" aria-hidden="true" /> Min. suma:
           </span>
           <button
             onClick={() => { setMinAmount(0); setPage100k(1); setPageCrz(1); }}
-            className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 0 ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+            className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 0 ? 'bg-elevated text-body border-line' : 'bg-surface text-muted border-line hover:bg-elevated'}`}
           >
             Všetky sumy
           </button>
           <button
             onClick={() => { setMinAmount(50000); setPage100k(1); setPageCrz(1); }}
-            className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 50000 ? 'bg-amber-600 text-white border-amber-500' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+            className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 50000 ? 'bg-amber-600 text-white border-amber-500' : 'bg-surface text-muted border-line hover:bg-elevated'}`}
           >
             nad 50k €
           </button>
           <button
             onClick={() => { setMinAmount(100000); setPage100k(1); setPageCrz(1); }}
-            className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 100000 ? 'bg-red-600 text-white border-red-500' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+            className={`px-3 py-1.5 rounded-lg border transition-all ${minAmount === 100000 ? 'bg-red-600 text-white border-red-500' : 'bg-surface text-muted border-line hover:bg-elevated'}`}
           >
             nad 100k €
           </button>
@@ -118,13 +118,13 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
       <div className="lg:hidden flex gap-2">
         <button
           onClick={() => setActiveTab('100k')}
-          className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-sm transition-all border ${activeTab === '100k' ? 'bg-amber-500 text-white border-amber-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+          className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-sm transition-all border ${activeTab === '100k' ? 'bg-amber-500 text-white border-amber-600 shadow-sm' : 'bg-card text-muted border-line hover:bg-surface'}`}
         >
           Zákazky nad 100k ({filteredOver100k.length})
         </button>
         <button
           onClick={() => setActiveTab('crz')}
-          className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-sm transition-all border ${activeTab === 'crz' ? 'bg-red-600 text-white border-red-700 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+          className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-sm transition-all border ${activeTab === 'crz' ? 'bg-red-600 text-white border-red-700 shadow-sm' : 'bg-card text-muted border-line hover:bg-surface'}`}
         >
           Chýba zmluva ({filteredMissingCrz.length})
         </button>
@@ -134,8 +134,8 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* COLUMN 1: Zákazky nad 100 000 € */}
         <div className={`${activeTab === '100k' ? 'block' : 'hidden'} lg:block`}>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div className="bg-amber-50 border-b border-amber-100 p-6 flex justify-between items-center">
+          <div className="bg-card rounded-2xl shadow-sm border border-line overflow-hidden flex flex-col">
+            <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-100 dark:border-amber-900 p-6 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
@@ -150,39 +150,39 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
               </span>
             </div>
             
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-line">
               {paginatedOver100k.length === 0 ? (
-                <div className="p-12 text-center text-slate-500">
+                <div className="p-12 text-center text-muted">
                   Pre zadané kritériá sa nenašli žiadne zákazky.
                 </div>
               ) : (
                 paginatedOver100k.map(alert => (
-                  <div key={alert.id} className="p-6 hover:bg-slate-50 transition-colors">
+                  <div key={alert.id} className="p-6 hover:bg-surface transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <Link href={`/dodavatel/${alert.supplier?.ico}`} className="text-base font-bold text-blue-600 hover:underline">
                           {alert.supplier?.name || "Neznámy dodávateľ"}
                         </Link>
-                        <p className="text-xs text-slate-500 mt-0.5 font-mono">IČO: {alert.supplier?.ico || "Neznáme"}</p>
+                        <p className="text-xs text-muted mt-0.5 font-mono">IČO: {alert.supplier?.ico || "Neznáme"}</p>
                       </div>
-                      <span className="font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-full text-sm font-mono border border-slate-200">
+                      <span className="font-bold text-body bg-elevated px-3 py-1 rounded-full text-sm font-mono border border-line">
                         {formatEur(alert.amount_eur || 0)}
                       </span>
                     </div>
-                    <div className="text-sm text-slate-700 mb-4 line-clamp-2">
-                      <span className="font-medium text-slate-500 mr-2">Predmet:</span>
+                    <div className="text-sm text-body mb-4 line-clamp-2">
+                      <span className="font-medium text-muted mr-2">Predmet:</span>
                       {alert.subject || "Neuvedený predmet"}
                     </div>
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
                       {alert.supplier?.ico ? (
                         <RpvsBadge ico={alert.supplier.ico} name={alert.supplier?.name} />
                       ) : (
-                        <span className="text-xs text-slate-400 font-mono">Neznáme IČO</span>
+                        <span className="text-xs text-muted font-mono">Neznáme IČO</span>
                       )}
                       
-                      <div className="flex items-center gap-4 text-slate-500 text-xs font-medium ml-auto">
+                      <div className="flex items-center gap-4 text-muted text-xs font-medium ml-auto">
                         <span className="flex items-center gap-1 font-mono">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" /> {formatDate(alert.date_published)}
+                          <Calendar className="w-3.5 h-3.5 text-muted" aria-hidden="true" /> {formatDate(alert.date_published)}
                         </span>
                       </div>
                     </div>
@@ -193,8 +193,8 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
 
             {/* Pagination Controls 100k */}
             {totalPages100k > 1 && (
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
-                <span className="text-xs text-slate-500">
+              <div className="p-4 border-t border-line bg-surface flex items-center justify-between">
+                <span className="text-xs text-muted">
                   Strana {page100k} z {totalPages100k}
                 </span>
                 <div className="flex gap-2">
@@ -202,17 +202,17 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
                     disabled={page100k === 1}
                     onClick={() => setPage100k(p => Math.max(1, p - 1))}
                     aria-label="Predchádzajúca strana"
-                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                    className="p-1.5 rounded-lg border border-line bg-card hover:bg-elevated disabled:opacity-40"
                   >
-                    <ChevronLeft className="w-4 h-4 text-slate-600" aria-hidden="true" />
+                    <ChevronLeft className="w-4 h-4 text-muted" aria-hidden="true" />
                   </button>
                   <button
                     disabled={page100k === totalPages100k}
                     onClick={() => setPage100k(p => Math.min(totalPages100k, p + 1))}
                     aria-label="Ďalšia strana"
-                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                    className="p-1.5 rounded-lg border border-line bg-card hover:bg-elevated disabled:opacity-40"
                   >
-                    <ChevronRight className="w-4 h-4 text-slate-600" aria-hidden="true" />
+                    <ChevronRight className="w-4 h-4 text-muted" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -222,8 +222,8 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
 
         {/* COLUMN 2: Faktúry bez CRZ */}
         <div className={`${activeTab === 'crz' ? 'block' : 'hidden'} lg:block`}>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div className="bg-red-50 border-b border-red-100 p-6 flex justify-between items-center">
+          <div className="bg-card rounded-2xl shadow-sm border border-line overflow-hidden flex flex-col">
+            <div className="bg-red-50 dark:bg-red-950/40 border-b border-red-100 dark:border-red-900 p-6 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-red-900 flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 text-red-500" aria-hidden="true" />
@@ -238,33 +238,33 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
               </span>
             </div>
             
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-line">
               {paginatedMissingCrz.length === 0 ? (
-                <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-2">
+                <div className="p-12 text-center text-muted flex flex-col items-center gap-2">
                   <CheckCircle className="w-8 h-8 text-emerald-500 mb-2" aria-hidden="true" />
                   Pre zadané filtre neboli nájdené žiadne nezrovnalosti.
                 </div>
               ) : (
                 paginatedMissingCrz.map(alert => (
-                  <div key={alert.id} className="p-6 hover:bg-slate-50 transition-colors">
+                  <div key={alert.id} className="p-6 hover:bg-surface transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <Link href={`/dodavatel/${alert.supplier?.ico}`} className="text-base font-bold text-blue-600 hover:underline">
                           {alert.supplier?.name || "Neznámy dodávateľ"}
                         </Link>
-                        <p className="text-xs text-slate-500 mt-0.5 font-mono">IČO: {alert.supplier?.ico || "Neznáme"}</p>
+                        <p className="text-xs text-muted mt-0.5 font-mono">IČO: {alert.supplier?.ico || "Neznáme"}</p>
                       </div>
                       <span className="font-bold text-red-700 bg-red-100 px-3 py-1 rounded-full text-sm font-mono border border-red-200">
                         {formatEur(alert.amount_eur || 0)}
                       </span>
                     </div>
                     
-                    <div className="text-sm text-slate-700 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      <span className="font-medium text-slate-500 block mb-1">Fakturované za:</span>
+                    <div className="text-sm text-body mb-4 bg-surface p-3 rounded-lg border border-line">
+                      <span className="font-medium text-muted block mb-1">Fakturované za:</span>
                       {alert.subject || "Neuvedený predmet"}
                     </div>
                     
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
                       {alert.source_url ? (
                         <a 
                           href={alert.source_url?.startsWith('http') ? alert.source_url : `https://${alert.source_url}`} 
@@ -277,9 +277,9 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
                         </a>
                       ) : <div></div>}
                       
-                      <div className="flex items-center gap-4 text-slate-500 text-xs font-medium ml-auto font-mono">
+                      <div className="flex items-center gap-4 text-muted text-xs font-medium ml-auto font-mono">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" /> {formatDate(alert.date_published)}
+                          <Calendar className="w-3.5 h-3.5 text-muted" aria-hidden="true" /> {formatDate(alert.date_published)}
                         </span>
                       </div>
                     </div>
@@ -290,8 +290,8 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
 
             {/* Pagination Controls CRZ */}
             {totalPagesCrz > 1 && (
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
-                <span className="text-xs text-slate-500">
+              <div className="p-4 border-t border-line bg-surface flex items-center justify-between">
+                <span className="text-xs text-muted">
                   Strana {pageCrz} z {totalPagesCrz}
                 </span>
                 <div className="flex gap-2">
@@ -299,17 +299,17 @@ export default function AlertsClient({ over100k, missingCrz }: { over100k: Alert
                     disabled={pageCrz === 1}
                     onClick={() => setPageCrz(p => Math.max(1, p - 1))}
                     aria-label="Predchádzajúca strana"
-                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                    className="p-1.5 rounded-lg border border-line bg-card hover:bg-elevated disabled:opacity-40"
                   >
-                    <ChevronLeft className="w-4 h-4 text-slate-600" aria-hidden="true" />
+                    <ChevronLeft className="w-4 h-4 text-muted" aria-hidden="true" />
                   </button>
                   <button
                     disabled={pageCrz === totalPagesCrz}
                     onClick={() => setPageCrz(p => Math.min(totalPagesCrz, p + 1))}
                     aria-label="Ďalšia strana"
-                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40"
+                    className="p-1.5 rounded-lg border border-line bg-card hover:bg-elevated disabled:opacity-40"
                   >
-                    <ChevronRight className="w-4 h-4 text-slate-600" aria-hidden="true" />
+                    <ChevronRight className="w-4 h-4 text-muted" aria-hidden="true" />
                   </button>
                 </div>
               </div>

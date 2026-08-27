@@ -37,13 +37,13 @@ const poloha = rozdiel < 0 ? "podpriemerné" : "nadpriemerné";
 
 export default function MacroStats() {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
-      <div className="p-6 bg-slate-900 border-b border-slate-800">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+    <div className="bg-card rounded-2xl shadow-sm border border-line overflow-hidden mb-8">
+      <div className="p-6 bg-card border-b border-line">
+        <h2 className="text-xl font-bold text-body flex items-center gap-2">
           <Building2 className="w-5 h-5 text-blue-400" aria-hidden="true" />
           Makro-porovnanie (Samosprávy SR)
         </h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-muted mt-1">
           Celkové náklady mesta na jedného obyvateľa voči porovnateľným mestám. Zdroj:
           RÚZ (účtovné závierky {ROK}) + počet obyvateľov ŠÚ SR (k 31.&nbsp;12.&nbsp;{ROK}).
         </p>
@@ -86,7 +86,7 @@ export default function MacroStats() {
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 items-start">
+        <div className="mt-6 bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 rounded-xl p-4 flex gap-3 items-start">
           <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" aria-hidden="true" />
           <p className="text-sm text-blue-800">
             <strong>Analýza:</strong> Mesto Martin vykazuje podľa účtovných závierok za rok {ROK}
@@ -104,11 +104,11 @@ export default function MacroStats() {
               href={`https://www.registeruz.sk/cruz-public/domain/accountingentity/show/${m.ujId}`}
               target="_blank"
               rel="noreferrer"
-              className="group flex items-center justify-between gap-1 text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 transition-colors"
+              className="group flex items-center justify-between gap-1 text-xs bg-surface hover:bg-elevated border border-line rounded-lg px-3 py-2 transition-colors"
               title={`Zdrojový výkaz RÚZ pre ${m.mesto} (IČO ${m.ico})`}
             >
-              <span className="font-semibold text-slate-700">{m.mesto}</span>
-              <span className="text-slate-400 group-hover:text-blue-600 flex items-center gap-1">
+              <span className="font-semibold text-body">{m.mesto}</span>
+              <span className="text-muted group-hover:text-blue-600 flex items-center gap-1">
                 RÚZ <ExternalLink className="w-3 h-3" aria-hidden="true" />
               </span>
             </a>

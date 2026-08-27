@@ -29,8 +29,8 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
 
   if (status === 'loading') {
     return (
-      <div className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-500 text-xs font-semibold rounded border border-slate-200">
-        <span className="w-3 h-3 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin"></span>
+      <div className="inline-flex items-center gap-1 px-2 py-1 bg-elevated text-muted text-xs font-semibold rounded border border-line">
+        <span className="w-3 h-3 border-2 border-line border-t-slate-500 rounded-full animate-spin"></span>
         Overujem RPVS...
       </div>
     );

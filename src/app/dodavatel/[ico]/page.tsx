@@ -87,16 +87,16 @@ export default function SupplierProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-slate-500 font-medium animate-pulse">Načítavam profil...</div>
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <div className="text-muted font-medium animate-pulse">Načítavam profil...</div>
       </div>
     );
   }
 
   if (!data || !data.supplier) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center flex-col gap-4">
-        <h2 className="text-xl font-bold text-slate-800">Dodávateľ nenájdený</h2>
+      <div className="min-h-screen bg-surface flex items-center justify-center flex-col gap-4">
+        <h2 className="text-xl font-bold text-body">Dodávateľ nenájdený</h2>
         <Link href="/" className="text-blue-600 hover:underline flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Späť na prehľad
         </Link>
@@ -108,17 +108,17 @@ export default function SupplierProfilePage() {
   const isNoIco = supplier.ico.startsWith('NO_ICO_');
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-12">
+    <div className="min-h-screen bg-surface text-body font-sans pb-12">
       {/* HEADER */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+      <header className="bg-card border-b border-line sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" aria-label="Späť na prehľad">
+            <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-elevated text-muted transition-colors" aria-label="Späť na prehľad">
               <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </Link>
             <div className="flex items-center gap-2">
               <Building2 className="w-6 h-6 text-blue-600" aria-hidden="true" />
-              <h1 className="text-xl font-bold tracking-tight text-slate-800 truncate">
+              <h1 className="text-xl font-bold tracking-tight text-body truncate">
                 {supplier.name}
               </h1>
             </div>
@@ -131,7 +131,7 @@ export default function SupplierProfilePage() {
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4 text-white" aria-hidden="true" />
+                <Check className="w-4 h-4 text-body" aria-hidden="true" />
                 <span>Kopírované do schránky!</span>
               </>
             ) : (
@@ -148,9 +148,9 @@ export default function SupplierProfilePage() {
         
         {/* KPI CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
-            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Identifikácia</p>
-            <p className="text-2xl font-bold font-mono text-slate-800">{isNoIco ? "Neznáme IČO" : supplier.ico}</p>
+          <div className="bg-card p-6 rounded-2xl shadow-sm border border-line flex flex-col justify-center">
+            <p className="text-sm font-medium text-muted uppercase tracking-wider mb-1">Identifikácia</p>
+            <p className="text-2xl font-bold font-mono text-body">{isNoIco ? "Neznáme IČO" : supplier.ico}</p>
             {!isNoIco && (
               <div className="flex gap-3 mt-3">
                 <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
@@ -168,32 +168,32 @@ export default function SupplierProfilePage() {
             )}
           </div>
           
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
-            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Celkové príjmy z mesta</p>
-            <p className="text-3xl font-bold text-slate-900">{formatEur(stats.totalAmount)}</p>
+          <div className="bg-card p-6 rounded-2xl shadow-sm border border-line flex flex-col justify-center">
+            <p className="text-sm font-medium text-muted uppercase tracking-wider mb-1">Celkové príjmy z mesta</p>
+            <p className="text-3xl font-bold text-body">{formatEur(stats.totalAmount)}</p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
-            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Počet zákaziek</p>
-            <p className="text-3xl font-bold text-slate-900">{stats.totalCount}</p>
+          <div className="bg-card p-6 rounded-2xl shadow-sm border border-line flex flex-col justify-center">
+            <p className="text-sm font-medium text-muted uppercase tracking-wider mb-1">Počet zákaziek</p>
+            <p className="text-3xl font-bold text-body">{stats.totalCount}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl shadow-sm border border-indigo-100 flex flex-col justify-center relative overflow-hidden">
+          <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-card dark:to-card p-6 rounded-2xl shadow-sm border border-indigo-100 dark:border-line flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10">
-              <TrendingUp className="w-16 h-16 text-indigo-600" aria-hidden="true" />
+              <TrendingUp className="w-16 h-16 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
             </div>
-            <p className="text-sm font-medium text-indigo-700 uppercase tracking-wider mb-1 relative z-10">Zisk (FinStat AI Proxy)</p>
+            <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-1 relative z-10">Zisk (FinStat AI Proxy)</p>
             {finstatData === null ? (
-              <p className="text-sm text-slate-500 animate-pulse mt-2">Analyzujem živé dáta...</p>
+              <p className="text-sm text-muted animate-pulse mt-2">Analyzujem živé dáta...</p>
             ) : finstatData.zisk !== null ? (
               <>
                 <p className={`text-3xl font-bold relative z-10 ${finstatData.zisk < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                   {formatEur(finstatData.zisk)}
                 </p>
-                {finstatData.trzby && <p className="text-xs text-slate-500 mt-1 relative z-10">Tržby: {formatEur(finstatData.trzby)}</p>}
+                {finstatData.trzby && <p className="text-xs text-muted mt-1 relative z-10">Tržby: {formatEur(finstatData.trzby)}</p>}
               </>
             ) : (
-              <p className="text-sm text-slate-500 mt-2 relative z-10">Nedostupné (SZČO/Chránené)</p>
+              <p className="text-sm text-muted mt-2 relative z-10">Nedostupné (SZČO/Chránené)</p>
             )}
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function SupplierProfilePage() {
         {/* CHART & HISTORY */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* BAR CHART */}
-          <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+          <div className="lg:col-span-1 bg-card p-6 rounded-2xl shadow-sm border border-line">
             <h3 className="text-lg font-semibold mb-6">Príjmy po rokoch</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -220,26 +220,26 @@ export default function SupplierProfilePage() {
           </div>
 
           {/* TRANSACTIONS */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-6 border-b border-slate-100">
+          <div className="lg:col-span-2 bg-card rounded-2xl shadow-sm border border-line overflow-hidden">
+            <div className="p-6 border-b border-line">
               <h3 className="text-lg font-semibold">História všetkých zákaziek</h3>
             </div>
             {/* DESKTOP TABLE VIEW */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
+                <thead className="text-xs text-muted uppercase bg-surface border-b border-line">
                   <tr>
                     <th className="px-6 py-4 font-medium">Predmet zákazky</th>
                     <th className="px-6 py-4 font-medium text-right">Suma</th>
                     <th className="px-6 py-4 font-medium">Zdroj a Dátum</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-line">
                   {transactions.map((t: Transaction) => (
-                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={t.id} className="hover:bg-surface transition-colors">
                       <td className="px-6 py-4">
-                        <p className="font-medium text-slate-800 line-clamp-2" title={t.subject}>{t.subject}</p>
-                        <p className="text-xs text-slate-500 mt-1">Odberateľ: {t.buyer?.name}</p>
+                        <p className="font-medium text-body line-clamp-2" title={t.subject}>{t.subject}</p>
+                        <p className="text-xs text-muted mt-1">Odberateľ: {t.buyer?.name}</p>
                         {t.amount_eur >= 100000 && (
                           <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-100">
                             <AlertTriangle className="w-3 h-3" aria-hidden="true" /> RPVS
@@ -265,7 +265,7 @@ export default function SupplierProfilePage() {
                           <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs font-medium mt-1">
                             Otvoriť dokument &rarr;
                           </a>
-                          <span className="text-xs text-slate-400 mt-1">
+                          <span className="text-xs text-muted mt-1">
                             {new Date(t.date_published).toLocaleDateString('sk-SK')}
                           </span>
                         </div>
@@ -277,11 +277,11 @@ export default function SupplierProfilePage() {
             </div>
 
             {/* MOBILE CARD VIEW */}
-            <div className="md:hidden flex flex-col divide-y divide-slate-100">
+            <div className="md:hidden flex flex-col divide-y divide-line">
               {transactions.map((t: Transaction) => (
                 <div key={t.id} className="p-4">
-                  <p className="font-medium text-slate-800 mb-1" title={t.subject}>{t.subject}</p>
-                  <p className="text-xs text-slate-500 mb-3">Odberateľ: {t.buyer?.name}</p>
+                  <p className="font-medium text-body mb-1" title={t.subject}>{t.subject}</p>
+                  <p className="text-xs text-muted mb-3">Odberateľ: {t.buyer?.name}</p>
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
                       {formatEur(t.amount_eur)}
@@ -301,11 +301,11 @@ export default function SupplierProfilePage() {
                       <AlertTriangle className="w-3 h-3" aria-hidden="true" /> RPVS
                     </div>
                   )}
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
                     <a href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs font-medium">
                       Otvoriť dokument &rarr;
                     </a>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-muted">
                       {new Date(t.date_published).toLocaleDateString('sk-SK')}
                     </span>
                   </div>
