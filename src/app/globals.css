@@ -94,8 +94,9 @@ html.dark {
     white-space: normal !important;
     word-break: break-word;
   }
-  /* Hide the pinned tooltip while scrolling (recharts won't clear it on touch). */
-  body.charts-scrolled .recharts-tooltip-wrapper {
+  /* Hide a chart's pinned tooltip while scrolling, and keep OTHER charts'
+     stale tooltips hidden when you touch a different chart (per-chart, not global). */
+  .recharts-tooltip-wrapper.tooltip-suppressed {
     opacity: 0 !important;
     visibility: hidden !important;
   }
