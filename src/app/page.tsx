@@ -9,6 +9,7 @@ import InfoIcon from "./components/InfoIcon";
 import VerifiedBadge from "./components/VerifiedBadge";
 import MacroStats from "./components/MacroStats";
 import { isRpvsExempt } from "@/lib/rpvs-exempt";
+import { isValidIco } from "@/lib/entity-ico-fixes";
 import NumberFlow from "@number-flow/react";
 import SpotlightCard from "./components/SpotlightCard";
 
@@ -515,7 +516,7 @@ export default function Dashboard() {
                             </Link>
                             <div className="text-xs text-muted font-normal mt-1 flex items-center gap-2">
                               <span>IČO: {t.supplier?.ico}</span>
-                              {t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
+                              {t.supplier?.ico && isValidIco(t.supplier.ico) && (
                                 <div className="flex gap-2 ml-2 border-l pl-2 border-line">
                                   <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${t.supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="text-muted hover:text-emerald-400 hover:underline">ORSR</a>
                                   {!isRpvsExempt(t.supplier.ico, t.supplier?.name) && (
@@ -532,7 +533,7 @@ export default function Dashboard() {
                                   Chýba zmluva v CRZ!
                                 </div>
                               )}
-                              {t.amount_eur >= 100000 && t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
+                              {t.amount_eur >= 100000 && t.supplier?.ico && isValidIco(t.supplier.ico) && (
                                 <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} />
                               )}
                             </div>
@@ -642,7 +643,7 @@ export default function Dashboard() {
                                 Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.
                               </InfoIcon>
                             )}
-                            {t.amount_eur >= 100000 && t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
+                            {t.amount_eur >= 100000 && t.supplier?.ico && isValidIco(t.supplier.ico) && (
                               <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} compact />
                             )}
                           </div>

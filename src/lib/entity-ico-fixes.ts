@@ -42,6 +42,24 @@ export function isKnownWrongIco(ico: string | null | undefined): boolean {
 }
 
 /**
+ * True IBA ak je IČO syntakticky platné slovenské IČO = presne 8 číslic.
+ *
+ * WATCH #78 (2026-08-28): Krtko scraper cez noc zakladá entity s POŠKODENÝM IČO —
+ * vnútorné/koncové medzery ("52  222 438", "44552483 "), 6-miestne IČO obcí bez
+ * vedúcich núl ("316580", "316873"), 9-miestne hodnoty, ba aj viac IČO zlúčených do
+ * jedného poľa ("00316792, 36132543, ..."). Doterajší gate `!ico.startsWith('NO_ICO_')`
+ * ich prepustil, takže UI generovalo NEFUNKČNÉ odkazy na registre (orsr.sk?ICO=52  222 438,
+ * finstat.sk/316580) a — po naivnom odstránení medzier — dokonca odkazy na CUDZÍ subjekt
+ * (napr. "52  222 438" → 52222438 = „OZ Za zdravší život", pričom reálne BTI s.r.o. má
+ * podľa CRZ detailu IČO 47619503). Preto register-odkazy a RPVS badge vykresľujeme len pre
+ * IČO, ktoré prejdú touto validáciou; poškodené IČO sa zobrazí ako text (čestne), no bez
+ * odkazu vedúceho na nesprávny/neexistujúci subjekt. Nedeštruktívne, žiadny nový claim.
+ */
+export function isValidIco(ico: string | null | undefined): boolean {
+  return !!ico && /^\d{8}$/.test(ico);
+}
+
+/**
  * Vráti VŠETKY známe chybné IČO, ktoré sa mapujú na dané správne IČO.
  * Použité v /api/supplier: profil dodávateľa musí zozbierať transakcie aj z orphan
  * entít (chybné IČO), ktoré Krtko cez noc znova zakladá — inak by zmluvy priviazané

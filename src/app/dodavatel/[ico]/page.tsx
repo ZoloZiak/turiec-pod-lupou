@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search, Share2, Check } from "lucide-react";
 import Link from "next/link";
 import { isRpvsExempt } from "@/lib/rpvs-exempt";
+import { isValidIco } from "@/lib/entity-ico-fixes";
 
 interface Transaction {
   id: string;
@@ -151,7 +152,7 @@ export default function SupplierProfilePage() {
           <div className="bg-card p-6 rounded-2xl shadow-sm border border-line flex flex-col justify-center">
             <p className="text-sm font-medium text-muted uppercase tracking-wider mb-1">Identifikácia</p>
             <p className="text-2xl font-bold font-mono text-body">{isNoIco ? "Neznáme IČO" : supplier.ico}</p>
-            {!isNoIco && (
+            {isValidIco(supplier.ico) && (
               <div className="flex gap-3 mt-3">
                 <a href={`https://orsr.sk/hladaj_ico.asp?ICO=${supplier.ico}&SID=0`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium">
                   <Search className="w-3 h-3" aria-hidden="true" /> ORSR
