@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { INCOME_TX_IDS } from '@/lib/income-ids';
+import { isDuplicatePublication } from '@/lib/duplicate-ids';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,7 +72,12 @@ export async function GET(request: Request) {
       if (page.length < PAGE_SIZE) break;
       from += PAGE_SIZE;
     }
-    const transactions = transactionsData;
+    // Vylúč nekanonické (opakované) zverejnenia tej istej CRZ zmluvy. NFP/dotačné zmluvy
+    // zverejňujú v CRZ obe strany (+ re-scrape) → tá istá zmluva má 2–3 CRZ ID; bez tohto
+    // by sa ten istý príspevok počítal viackrát a nafukoval hero (viď src/lib/duplicate-ids.ts).
+    const transactions = transactionsData.filter(
+      (t) => !isDuplicatePublication(t.external_id)
+    );
 
     // Ak bol zadaný IČO filter pre konkrétnu organizáciu
     let filteredTransactions: TransactionRow[] = transactions;

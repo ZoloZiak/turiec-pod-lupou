@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { isDuplicatePublication } from '@/lib/duplicate-ids';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,11 +58,17 @@ export async function GET(request: Request) {
       if (page.length < PAGE) break;
     }
 
+    // Vylúč nekanonické (opakované) zverejnenia tej istej CRZ zmluvy (NFP zverejnené oboma
+    // stranami + re-scrape) — inak by profil dodávateľa (napr. MIRRI) mal nafúknutý súčet.
+    const dedupTransactions = transactions.filter(
+      (t) => !isDuplicatePublication(t.external_id)
+    );
+
     // Calculate stats
     let totalAmount = 0;
     const yearlyVolume: Record<string, number> = {};
 
-    transactions?.forEach(t => {
+    dedupTransactions?.forEach(t => {
       const amount = Number(t.amount_eur) || 0;
       totalAmount += amount;
       const year = new Date(t.date_published).getFullYear().toString();
@@ -77,10 +84,10 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       supplier,
-      transactions: transactions || [],
+      transactions: dedupTransactions || [],
       stats: {
         totalAmount,
-        totalCount: transactions?.length || 0,
+        totalCount: dedupTransactions?.length || 0,
         chartData
       }
     });
