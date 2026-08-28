@@ -71,8 +71,9 @@ export const DUPLICATE_TX_EXTERNAL_IDS = new Set<string>([
 //  crz_8958417  → crz_9000729       3 000,00 | Budúca ZVB DPMM↔ŽSR (uz. 19.02.2024; ŽSR ZOBZ vs DPMM Z 010/2024)
 //  crz_8175095  → crz_9881596       1 000,00 | Darovacia – cyklopreteky Okolo Slovenska (Č. 1521/2023, uz. 04.08.2023; MsMartin vs KraussMaffei)
 //  crz_9584235  → crz_9611284         704,00 | ZVB č. 836168018-4-2024-ZVB TVS↔ŽSR (TVS O-51/2024 vs ŽSR)
+//  crz_10007847 → crz_10033888      21 712,12 | Protokol – Zimný štadión, stav. úpravy hl. vstup/obklady ľadárne/šatňa juniori (uz. 07.11.2024; Mesto Martin 1307/2024 vs SŠZ RD32/2024) — WATCH #75, pod prahom #67 (<100k)
 //
-// Spolu 6 párov, 6 vylúčených nôh, dopad na výdavky/agregáty −3 139 934,88 €.
+// Spolu 7 párov, 7 vylúčených nôh, dopad na výdavky/agregáty −3 161 647,00 €.
 export const DUPLICATE_EXPENSE_EXTERNAL_IDS = new Set<string>([
   "crz_11006541",
   "crz_12215067",
@@ -80,6 +81,7 @@ export const DUPLICATE_EXPENSE_EXTERNAL_IDS = new Set<string>([
   "crz_9000729",
   "crz_9881596",
   "crz_9611284",
+  "crz_10033888",
 ]);
 
 /** True, ak je transakcia nekanonické (opakované) zverejnenie tej istej CRZ zmluvy (income aj expense). */
