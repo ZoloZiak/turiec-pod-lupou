@@ -3,12 +3,7 @@
 import { ShieldAlert, ArrowRight, XCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
-import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function NkuPage() {
   const [nkuReports, setNkuReports] = useState<Record<string, unknown>[]>([]);
@@ -16,16 +11,12 @@ export default function NkuPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-      const { data, error } = await supabase
-        .from('nku_reports')
-        .select('*')
-        .order('year', { ascending: false });
-      if (!error && data) {
-        setNkuReports(data);
+      try {
+        const res = await fetch('/api/dataset?table=nku_reports');
+        const json = await res.json();
+        if (json.success) setNkuReports(json.rows);
+      } catch {
+        // necháme prázdny stav
       }
       setLoading(false);
     }

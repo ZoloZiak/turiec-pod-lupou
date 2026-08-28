@@ -2,13 +2,7 @@
 
 import { Building2, Search, ArrowRight, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-// Safe initialization for Next.js build time
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function MajetkyPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,18 +11,12 @@ export default function MajetkyPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-      
-      const { data, error } = await supabase
-        .from('asset_declarations')
-        .select('*')
-        .order('year', { ascending: false });
-        
-      if (!error && data) {
-        setAssets(data);
+      try {
+        const res = await fetch('/api/dataset?table=asset_declarations');
+        const json = await res.json();
+        if (json.success) setAssets(json.rows);
+      } catch {
+        // necháme prázdny stav
       }
       setLoading(false);
     }

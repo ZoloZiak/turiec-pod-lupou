@@ -2,12 +2,7 @@
 
 import { Building2, TrendingDown, ArrowRight, Activity, ArrowRightLeft } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function PodnikyPage() {
   const [podniky, setPodniky] = useState<Record<string, unknown>[]>([]);
@@ -19,20 +14,17 @@ export default function PodnikyPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-      const { data, error } = await supabase
-        .from('city_companies')
-        .select('*')
-        .order('name');
-      if (!error && data) {
+      try {
+        const res = await fetch('/api/dataset?table=city_companies');
+        const json = await res.json();
+        const data = json.success ? json.rows : [];
         setPodniky(data);
         if (data.length >= 2) {
           setCompAId(data[0].id);
           setCompBId(data[1].id);
         }
+      } catch {
+        // necháme prázdny stav
       }
       setLoading(false);
     }

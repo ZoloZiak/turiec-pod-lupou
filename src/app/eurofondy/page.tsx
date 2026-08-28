@@ -3,12 +3,7 @@
 import { Globe, Building, Calendar } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
-import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function EurofondyPage() {
   const [dotacie, setDotacie] = useState<Record<string, unknown>[]>([]);
@@ -16,16 +11,12 @@ export default function EurofondyPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-      const { data, error } = await supabase
-        .from('eu_funds')
-        .select('*')
-        .order('year', { ascending: false });
-      if (!error && data) {
-        setDotacie(data);
+      try {
+        const res = await fetch('/api/dataset?table=eu_funds');
+        const json = await res.json();
+        if (json.success) setDotacie(json.rows);
+      } catch {
+        // necháme prázdny stav
       }
       setLoading(false);
     }

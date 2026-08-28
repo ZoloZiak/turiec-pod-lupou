@@ -3,12 +3,7 @@
 import { Users, ThumbsUp, ThumbsDown, FileText } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
-import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function PoslanciPage() {
   const [hlasovania, setHlasovania] = useState<Record<string, unknown>[]>([]);
@@ -16,16 +11,12 @@ export default function PoslanciPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-      const { data, error } = await supabase
-        .from('city_council_votes')
-        .select('*')
-        .order('vote_date', { ascending: false });
-      if (!error && data) {
-        setHlasovania(data);
+      try {
+        const res = await fetch('/api/dataset?table=city_council_votes');
+        const json = await res.json();
+        if (json.success) setHlasovania(json.rows);
+      } catch {
+        // necháme prázdny stav
       }
       setLoading(false);
     }
