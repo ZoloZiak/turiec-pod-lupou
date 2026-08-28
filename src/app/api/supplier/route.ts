@@ -1,17 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { isDuplicatePublication } from '@/lib/duplicate-ids';
+import { correctIco } from '@/lib/entity-ico-fixes';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const ico = searchParams.get('ico');
-    
-    if (!ico) {
+    const rawIco = searchParams.get('ico');
+
+    if (!rawIco) {
       return NextResponse.json({ success: false, error: 'Chýba IČO' }, { status: 400 });
     }
+    // Ak sa dostane žiadosť na známy chybný IČO (napr. starý odkaz / orphan, ktorý Krtko
+    // znova založil pred nočným merge), presmerujeme na reálne IČO (viď entity-ico-fixes.ts).
+    const ico = correctIco(rawIco) as string;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;

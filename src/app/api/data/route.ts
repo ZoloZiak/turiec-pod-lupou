@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { INCOME_TX_IDS } from '@/lib/income-ids';
 import { isDuplicatePublication } from '@/lib/duplicate-ids';
+import { correctIco } from '@/lib/entity-ico-fixes';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,6 +69,13 @@ export async function GET(request: Request) {
         .range(from, from + PAGE_SIZE - 1);
       if (txError) throw txError;
       const page = (pageRows || []) as unknown as TransactionRow[];
+      // Durabilná korekcia chybného IČO priamo zo zdroja (CRZ preklep, ktorý Krtko cez noc
+      // znova zakladá ako orphan entitu). Opravíme IČO pri čítaní, nech web nikdy neukáže
+      // profil pod neexistujúcim/cudzím IČO — nezávisle od stavu DB (viď entity-ico-fixes.ts).
+      for (const row of page) {
+        if (row.buyer) row.buyer = { ...row.buyer, ico: correctIco(row.buyer.ico) as string };
+        if (row.supplier) row.supplier = { ...row.supplier, ico: correctIco(row.supplier.ico) as string };
+      }
       transactionsData.push(...page);
       if (page.length < PAGE_SIZE) break;
       from += PAGE_SIZE;
