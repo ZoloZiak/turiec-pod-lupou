@@ -49,7 +49,44 @@ export const DUPLICATE_TX_EXTERNAL_IDS = new Set<string>([
   "crz_9289098",
 ]);
 
-/** True, ak je transakcia nekanonické (opakované) zverejnenie tej istej CRZ zmluvy. */
+// ── VÝDAVKOVÁ (EXPENSE) strana ──────────────────────────────────────────────
+// PROBLÉM (WATCH stráž, 2026-08-28): rovnaká double-publikácia postihuje aj bežné
+// (ne-NFP) zmluvy — obojstranné zverejnenie (objednávateľ aj dodávateľ zverejnia
+// tú istú zmluvu pod vlastným „Č. zmluvy") + nočný re-scrape Krtka. Tá istá JEDNA
+// zmluva tak v DB figuruje 2× a nafukuje výdavky/agregáty dodávateľa.
+//
+// KĽÚČ = external_id (stabilné cez re-scrape). Kanonický = skôr ZVEREJNENÝ doklad
+// (Mesto Martin oba protokoly zverejnilo pred SŠZ), vylúčené = duplicitná noha.
+//
+// OVERENIE (2-zdrojovo, každý doklad HTTP 200 na crz.gov.sk/zmluva/<id>/): pre každý
+// pár potvrdená ZHODA sumy na cent + oboch IČO strán + dátumu UZAVRETIA + predmetu/
+// majetku; rôzne „Č. zmluvy" = očakávané pri obojstrannom zverejnení. Ročné opakované
+// zmluvy (reklama 200 €, poistenie, audit) sú OVERENÉ ako RÔZNE roky (rôzne Č. zmluvy
+// a dátumy uzavretia) → NIE duplicita, NIE sú v zozname (0 falošných pozitív, poistka).
+//
+// Páry (kanonický ponechaný → vylúčený): suma € | doklad
+//  crz_10961126 → crz_11006541  2 128 019,36 | Protokol – Atletický štadión, zázemie s tribúnou (uz. 20.06.2025; MsMartin 1027/2025 vs SŠZ RD20/2025)
+//  crz_12189892 → crz_12215067    999 604,69 | Protokol – strecha a bleskozvod Zimný štadión (uz. 26.03.2026; MsMartin 417/2026 vs SŠZ RD09/2026)
+//  crz_12291762 → crz_12294611      7 606,83 | Kúpna zmluva Obec Blatnica (Č. E-19/2026; TVS vs Blatnica)
+//  crz_8958417  → crz_9000729       3 000,00 | Budúca ZVB DPMM↔ŽSR (uz. 19.02.2024; ŽSR ZOBZ vs DPMM Z 010/2024)
+//  crz_8175095  → crz_9881596       1 000,00 | Darovacia – cyklopreteky Okolo Slovenska (Č. 1521/2023, uz. 04.08.2023; MsMartin vs KraussMaffei)
+//  crz_9584235  → crz_9611284         704,00 | ZVB č. 836168018-4-2024-ZVB TVS↔ŽSR (TVS O-51/2024 vs ŽSR)
+//
+// Spolu 6 párov, 6 vylúčených nôh, dopad na výdavky/agregáty −3 139 934,88 €.
+export const DUPLICATE_EXPENSE_EXTERNAL_IDS = new Set<string>([
+  "crz_11006541",
+  "crz_12215067",
+  "crz_12294611",
+  "crz_9000729",
+  "crz_9881596",
+  "crz_9611284",
+]);
+
+/** True, ak je transakcia nekanonické (opakované) zverejnenie tej istej CRZ zmluvy (income aj expense). */
 export function isDuplicatePublication(externalId: string | null | undefined): boolean {
-  return !!externalId && DUPLICATE_TX_EXTERNAL_IDS.has(externalId);
+  return (
+    !!externalId &&
+    (DUPLICATE_TX_EXTERNAL_IDS.has(externalId) ||
+      DUPLICATE_EXPENSE_EXTERNAL_IDS.has(externalId))
+  );
 }
