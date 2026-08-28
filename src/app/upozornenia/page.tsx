@@ -2,12 +2,14 @@ import { createClient } from "@supabase/supabase-js";
 import { ShieldAlert, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import AlertsClient from "./AlertsClient";
+import { isDuplicatePublication } from "@/lib/duplicate-ids";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Vždy fetchnúť čerstvé dáta
 
 interface Transaction {
   id: string;
+  external_id?: string;
   amount_eur?: number;
   subject?: string;
   source_type?: string;
@@ -55,14 +57,23 @@ export default async function AlertsPage() {
     }
   }
 
+  // Vylúč nekanonické duplicitné zverejnenia tej istej CRZ zmluvy (WATCH #66/#67).
+  // Tá istá zmluva sa v CRZ zverejňuje oboma stranami / re-scrapuje → bez tohto by sa
+  // v zozname "Zákazky nad 100k (Kontrola RPVS)" objavila 2–3× ako viacero podozrivých
+  // zákaziek (napr. IROP dodatok 6,63M € 2×, protokoly Mesta Martin 2,13M + 999,6k dvojmo).
+  // Rovnaká dedup logika je v /api/data a /api/supplier — táto cesta ju musí zdieľať.
+  const dedupedTransactions = allTransactions.filter(
+    (t: Transaction) => !isDuplicatePublication(t.external_id)
+  );
+
   // Krížová kontrola
   const crzSuppliers = new Set(
-    allTransactions
+    dedupedTransactions
       .filter((t: Transaction) => t.source_type === 'CRZ_CONTRACT' && t.supplier && t.supplier.ico)
       .map((t: Transaction) => t.supplier!.ico)
   );
 
-  const enrichedTransactions = allTransactions.map((t: Transaction) => {
+  const enrichedTransactions = dedupedTransactions.map((t: Transaction) => {
     let suspicious = false;
     if (t.source_type === 'WEB_INVOICE' && t.supplier && t.supplier.ico) {
       if (!crzSuppliers.has(t.supplier.ico)) {
