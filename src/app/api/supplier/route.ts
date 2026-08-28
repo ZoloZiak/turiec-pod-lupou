@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { isDuplicatePublication } from '@/lib/duplicate-ids';
-import { correctIco } from '@/lib/entity-ico-fixes';
+import { correctIco, wrongIcosFor } from '@/lib/entity-ico-fixes';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +31,21 @@ export async function GET(request: Request) {
     if (supplierError) throw supplierError;
     if (!supplier) return NextResponse.json({ success: false, error: 'Dodávateľ nenájdený' }, { status: 404 });
 
+    // Trieda ekvivalencie entít: kanonická entita (správne IČO) + prípadné ORPHAN entity,
+    // ktoré Krtko cez noc znova založí s chybným IČO (napr. Nolčovo 00216822 → 00316822).
+    // Transakcie priviazané na orphan by inak na profile chýbali, kým DB merge whack-a-mole
+    // nedobehne. Zozbierame ID všetkých entít v triede a agregujeme naprieč nimi.
+    const wrongIcos = wrongIcosFor(ico);
+    const entityIds: string[] = [supplier.id];
+    if (wrongIcos.length > 0) {
+      const { data: orphans, error: orphanErr } = await supabase
+        .from('entities')
+        .select('id')
+        .in('ico', wrongIcos);
+      if (orphanErr) throw orphanErr;
+      for (const o of orphans || []) if (!entityIds.includes(o.id)) entityIds.push(o.id);
+    }
+
     // Get all transactions where they are the supplier.
     // Supabase ticho seka .select() na default limit 1000 -> pri dodavatelovi s >1000
     // zmluvami by boli totalAmount aj totalCount PODHODNOTENE. Paginujeme cez .range()
@@ -52,7 +67,7 @@ export async function GET(request: Request) {
       const { data: page, error: txError } = await supabase
         .from('transactions')
         .select('id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico)')
-        .eq('supplier_entity_id', supplier.id)
+        .in('supplier_entity_id', entityIds)
         .order('date_published', { ascending: false })
         .range(from, from + PAGE - 1);
 

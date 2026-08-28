@@ -40,3 +40,17 @@ export function correctIco(ico: string | null | undefined): string | null | unde
 export function isKnownWrongIco(ico: string | null | undefined): boolean {
   return !!ico && ico in ICO_CORRECTIONS;
 }
+
+/**
+ * Vráti VŠETKY známe chybné IČO, ktoré sa mapujú na dané správne IČO.
+ * Použité v /api/supplier: profil dodávateľa musí zozbierať transakcie aj z orphan
+ * entít (chybné IČO), ktoré Krtko cez noc znova zakladá — inak by zmluvy priviazané
+ * na orphan (napr. Nolčovo crz_12502992 pod 00216822) na profile /dodavatel/00316822
+ * chýbali, kým DB merge whack-a-mole nedobehne. Tým je profil úplný nezávisle od DB.
+ */
+export function wrongIcosFor(correctedIco: string | null | undefined): string[] {
+  if (!correctedIco) return [];
+  return Object.entries(ICO_CORRECTIONS)
+    .filter(([, correct]) => correct === correctedIco)
+    .map(([wrong]) => wrong);
+}
