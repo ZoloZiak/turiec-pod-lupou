@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle, XCircle, ExternalLink } from "lucide-react";
+import InfoIcon from "./InfoIcon";
 
-export default function RpvsBadge({ ico, name }: { ico: string; name?: string }) {
+export default function RpvsBadge({ ico, name, compact = false }: { ico: string; name?: string; compact?: boolean }) {
   const [status, setStatus] = useState<'loading' | 'active' | 'exempt' | 'inactive' | 'error'>('loading');
   const [resolvedIco, setResolvedIco] = useState<string | null>(null);
   const [partnerId, setPartnerId] = useState<number | null>(null);
@@ -28,6 +29,9 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
   }, [ico, name]);
 
   if (status === 'loading') {
+    if (compact) {
+      return <span className="w-3.5 h-3.5 border-2 border-line border-t-slate-500 rounded-full animate-spin inline-block" aria-label="Overujem RPVS" />;
+    }
     return (
       <div className="inline-flex items-center gap-1 px-2 py-1 bg-elevated text-muted text-xs font-semibold rounded border border-line">
         <span className="w-3 h-3 border-2 border-line border-t-slate-500 rounded-full animate-spin"></span>
@@ -37,8 +41,16 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
   }
 
   if (status === 'exempt') {
+    if (compact) {
+      return (
+        <InfoIcon icon={AlertTriangle} colorClass="text-amber-400" label="Prečo nie je v RPVS">
+          Subjekt nie je zapísaný v RPVS, pretože podlieha zákonnej výnimke podľa § 2 ods. 3 Zákona
+          č. 315/2016 Z. z. (štátne orgány, ministerstvá, štátne fondy, obce, banky).
+        </InfoIcon>
+      );
+    }
     return (
-      <div 
+      <div
         className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 text-amber-400 text-xs font-semibold rounded border border-amber-500/20"
         title="Subjekt nie je zapísaný v RPVS, pretože podlieha zákonnej výnimke podľa § 2 ods. 3 Zákona č. 315/2016 Z. z. (štátne orgány, ministerstvá, štátne fondy, obce, banky)."
       >
@@ -48,17 +60,25 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
     );
   }
 
-  const detailUrl = partnerId 
+  const detailUrl = partnerId
     ? `https://rpvs.gov.sk/rpvs/Partner/Partner/Detail/${partnerId}`
     : `https://finstat.sk/${resolvedIco || ico}`;
 
   if (status === 'active') {
+    if (compact) {
+      return (
+        <a href={detailUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+           className="inline-flex items-center text-emerald-500 p-0.5" aria-label="Firma je zapísaná v RPVS" title="Firma je zapísaná v RPVS">
+          <CheckCircle className="w-4 h-4" aria-hidden="true" />
+        </a>
+      );
+    }
     return (
-      <a 
+      <a
         href={detailUrl}
         target="_blank"
         rel="noreferrer"
-        className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded border border-emerald-200 transition-colors" 
+        className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded border border-emerald-200 transition-colors"
         title="Zákonná povinnosť splnená: Subjekt je zapísaný v Registri partnerov verejného sektora."
       >
         <CheckCircle className="w-3 h-3" aria-hidden="true" />
@@ -69,8 +89,19 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
 
   if (status === 'inactive') {
     const checkUrl = `/api/rpvs-redirect/${resolvedIco || ico}`;
+    if (compact) {
+      return (
+        <InfoIcon icon={XCircle} colorClass="text-red-500" label="Firma nie je v RPVS">
+          <span className="block mb-1.5">POZOR! Zákazka nad 100 000 €, ale firma NIE JE v RPVS.</span>
+          <a href={checkUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+             className="inline-flex items-center gap-1 text-red-500 font-semibold hover:underline">
+            Overiť v RPVS <ExternalLink className="w-3 h-3" />
+          </a>
+        </InfoIcon>
+      );
+    }
     return (
-      <a 
+      <a
         href={checkUrl}
         target="_blank"
         rel="noreferrer"
@@ -84,6 +115,13 @@ export default function RpvsBadge({ ico, name }: { ico: string; name?: string })
     );
   }
 
+  if (compact) {
+    return (
+      <InfoIcon icon={AlertTriangle} colorClass="text-amber-400" label="RPVS nedostupné">
+        Zákazka nad 100 000 € — zápis v RPVS sa nepodarilo overiť (register dočasne nedostupný).
+      </InfoIcon>
+    );
+  }
   return (
     <div className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded border border-amber-200">
       <AlertTriangle className="w-3 h-3" aria-hidden="true" />

@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
+import InfoIcon from "./components/InfoIcon";
 import VerifiedBadge from "./components/VerifiedBadge";
 import MacroStats from "./components/MacroStats";
 import { isRpvsExempt } from "@/lib/rpvs-exempt";
@@ -615,52 +616,35 @@ export default function Dashboard() {
                         <div className="flex flex-col gap-2 text-xs text-muted">
                           <p>Odberateľ: {t.buyer?.name}</p>
                           <p>IČO: {t.supplier?.ico}</p>
-                          <div className="flex justify-between items-center mt-2 border-t border-line pt-3">
-                            <div className="flex flex-col gap-1.5">
-                              {t.source_url ? (
-                                <a 
-                                  href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`} 
-                                  target="_blank" 
-                                  rel="noreferrer"
-                                  className="group flex flex-col gap-1 items-start"
-                                  title="Otvoriť dokument"
-                                >
-                                  {t.source_type === 'WEB_INVOICE' ? (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:bg-amber-500/20">
-                                      Faktúra z webu <ExternalLink className="w-2.5 h-2.5" />
-                                    </span>
-                                  ) : (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:bg-emerald-500/20">
-                                      CRZ Zmluva <ExternalLink className="w-2.5 h-2.5" />
-                                    </span>
-                                  )}
-                                  <span className="text-muted group-hover:text-body transition-colors font-mono text-xs">
-                                    {new Date(t.date_published).toLocaleDateString('sk-SK')}
-                                  </span>
-                                </a>
-                              ) : (
-                                <div className="flex flex-col gap-1">
-                                  {t.source_type === 'WEB_INVOICE' ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 self-start">Faktúra z webu</span>
-                                  ) : (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">CRZ Zmluva</span>
-                                  )}
-                                  <span className="text-muted font-mono text-xs">
-                                    {new Date(t.date_published).toLocaleDateString('sk-SK')}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex flex-col gap-1.5 items-end">
-                              {t.suspicious && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-semibold rounded" title="Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.">
-                                  <AlertTriangle className="w-3 h-3" /> Chýba zmluva v CRZ!
-                                </span>
-                              )}
-                              {t.amount_eur >= 100000 && t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
-                                <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} />
-                              )}
-                            </div>
+                          <div className="flex items-center flex-wrap gap-2 mt-2 border-t border-line pt-3">
+                            <span className="font-mono text-xs text-muted">
+                              {new Date(t.date_published).toLocaleDateString('sk-SK')}
+                            </span>
+                            {t.source_url ? (
+                              <a
+                                href={t.source_url?.startsWith('http') ? t.source_url : `https://${t.source_url}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                title={t.source_type === 'WEB_INVOICE' ? 'Otvoriť faktúru' : 'Otvoriť zmluvu z CRZ'}
+                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${t.source_type === 'WEB_INVOICE' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}
+                              >
+                                {t.source_type === 'WEB_INVOICE' ? 'Faktúra' : 'CRZ'}
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            ) : (
+                              <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${t.source_type === 'WEB_INVOICE' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                                {t.source_type === 'WEB_INVOICE' ? 'Faktúra' : 'CRZ'}
+                              </span>
+                            )}
+                            {t.suspicious && (
+                              <InfoIcon icon={AlertTriangle} colorClass="text-red-400" label="Chýba zmluva v CRZ">
+                                Krížová kontrola: Dodávateľ nemá v databáze žiadnu zmluvu z CRZ, no napriek tomu fakturuje.
+                              </InfoIcon>
+                            )}
+                            {t.amount_eur >= 100000 && t.supplier?.ico && !t.supplier.ico.startsWith('NO_ICO_') && (
+                              <RpvsBadge ico={t.supplier.ico} name={t.supplier?.name} compact />
+                            )}
                           </div>
                         </div>
                         <div className="mt-4 pt-4 border-t border-line flex items-center justify-between">
