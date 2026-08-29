@@ -73,7 +73,7 @@ export default function EurofondyPage() {
                 <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium mb-1">Získaná dotácia</p>
                 <div className="flex items-center justify-end">
                   <span className="text-3xl font-black text-emerald-600">{formatEur(d.amount_eur)}</span>
-                  <VerifiedBadge source="ITMS" />
+                  <VerifiedBadge source="CRZ" />
                 </div>
               </div>
             </div>
