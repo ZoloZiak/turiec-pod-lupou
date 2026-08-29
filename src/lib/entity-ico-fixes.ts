@@ -26,8 +26,34 @@
 //   00216822 → 00316822 | Obec Nolčovo (okres Martin) | CRZ 12502992 má typo 2↔3 v IČO
 //     dodávateľa; RPO: 00216822 = 0 exact výsledkov (neexistuje), 00316822 = „Obec Nolčovo",
 //     orgán verejnej moci od 1973-07-01 (RPO + RÚZ #13203 + nolcovo.sk z WATCH #59).
+//
+// WATCH #89 (2026-08-29): Krtko cez noc založil 15 entít s POŠKODENÝM IČO (vnútorné/koncové
+// medzery, 6-miestne IČO obcí bez vedúcich núl, 9-miestne, MULTI-string). Guard isValidIco()
+// im síce zablokoval register-odkazy (žiadny zlý link na webe), no dodávatelia tým prišli
+// o funkčné ORSR/RPVS/FinStat prepojenie a niektorí majú rozštiepený profil (orphan + kanon).
+// Každý pár (poškodené IČO → reálne IČO) je overený 2-zdrojovo: (a) CRZ detail zmluvy
+// (source_url) uvádza reálne IČO dodávateľa, (b) RPO ŠÚ SR na tom IČO vracia presne ten subjekt.
+// POZOR: pri 3 pároch (BTI, eSYST, Generali) samotné odstránenie medzier vedie na CUDZÍ subjekt
+//   (napr. "52  222 438" → 52222438 = „OZ Za zdravší život", pričom CRZ 8332592 uvádza BTI = 47619503),
+//   preto sa musí použiť reálne IČO z CRZ, nie naivný strip. Neopraviteľné (EUROPOWER, RRA — CRZ
+//   neuvádza IČO dodávateľa; MULTI-string SLOVES) sú ponechané na guard + ľudské oko (findings.md).
+// Poistka menovaných osôb SA NEUPLATŇUJE (firmy/obce = verejné inštitúcie, nie fyzické osoby;
+// ide iba o opravu párovania na reálne IČO, žiadne nové obvinenie).
 const ICO_CORRECTIONS: Record<string, string> = {
   '00216822': '00316822', // Obec Nolčovo — typo v CRZ 12502992 (WATCH #59/#63/#68)
+  // WATCH #89 — CRZ+RPO overené páry (kľúč = presný DB string vrátane medzier)
+  '52  222 438': '47619503', // BTI s.r.o. — CRZ 8332592 (strip 52222438 = cudzí subjekt!)
+  '31 580 726': '31580726',  // VS Guard, s.r.o. — CRZ 10055405
+  '361062145': '50139088',   // eSYST s.r.o. — CRZ 11796782 (9-miestne, reálne z CRZ)
+  '55 049 249': '55049249',  // DFM Slovakia s.r.o. — CRZ 10787956
+  '35 770 732': '35770732',  // MAJES výťahy a eskalátory, a.s. — CRZ 9625539
+  '44552483 ': '44552483',   // KV - mont Martin, s.r.o. — CRZ 8185355
+  '316873': '00316873',      // Obec Rudno — CRZ 12716123 (short6 zero-pad)
+  '36 751 804 ': '36751804', // SIRS - Development, a.s. — CRZ 9292456
+  '36368792 ': '36368792',   // Stavchem s.r.o. — CRZ 11677616
+  '54 228 573': '35709332',  // Generali Poisťovňa, a.s. — CRZ 6092295 (strip 54228573 = pobočka!)
+  '316580': '00316580',      // Obec Brieštie — CRZ 12533558 (short6 zero-pad)
+  '316679': '00316679',      // Obec Turčianske Jaseno — CRZ 12501273 (short6 zero-pad)
 };
 
 /** Vráti opravené IČO, ak je vstupné IČO známy preklep; inak vráti pôvodné IČO nezmenené. */

@@ -21,29 +21,41 @@ export async function GET(request: Request) {
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get the supplier entity
-    const { data: supplier, error: supplierError } = await supabase
+    // Trieda ekvivalencie entít: kanonická entita (správne IČO) + prípadné ORPHAN entity,
+    // ktoré Krtko cez noc znova založí s chybným IČO (napr. Nolčovo 00216822 → 00316822,
+    // WATCH #89: BTI "52  222 438" → 47619503 atď.). Transakcie priviazané na orphan by inak
+    // na profile chýbali, kým DB merge whack-a-mole nedobehne.
+    const wrongIcos = wrongIcosFor(ico);
+
+    // Kanonická entita (správne IČO). maybeSingle() → 0 rows nevyhodí chybu.
+    const { data: canonical, error: supplierError } = await supabase
       .from('entities')
       .select('*')
       .eq('ico', ico)
-      .single();
-
+      .maybeSingle();
     if (supplierError) throw supplierError;
-    if (!supplier) return NextResponse.json({ success: false, error: 'Dodávateľ nenájdený' }, { status: 404 });
 
-    // Trieda ekvivalencie entít: kanonická entita (správne IČO) + prípadné ORPHAN entity,
-    // ktoré Krtko cez noc znova založí s chybným IČO (napr. Nolčovo 00216822 → 00316822).
-    // Transakcie priviazané na orphan by inak na profile chýbali, kým DB merge whack-a-mole
-    // nedobehne. Zozbierame ID všetkých entít v triede a agregujeme naprieč nimi.
-    const wrongIcos = wrongIcosFor(ico);
-    const entityIds: string[] = [supplier.id];
+    const entityIds: string[] = [];
+    let supplier = canonical;
+    if (canonical) entityIds.push(canonical.id);
+
+    // Ak Krtko cez noc reálne IČO ešte nezaložil ako kanonickú entitu (existuje len orphan
+    // s poškodeným IČO), fallback na orphan entitu z triedy ekvivalencie — inak by profil
+    // vrátil 404. IČO na zobrazenie však vždy nahradíme reálnym (opraveným) IČO.
     if (wrongIcos.length > 0) {
       const { data: orphans, error: orphanErr } = await supabase
         .from('entities')
-        .select('id')
+        .select('*')
         .in('ico', wrongIcos);
       if (orphanErr) throw orphanErr;
-      for (const o of orphans || []) if (!entityIds.includes(o.id)) entityIds.push(o.id);
+      for (const o of orphans || []) {
+        if (!entityIds.includes(o.id)) entityIds.push(o.id);
+        if (!supplier) supplier = { ...o, ico };
+      }
+    }
+
+    if (!supplier || entityIds.length === 0) {
+      return NextResponse.json({ success: false, error: 'Dodávateľ nenájdený' }, { status: 404 });
     }
 
     // Get all transactions where they are the supplier.
