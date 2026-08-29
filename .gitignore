@@ -47,3 +47,7 @@ next-env.d.ts
 __pycache__/
 scripts/_*.js
 scripts/_*.py
+scripts/_*.pdf
+scripts/_*.json
+# theme backupy (jednorazove)
+*.themebak

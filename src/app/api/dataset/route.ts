@@ -26,14 +26,25 @@ export async function GET(request: Request) {
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { data, error } = await supabase
-      .from(table)
-      .select('*')
-      .order(cfg.orderBy, { ascending: cfg.ascending });
+    // PostgREST má server-side strop (db-max-rows, default 1000). Stránkujeme,
+    // aby veľké datasety (napr. 1600+ hlasovaní) neboli ticho odseknuté.
+    const PAGE = 1000;
+    let from = 0;
+    let all: unknown[] = [];
+    for (;;) {
+      const { data, error } = await supabase
+        .from(table)
+        .select('*')
+        .order(cfg.orderBy, { ascending: cfg.ascending })
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      const chunk = data || [];
+      all = all.concat(chunk);
+      if (chunk.length < PAGE) break;
+      from += PAGE;
+    }
 
-    if (error) throw error;
-
-    return NextResponse.json({ success: true, rows: data || [] });
+    return NextResponse.json({ success: true, rows: all });
   } catch (error: unknown) {
     console.error('Dataset API Error:', error);
     return NextResponse.json(
