@@ -30,7 +30,7 @@ export default function EurofondyPage() {
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-muted hover:text-body mb-4 block">&larr; Dashboard</Link>
           <h1 className="text-4xl font-extrabold flex items-center gap-3"><Globe className="w-10 h-10 text-blue-400" aria-hidden="true" /> Eurofondy a Dotácie</h1>
-          <p className="text-lg text-muted mt-4 max-w-2xl">Prehľad externých grantov mesta (ITMS, Plán obnovy) a kto z nich reálne profitoval (víťazi tendrov).</p>
+          <p className="text-lg text-muted mt-4 max-w-2xl">Prehľad nenávratných finančných príspevkov (NFP), ktoré získalo mesto Martin a jeho podniky z eurofondov a národných programov (IROP, Program Slovensko, Interreg, Plán obnovy).</p>
         </div>
       </header>
 
@@ -49,12 +49,12 @@ export default function EurofondyPage() {
             <div key={d.id} className="bg-card rounded-2xl shadow-sm border border-line p-6 flex flex-col md:flex-row gap-6 justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">{d.program_name}</span>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">{d.program_name ? String(d.program_name) : 'Eurofondy / dotácia'}</span>
                   <span className="text-muted font-mono text-sm flex items-center gap-1"><Calendar className="w-4 h-4" aria-hidden="true"/> {d.year}</span>
                 </div>
                 <h2 className="text-2xl font-bold text-body mb-4">{d.project_name}</h2>
                 <div className="bg-surface p-4 rounded-xl border border-line">
-                  <p className="text-sm text-muted mb-1">Kto zákazku realizoval (Víťaz obstarávania):</p>
+                  <p className="text-sm text-muted mb-1">Prijímateľ dotácie:</p>
                   <div className="flex items-center gap-2">
                     <Building className="w-5 h-5 text-muted" aria-hidden="true"/>
                     {d.winner_ico ? (
