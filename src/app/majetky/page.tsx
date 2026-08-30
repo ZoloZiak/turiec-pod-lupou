@@ -4,9 +4,19 @@ import { Building2, Search, ArrowRight, TrendingUp, AlertTriangle } from "lucide
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
+type AssetDeclaration = {
+  id: string;
+  person_name: string;
+  role: string;
+  year: number;
+  official_salary_eur: number;
+  declared_assets: string;
+  source_url?: string;
+};
+
 export default function MajetkyPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [assets, setAssets] = useState<Record<string, unknown>[]>([]);
+  const [assets, setAssets] = useState<AssetDeclaration[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,9 +79,14 @@ export default function MajetkyPage() {
         {/* ALERTS */}
         <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl p-4 flex gap-3 items-start mb-8">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
-          <p className="text-sm text-amber-800 dark:text-amber-200/90">
-            <strong>Modul sa pripravuje:</strong> Tento modul zatiaľ neobsahuje overené majetkové priznania. Pracujeme na napojení na oficiálny zdroj (napr. zverejnené priznania funkcionárov mesta Martin). Kým nebude zdroj overený, žiadne údaje o majetku tu nezverejňujeme.
-          </p>
+          <div className="text-sm text-amber-800 dark:text-amber-200/90 space-y-2">
+            <p>
+              <strong>Prečo je táto karta prázdna:</strong> Podľa čl. 7 ústavného zákona č. 357/2004 Z. z. o ochrane verejného záujmu sú primátor a poslanci MsZ povinní každoročne (do 30. apríla) podať oznámenie funkcií, zamestnaní, činností a majetkových pomerov. Podľa čl. 7 ods. 8 má komisia mestského zastupiteľstva povinnosť tieto oznámenia <strong>zverejniť na webovom sídle mesta</strong>.
+            </p>
+            <p>
+              K {new Date().toLocaleDateString('sk-SK', { month: 'long', year: 'numeric' })} sa nám tieto oznámenia na oficiálnej stránke <a href="https://www.martin.sk" target="_blank" rel="noreferrer" className="underline">martin.sk</a> nepodarilo nájsť (na rozdiel od porovnateľných miest ako Trenčín, Pezinok či Námestovo, ktoré ich zverejňujú online). Kým nebude k dispozícii overený oficiálny zdroj, nezverejňujeme tu žiadne odhadované ani neoverené údaje o majetku.
+            </p>
+          </div>
         </div>
 
         {/* LIST OF DECLARATIONS */}
