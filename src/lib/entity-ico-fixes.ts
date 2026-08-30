@@ -46,6 +46,16 @@
 //   Neopraviteľné ostávajú: RRA a.s. (CRZ 9000484 neuvádza IČO, RPO fullName=RRA nedáva exact
 //   „RRA, a.s.“ — len RRA Horný Spiš Kežmarok = iný subjekt) a MULTI-string SLOVES (5 IČO v
 //   jednom poli) — ponechané na guard + ľudské oko (findings.md).
+// WATCH #97 (2026-08-30): RRA a.s. dodatočne VYRIEŠENÝ. Krtko cez noc doplnil entite „RRA, a.s.“
+//   IČO „ 47431563“ (vedúca medzera) — no strip 47431563 podľa RPO ŠÚ SR = „TerramPro s. r. o.“
+//   Bratislava = CUDZÍ subjekt (rovnaká pasca ako BTI/Generali/EUROPOWER). Reálne IČO RRA, a.s.:
+//   RPO ŠÚ SR exact identifier → jediná „RRA, a. s.“ = 52478424 (Žilina, vznik 2019-07-25, od
+//   2024-07-18 premenovaná na „MYDLO DEVELOPMENT a. s.“). Zmluva O-18/2024 (CRZ 9000484, budúca
+//   zmluva o prevádzke verej. vodovodu pre Turčiansku vodárenskú) uzavretá 28.02.2024 → v tom čase
+//   ešte „RRA, a.s.“ = časovo sedí. 2-zdrojovo potvrdené (RPO exact identifier + dlznik.zoznam.sk
+//   IČO 52478424). Kanon 52478424 už v DB existuje ako „MYDLO DEVELOPMENT a.s.“ (tá istá práv. osoba).
+//   Guard isValidIco() ho medzitým bezpečne držal (medzera → 0 web linkov), oprava odstraňuje
+//   latentnú zámenu s TerramPro. Zostáva neopraviteľný len MULTI-string SLOVES.
 // Poistka menovaných osôb SA NEUPLATŇUJE (firmy/obce = verejné inštitúcie, nie fyzické osoby;
 // ide iba o opravu párovania na reálne IČO, žiadne nové obvinenie).
 const ICO_CORRECTIONS: Record<string, string> = {
@@ -65,6 +75,8 @@ const ICO_CORRECTIONS: Record<string, string> = {
   '316679': '00316679',      // Obec Turčianske Jaseno — CRZ 12501273 (short6 zero-pad)
   // WATCH #93 — RPO fullName + RÚZ overený (strip 50513923 = NEUROPOWER Bratislava = cudzí!)
   '50 513 923 ': '45541329', // EUROPOWER, s. r. o. — Vrútky, RPO+RÚZ (CRZ 12252173 bez IČO dodáv.)
+  // WATCH #97 — RPO exact identifier (strip 47431563 = TerramPro s.r.o. Bratislava = cudzí!)
+  ' 47431563': '52478424', // RRA, a.s. — Žilina, RPO exact + dlznik.zoznam.sk (CRZ 9000484 bez IČO dodáv.)
 };
 
 /** Vráti opravené IČO, ak je vstupné IČO známy preklep; inak vráti pôvodné IČO nezmenené. */
