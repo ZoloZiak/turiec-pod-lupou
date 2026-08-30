@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 
 type Mode = "light" | "dark" | "system";
@@ -13,13 +13,20 @@ function apply(mode: Mode) {
 }
 
 export default function ThemeToggle() {
-  const [mode, setMode] = useState<Mode>("system");
-  const [mounted, setMounted] = useState(false);
+  const [mode, setMode] = useState<Mode>(() => {
+    if (typeof window === "undefined") return "system";
+    return (localStorage.getItem("theme") as Mode | null) ?? "system";
+  });
+  // Renderuje sa až po hydratácii (server vráti "system", klient reálnu voľbu
+  // z localStorage), aby ikona/label nespôsobili hydration mismatch. Bez
+  // setState v efekte — spĺňa react-hooks/set-state-in-effect.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   useEffect(() => {
-    const stored = (localStorage.getItem("theme") as Mode | null) ?? "system";
-    setMode(stored);
-    setMounted(true);
     // keep in sync with OS while in system mode
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
