@@ -35,8 +35,17 @@
 // (source_url) uvádza reálne IČO dodávateľa, (b) RPO ŠÚ SR na tom IČO vracia presne ten subjekt.
 // POZOR: pri 3 pároch (BTI, eSYST, Generali) samotné odstránenie medzier vedie na CUDZÍ subjekt
 //   (napr. "52  222 438" → 52222438 = „OZ Za zdravší život", pričom CRZ 8332592 uvádza BTI = 47619503),
-//   preto sa musí použiť reálne IČO z CRZ, nie naivný strip. Neopraviteľné (EUROPOWER, RRA — CRZ
-//   neuvádza IČO dodávateľa; MULTI-string SLOVES) sú ponechané na guard + ľudské oko (findings.md).
+//   preto sa musí použiť reálne IČO z CRZ, nie naivný strip.
+// WATCH #93 (2026-08-30): EUROPOWER dodatočne VYRIEŠENÝ. CRZ 12252173 síce IČO dodávateľa
+//   neuvádza, no RPO ŠÚ SR fulltext (fullName=EUROPOWER) vracia „EUROPOWER, s. r. o.“ IČO
+//   45541329 so sídlom vo Vrútkach (okres Martin) — presná zhoda mena aj regiónu (zmluva o
+//   vecnom bremene pre IBV Vrútky s Turčianskou vodárenskou). 2-zdrojovo potvrdené aj RÚZ
+//   (id 1018345 = EUROPOWER, s. r. o., Vrútky, Francúzskych partizánov 3498/70, okres SK0316).
+//   POZOR: naivný strip „50 513 923 “ → 50513923 = „NEUROPOWER s. r. o.“ Bratislava = CUDZÍ
+//   subjekt (rovnaká pasca ako BTI/Generali), preto sa mapuje na reálne 45541329, nie na strip.
+//   Neopraviteľné ostávajú: RRA a.s. (CRZ 9000484 neuvádza IČO, RPO fullName=RRA nedáva exact
+//   „RRA, a.s.“ — len RRA Horný Spiš Kežmarok = iný subjekt) a MULTI-string SLOVES (5 IČO v
+//   jednom poli) — ponechané na guard + ľudské oko (findings.md).
 // Poistka menovaných osôb SA NEUPLATŇUJE (firmy/obce = verejné inštitúcie, nie fyzické osoby;
 // ide iba o opravu párovania na reálne IČO, žiadne nové obvinenie).
 const ICO_CORRECTIONS: Record<string, string> = {
@@ -54,6 +63,8 @@ const ICO_CORRECTIONS: Record<string, string> = {
   '54 228 573': '35709332',  // Generali Poisťovňa, a.s. — CRZ 6092295 (strip 54228573 = pobočka!)
   '316580': '00316580',      // Obec Brieštie — CRZ 12533558 (short6 zero-pad)
   '316679': '00316679',      // Obec Turčianske Jaseno — CRZ 12501273 (short6 zero-pad)
+  // WATCH #93 — RPO fullName + RÚZ overený (strip 50513923 = NEUROPOWER Bratislava = cudzí!)
+  '50 513 923 ': '45541329', // EUROPOWER, s. r. o. — Vrútky, RPO+RÚZ (CRZ 12252173 bez IČO dodáv.)
 };
 
 /** Vráti opravené IČO, ak je vstupné IČO známy preklep; inak vráti pôvodné IČO nezmenené. */
