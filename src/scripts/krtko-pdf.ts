@@ -16,10 +16,22 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Zoznam vzorových URL adries s PDF faktúrami na testovanie
-const pdfUrls: string[] = [
-  'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-];
+// BEZPEČNÝ NO-OP (2026-08-30, audit stráž — link-check WATCH).
+//
+// PÔVODNE tu bol testovací zdroj (w3.org/.../dummy.pdf, „vzorové URL na testovanie"),
+// proti ktorému tento skript denne bežal v produkcii (npm `krtko:pdf`, cron) a generoval
+// MANUAL_REVIEW_NEEDED logy. Reziduum v DB = 0 (dummy.pdf nemá parsovateľné IČO+sumu, padal
+// do vetvy manuálnej kontroly), ale insert-path nižšie je FABRIKAČNÁ: pri ľubovoľnom PDF
+// s „IČO: nnnnnnnn" + „Spolu: X,XX €" by upsertla do produkčnej `transactions` transakciu
+// s date_published = new Date() (dátum behu, NIE reálny dátum faktúry), buyer natvrdo Mesto
+// Martin, dodávateľom „Neznáma firma z PDF (ico)" a generickým subjectom — teda vymyslené
+// atribúty faktúry na transparentnom webe. To je presne vzor, ktorý bol pri
+// scraper-invoices.ts sanitizovaný na NO-OP; tento dvojča ostal aktívny.
+//
+// Kým nebude REÁLNY zdroj konkrétnych mestských PDF faktúr + overený parser (skutočný dátum
+// faktúry, overený názov/IČO dodávateľa proti RPO, sumy proti zdroju), zoznam ostáva PRÁZDNY
+// → runPdfExtractor() sa krátko vráti a NEvkladá nič (radšej prázdno než fabrikát).
+const pdfUrls: string[] = [];
 
 async function extractFromPdf(url: string) {
   console.log(`\n📄 Sťahujem PDF: ${url}`);
