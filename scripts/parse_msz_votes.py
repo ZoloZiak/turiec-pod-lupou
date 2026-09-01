@@ -30,7 +30,10 @@ def parse(pdf_path, vote_date, source_url):
                     title_bod = f"bod {mm.group(1).strip()} – {mm.group(2).strip()}"
                 else:
                     title_bod = l.split("bod č.")[-1].strip()
-            m2 = re.search(r"Uznesenie\s*č\.\s*([\d]+/\d+)", l)
+            # Toleruj anomalny format poznamky "Uznesenie - uznesenie č.19/2026"
+            # (H.E.R. inak generuje "Uznesenie č. N/RR") — inak vypadne prve
+            # hlasovanie dna (bug: 19.02.2026 uzn 19 chybalo, WATCH #124).
+            m2 = re.search(r"[Uu]znesenie[\s\-]*(?:uznesenie\s*)?č\.\s*([\d]+/\d+)", l)
             if m2:
                 uzn = m2.group(1)
         if not uzn:

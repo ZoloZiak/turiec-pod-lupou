@@ -1,4 +1,4 @@
--- AUTO-GENEROVANE z city_council_votes (scripts/etl_council_votes.py). 1612 zaznamov.
+-- AUTO-GENEROVANE z city_council_votes (scripts/etl_council_votes.py). 1643 zaznamov.
 -- Menovite hlasovania MsZ Martin (system H.E.R.), krizovo overene voci suctom v PDF.
 -- Zasadnutia 2026: 29.01, 19.02, 26.03. Zdroj: martin.sk. Idempotentne: wipe + reinsert.
 
@@ -567,6 +567,37 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Tomáš Zanovit', NULL, 'ZA', 'Uznesenie č. 9/2026: bod 4.c) – Návrh spôsobu prevodu nehnuteľného', '2026-01-29', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-29-01-2026/ds-2623/archiv=0'),
 ('Veronika Gajdošová Ladňáková', NULL, 'ZA', 'Uznesenie č. 9/2026: bod 4.c) – Návrh spôsobu prevodu nehnuteľného', '2026-01-29', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-29-01-2026/ds-2623/archiv=0'),
 ('Zuzana Badová', NULL, 'ZA', 'Uznesenie č. 9/2026: bod 4.c) – Návrh spôsobu prevodu nehnuteľného', '2026-01-29', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-29-01-2026/ds-2623/archiv=0'),
+('Adam Žilák', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Andrej Rodák', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Bruno Horecký', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Dana Žigová', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Filip Horanský', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Jozef Krištoffy', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Jozef Petráš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Juraj Marček', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Juraj Stahl', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Ľubomír Vaňko', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Lucia Hrivnák Klocová', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Marcela Amchová', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Marcela Balošáková', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Marek Belák', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Marína Gallová', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Martin Hudec', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Martin Lechan', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Martin Lepej', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Martina Antošová', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Michal Matejička', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Michal Uherčík', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Milan Ftorek', NULL, 'ZDRŽAL SA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Peter Török', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Róbert Gajdoš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Stanislav Thomka', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Tatiana Červeňová', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Tibor Adamko', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Tomáš Ignačák', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Tomáš Zanovit', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Veronika Gajdošová Ladňáková', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Zuzana Badová', NULL, 'ZA', 'Uznesenie č. 19/2026: bod 1. – Správa o plnení uznesení MsZ', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Adam Žilák', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Andrej Rodák', NULL, 'PROTI', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Bruno Horecký', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
@@ -577,7 +608,9 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Juraj Marček', NULL, 'PROTI', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Juraj Stahl', NULL, 'PROTI', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Ľubomír Vaňko', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
-('Lucia Hrivnák Klocová', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Lucia Hrivnák Klocová', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0');
+
+INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
 ('Marcela Amchová', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Marcela Balošáková', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Marek Belák', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 17)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
@@ -608,9 +641,7 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Juraj Marček', NULL, 'PROTI', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Juraj Stahl', NULL, 'PROTI', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Ľubomír Vaňko', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
-('Lucia Hrivnák Klocová', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0');
-
-INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
+('Lucia Hrivnák Klocová', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Marcela Amchová', NULL, 'ZA', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Marcela Balošáková', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Marek Belák', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 20/2026: bod 2. – Zmeny v orgánoch obchodných spoločností a v (hlasovanie č. 18)', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
@@ -779,7 +810,9 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Peter Török', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Róbert Gajdoš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
-('Stanislav Thomka', NULL, 'ZA', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Stanislav Thomka', NULL, 'ZA', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0');
+
+INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
 ('Tatiana Červeňová', NULL, 'ZA', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Tibor Adamko', NULL, 'ZA', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Tomáš Ignačák', NULL, 'ZA', 'Uznesenie č. 23/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
@@ -810,9 +843,7 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Peter Török', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Róbert Gajdoš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
-('Stanislav Thomka', NULL, 'ZA', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0');
-
-INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
+('Stanislav Thomka', NULL, 'ZA', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Tatiana Červeňová', NULL, 'ZA', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Tibor Adamko', NULL, 'ZA', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Tomáš Ignačák', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 24/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
@@ -981,7 +1012,9 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Filip Horanský', NULL, 'PROTI', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Jozef Krištoffy', NULL, 'ZA', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Jozef Petráš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
-('Juraj Marček', NULL, 'PROTI', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
+('Juraj Marček', NULL, 'PROTI', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0');
+
+INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
 ('Juraj Stahl', NULL, 'PROTI', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Ľubomír Vaňko', NULL, 'ZA', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Lucia Hrivnák Klocová', NULL, 'ZA', 'Uznesenie č. 30/2026: bod 5. – Návrh zmeny rozpočtu mesta Martin na rok 2026', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
@@ -1012,9 +1045,7 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Filip Horanský', NULL, 'ZA', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Jozef Krištoffy', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Jozef Petráš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
-('Juraj Marček', NULL, 'ZA', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0');
-
-INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
+('Juraj Marček', NULL, 'ZA', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Juraj Stahl', NULL, 'ZA', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Ľubomír Vaňko', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
 ('Lucia Hrivnák Klocová', NULL, 'ZA', 'Uznesenie č. 31/2026: bod 10. – Rôzne', '2026-02-19', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-19-02-2026/ds-2624/archiv=0'),
@@ -1183,7 +1214,9 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Martina Antošová', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Michal Matejička', NULL, 'ZA', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Michal Uherčík', NULL, 'ZA', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
-('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
+('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0');
+
+INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
 ('Peter Török', NULL, 'ZA', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Róbert Gajdoš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Stanislav Thomka', NULL, 'ZA', 'Uznesenie č. 37/2026: bod 2.a) – Návrh nájmu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
@@ -1214,9 +1247,7 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Martina Antošová', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Michal Matejička', NULL, 'ZA', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Michal Uherčík', NULL, 'ZA', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
-('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0');
-
-INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
+('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Peter Török', NULL, 'ZA', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Róbert Gajdoš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Stanislav Thomka', NULL, 'ZA', 'Uznesenie č. 38/2026: bod 2.b) – Návrh spôsobu prevodu nehnuteľného majetku', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
@@ -1385,7 +1416,9 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Andrej Rodák', NULL, 'ZA', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Bruno Horecký', NULL, 'ZA', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Dana Žigová', NULL, 'ZA', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
-('Filip Horanský', NULL, 'ZA', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
+('Filip Horanský', NULL, 'ZA', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0');
+
+INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
 ('Jozef Krištoffy', NULL, 'ZA', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Jozef Petráš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Juraj Marček', NULL, 'ZDRŽAL SA', 'Uznesenie č. 44/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
@@ -1416,9 +1449,7 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Andrej Rodák', NULL, 'ZA', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Bruno Horecký', NULL, 'ZA', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Dana Žigová', NULL, 'ZA', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
-('Filip Horanský', NULL, 'ZA', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0');
-
-INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
+('Filip Horanský', NULL, 'ZA', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Jozef Krištoffy', NULL, 'ZA', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Jozef Petráš', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Juraj Marček', NULL, 'ZA', 'Uznesenie č. 45/2026: bod 8. – Návrh zmeny rozpočtu mesta Martin na rok 2025', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
@@ -1587,7 +1618,9 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Martin Hudec', NULL, 'ZA', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Martin Lechan', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Martin Lepej', NULL, 'NEHLASOVAL', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
-('Martina Antošová', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
+('Martina Antošová', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0');
+
+INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
 ('Michal Matejička', NULL, 'ZA', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Michal Uherčík', NULL, 'PROTI', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 50/2026: bod 11. – Informatívna správa o výsledku kontrol', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
@@ -1618,9 +1651,7 @@ INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_titl
 ('Martin Hudec', NULL, 'ZA', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Martin Lechan', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Martin Lepej', NULL, 'ZA', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
-('Martina Antošová', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0');
-
-INSERT INTO city_council_votes (councillor_name, district, vote_cast, issue_title, vote_date, source_url) VALUES
+('Martina Antošová', NULL, 'NEPRÍTOMNÝ', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Michal Matejička', NULL, 'ZA', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Michal Uherčík', NULL, 'ZA', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
 ('Milan Ftorek', NULL, 'ZA', 'Uznesenie č. 51/2026: bod 12. – Vyjadrenie podpory festivalu Dotyky a spojenia', '2026-03-26', 'https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-03-2026/ds-2625/archiv=0'),
