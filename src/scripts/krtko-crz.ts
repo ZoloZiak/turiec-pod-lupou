@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 import * as cheerio from 'cheerio';
 import { auditAndNotifyTransaction } from '../lib/telegram';
+import { correctIco } from '../lib/entity-ico-fixes';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
@@ -80,7 +81,12 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
                 icos.push($(el).next('span').text().trim());
               }
             });
-            if (icos.length > 0) realIco = icos[icos.length - 1]; 
+            if (icos.length > 0) realIco = icos[icos.length - 1];
+            // WATCH #253: aplikuj korekciu známych preklepov IČO (zdroj CRZ má typo) UŽ pri
+            // zápise, nielen read-time. Bez toho scraper cez noc znova zakladá orphan entitu
+            // s chybným IČO (napr. Obec Nolčovo 00216822), ktorú audit opakovane maže =
+            // whack-a-mole (11 recidív). correctIco je presná zhoda -> pre IČO mimo mapy no-op.
+            realIco = correctIco(realIco) ?? realIco;
 
             const dateMatch = detailHtml.match(/Dátum zverejnenia:\s*(\d{2})\.(\d{2})\.(\d{4})/i);
             if (dateMatch) {
