@@ -3,6 +3,7 @@
 // (the real dead-link risk; CRZ almost always 200). Catches overnight Krtko-introduced
 // dead links on martin.sk / turiec.com / mestske faktury / nku etc.
 // Usage: node scripts/watch_links_noncrz.js
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // BrainRocket MITM proxy: needed for Supabase fetch
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
