@@ -77,6 +77,12 @@ const ICO_CORRECTIONS: Record<string, string> = {
   '50 513 923 ': '45541329', // EUROPOWER, s. r. o. — Vrútky, RPO+RÚZ (CRZ 12252173 bez IČO dodáv.)
   // WATCH #97 — RPO exact identifier (strip 47431563 = TerramPro s.r.o. Bratislava = cudzí!)
   ' 47431563': '52478424', // RRA, a.s. — Žilina, RPO exact + dlznik.zoznam.sk (CRZ 9000484 bez IČO dodáv.)
+  // WATCH #257 — typo v CRZ 12780443 (Rámcová dohoda 03/JŠ2026, opravy ciest, 929 406,23 €): chýba 0
+  //   na 5. pozícii. POZOR: zero-pad "04612602" v RPO ŠÚ SR NEEXISTUJE (rovnaká pasca ako strip);
+  //   reálne IČO = 46120602 (RPO fullName "Metrostav DS" -> identifier 46120602, Košická 17180/49
+  //   Bratislava-Ružinov = zhoda s CRZ adresou; RÚZ id 1129902). 7-miestne -> guard isValidIco()
+  //   ho držal bez web linkov, correctIco ho teraz opraví aj na write-path (Krtko nezaloží orphan).
+  '4612602': '46120602', // Metrostav DS a.s. — CRZ 12780443 (typo, NIE zero-pad 04612602!)
 };
 
 /** Vráti opravené IČO, ak je vstupné IČO známy preklep; inak vráti pôvodné IČO nezmenené. */
