@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck } from "lucide-react";
+import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 import InfoIcon from "./components/InfoIcon";
@@ -127,6 +127,10 @@ export default function Dashboard() {
 
           {/* DESKTOP BUTTONS */}
           <div className="hidden md:flex gap-4 items-center">
+            <Link href="/analyzy" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 px-4 py-2 rounded-lg text-emerald-400 border border-emerald-500/20 transition-all flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" aria-hidden="true" />
+              Analýzy
+            </Link>
             <Link href="/slubomer" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-lg text-amber-400 border border-amber-500/20 transition-all flex items-center gap-2">
               <Lightbulb className="w-4 h-4" aria-hidden="true" />
               Sľubomer
@@ -156,6 +160,10 @@ export default function Dashboard() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-line bg-card px-4 py-4 space-y-4 shadow-lg absolute w-full left-0 max-h-[calc(100vh-4rem)] overflow-y-auto z-30">
              <div className="flex flex-col gap-2">
+               <a href="/analyzy" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-4 py-2.5 rounded-lg text-emerald-400 transition-colors flex items-center justify-center gap-2">
+                 <TrendingUp className="w-4 h-4" aria-hidden="true" />
+                 Analýzy
+               </a>
                <a href="/slubomer" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2.5 rounded-lg text-amber-400 transition-colors flex items-center justify-center gap-2">
                  <Lightbulb className="w-4 h-4" aria-hidden="true" />
                  Sľubomer
@@ -275,7 +283,12 @@ export default function Dashboard() {
             {/* Z-DYKTY NAVIGAČNÝ HUB */}
             <div className="mt-12 mb-12 border-t border-line pt-8">
               <h2 className="text-sm font-bold uppercase tracking-widest mb-6 text-muted">Verejná kontrola</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <Link href="/analyzy" className="group h-full block">
+                  <SpotlightCard className="bg-card border border-line p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(16, 185, 129, 0.15)">
+                    <span className="font-bold text-lg text-body group-hover:text-emerald-400 transition-colors">Analýzy a anomálie</span>
+                  </SpotlightCard>
+                </Link>
                 <Link href="/podniky" className="group h-full block">
                   <SpotlightCard className="bg-card border border-line p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(16, 185, 129, 0.15)">
                     <span className="font-bold text-lg text-body group-hover:text-emerald-400 transition-colors">Mestské podniky</span>

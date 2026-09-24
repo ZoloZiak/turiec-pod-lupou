@@ -33,3 +33,21 @@ Vytvorenie a naplnenie 4 nových modulov reálnymi dátami prostredníctvom Krtk
 - [x] 7.2 Kontroly NKÚ SR (Protokoly)
 - [x] 7.3 Eurofondy a Dotácie (ITMS2014+ / Plán obnovy)
 - [x] 7.4 Hlasovania Poslancov MsZ
+
+## ✅ Fáza 8: Analýzy a anomálie (`/analyzy`) — inšpirácia z-dykty.pl "Analizy" + Hlídač K-Index
+Nová stránka `/analyzy` (client, číta existujúce `/api/data`, žiadny nový scraper ani endpoint).
+Všetko read-only nad DB, transparentná metodika, žiadne hodnotiace tvrdenia bez dokladu.
+- [x] **Vývoj výdavkov v čase** — area chart výdavkov po rokoch (2021–2026).
+- [x] **Koncoročný zhon (December)** — % ročných výdavkov zazmluvnených v decembri (2023 = 44 %!).
+- [x] **Index rizikových vzorcov** per organizácia — HHI koncentrácia dodávateľov (55) + december zhon
+      (30) + podiel veľkých zmlúv nad 100k (15), škála 0–100. Explicitne označené ako štatistický
+      ukazovateľ, NIE dôkaz pochybenia; organizácie s <20 zmluvami = "málo dát" (bez skóre).
+- [x] **Feed anomálií "Čo vyskočilo z dát"** — auto-generované fakty (najväčšia zmluva, najhorší
+      december, najvyššia koncentrácia, veľký jednorazový dodávateľ), každý s odkazom na CRZ/profil.
+- [x] Zapojené do navigácie: desktop header, mobilné menu, hub "Verejná kontrola".
+- [x] Overené naživo (lint 0, HTTP 200, render s reálnymi dátami; čísla sedia s Python cross-checkom).
+
+### FLAG (nesúvisí s fázou 8, ale nájdené pri behu):
+- `/slubomer` hádže Supabase `PGRST303: JWT issued at future` → clock-skew na Macu (hodiny idú
+  dopredu oproti Supabase). Sľubomer preto ticho padne na prázdno. Riešiť NTP synchronizáciou
+  alebo toleranciou clock-skew pri tvorbe klienta.
