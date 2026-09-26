@@ -86,42 +86,57 @@ export default function AnalyzyPage() {
     });
 
     // 3) INDEX per mestská organizácia (buyer je sledovaný subjekt)
+    // KĽÚČOVÉ: rozlíš IN-HOUSE (dodávateľ = iný mestský podnik) od EXTERNÝCH.
+    // Koncentrácia u vlastného podniku je legitímny vnútromestský transfer, NIE riziko —
+    // HHI preto rátame LEN z externých dodávateľov.
     type OrgAgg = {
       ico: string; name: string; total: number; count: number; dec: number; big: number;
-      suppliers: Map<string, number>;
+      extTotal: number; inhouseTotal: number;
+      extSuppliers: Map<string, number>;
     };
     const orgs = new Map<string, OrgAgg>();
     for (const t of expenses) {
       const b = t.buyer;
       if (!b || !entityIcos.has(b.ico)) continue;
-      const o = orgs.get(b.ico) || { ico: b.ico, name: b.name, total: 0, count: 0, dec: 0, big: 0, suppliers: new Map() };
+      const o = orgs.get(b.ico) || { ico: b.ico, name: b.name, total: 0, count: 0, dec: 0, big: 0, extTotal: 0, inhouseTotal: 0, extSuppliers: new Map() };
       const amt = num(t.amount_eur);
       o.total += amt;
       o.count += 1;
       if (t.date_published?.slice(5, 7) === "12") o.dec += amt;
       if (amt >= 100000) o.big += 1;
-      if (t.supplier) o.suppliers.set(t.supplier.name, (o.suppliers.get(t.supplier.name) || 0) + amt);
+      const isInhouse = t.supplier && entityIcos.has(t.supplier.ico);
+      if (isInhouse) {
+        o.inhouseTotal += amt;
+      } else if (t.supplier) {
+        o.extTotal += amt;
+        o.extSuppliers.set(t.supplier.name, (o.extSuppliers.get(t.supplier.name) || 0) + amt);
+      }
       orgs.set(b.ico, o);
     }
     const orgIndex = [...orgs.values()]
       .filter((o) => o.total > 0)
       .map((o) => {
-        // HHI koncentrácie dodávateľov (0–1); vyšší = menšia súťaž.
-        const hhi = [...o.suppliers.values()].reduce((s, v) => s + Math.pow(v / o.total, 2), 0);
+        // HHI koncentrácie LEN externých dodávateľov (0–1); vyšší = menšia súťaž.
+        const hhi = o.extTotal > 0
+          ? [...o.extSuppliers.values()].reduce((s, v) => s + Math.pow(v / o.extTotal, 2), 0)
+          : 0;
         const decShare = o.total ? o.dec / o.total : 0;
         const bigShare = o.count ? o.big / o.count : 0;
+        const inhouseShare = o.total ? o.inhouseTotal / o.total : 0;
         // Index rizikových vzorcov 0–100 (transparentná lin. kombinácia; NIE obvinenie).
         const score = Math.round(Math.min(100, hhi * 55 + decShare * 30 + bigShare * 15));
-        const topSupplier = [...o.suppliers.entries()].sort((a, b) => b[1] - a[1])[0] || ["—", 0];
+        const topSupplier = [...o.extSuppliers.entries()].sort((a, b) => b[1] - a[1])[0] || ["—", 0];
         return {
           ...o,
           hhi,
           decShare: decShare * 100,
           bigShare: bigShare * 100,
+          inhouseShare: inhouseShare * 100,
           score,
           topSupplierName: topSupplier[0],
-          topSupplierShare: o.total ? (topSupplier[1] / o.total) * 100 : 0,
-          enoughData: o.count >= MIN_TX_FOR_INDEX,
+          topSupplierShare: o.extTotal ? (topSupplier[1] / o.extTotal) * 100 : 0,
+          // Index má zmysel len keď má org dosť EXTERNÝCH zmlúv (in-house netreba súťažiť).
+          enoughData: o.extSuppliers.size > 0 && o.count >= MIN_TX_FOR_INDEX,
         };
       })
       .sort((a, b) => b.total - a.total);
@@ -157,13 +172,13 @@ export default function AnalyzyPage() {
       });
     }
 
-    // 4c) najkoncentrovanejšia organizácia (s dostatkom dát)
+    // 4c) najkoncentrovanejšia organizácia u EXTERNÝCH dodávateľov (s dostatkom dát)
     const mostConcentrated = orgIndex.filter((o) => o.enoughData).sort((a, b) => b.hhi - a.hhi)[0];
-    if (mostConcentrated) {
+    if (mostConcentrated && mostConcentrated.topSupplierShare >= 30) {
       anomalies.push({
         icon: "concentration",
-        title: "Najvyššia koncentrácia dodávateľov",
-        detail: `${mostConcentrated.name}: ${mostConcentrated.topSupplierShare.toFixed(0)} % výdavkov smeruje k jednému dodávateľovi (${mostConcentrated.topSupplierName}). Nižšia súťaž — nemusí byť pochybenie, ale stojí za pozornosť.`,
+        title: "Najvyššia koncentrácia externých dodávateľov",
+        detail: `${mostConcentrated.name}: ${mostConcentrated.topSupplierShare.toFixed(0)} % externých výdavkov smeruje k jednému súkromnému dodávateľovi (${mostConcentrated.topSupplierName}). Nižšia súťaž — nemusí byť pochybenie, ale stojí za pozornosť. Zmluvy s vlastnými mestskými podnikmi sa do tohto čísla nerátajú.`,
       });
     }
 
@@ -317,10 +332,14 @@ export default function AnalyzyPage() {
                 <Info className="w-5 h-5 shrink-0 mt-0.5 text-amber-400" aria-hidden="true" />
                 <div>
                   <strong className="text-body">Ako čítať index:</strong> 0–100, kde vyššie číslo znamená viac
-                  rizikových vzorcov v <em>štruktúre</em> zmlúv organizácie. Skladá sa z koncentrácie dodávateľov
-                  (HHI, váha 55), koncoročného zhonu (30) a podielu veľkých zmlúv nad 100&nbsp;tis.&nbsp;€ (15).
+                  rizikových vzorcov v <em>štruktúre</em> zmlúv organizácie. Skladá sa z koncentrácie
+                  <strong className="text-body"> externých</strong> dodávateľov (HHI, váha 55), koncoročného zhonu (30)
+                  a podielu veľkých zmlúv nad 100&nbsp;tis.&nbsp;€ (15). Zmluvy medzi mestom a jeho vlastnými
+                  podnikmi (in-house) sú z koncentrácie <strong className="text-body">vylúčené</strong> — je to
+                  legitímny vnútromestský transfer, nie znak nižšej súťaže.
                   <span className="text-amber-300"> Toto NIE je dôkaz pochybenia</span> — je to štatistický ukazovateľ
-                  na ďalšie skúmanie. Organizácie s menej než {MIN_TX_FOR_INDEX} zmluvami sú označené ako „málo dát“.
+                  na ďalšie skúmanie. Organizácie bez externých zmlúv alebo s menej než {MIN_TX_FOR_INDEX} zmluvami
+                  index nedostávajú („málo dát“).
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -329,7 +348,8 @@ export default function AnalyzyPage() {
                     <tr>
                       <th className="px-3 py-3 font-medium">Organizácia</th>
                       <th className="px-3 py-3 font-medium text-right">Výdavky</th>
-                      <th className="px-3 py-3 font-medium text-right">Koncentrácia</th>
+                      <th className="px-3 py-3 font-medium text-right">In-house</th>
+                      <th className="px-3 py-3 font-medium text-right">Koncentr. (ext.)</th>
                       <th className="px-3 py-3 font-medium text-right">Zhon XII</th>
                       <th className="px-3 py-3 font-medium text-right">Veľké zml.</th>
                       <th className="px-3 py-3 font-medium text-right">Index</th>
@@ -345,12 +365,13 @@ export default function AnalyzyPage() {
                           <td className="px-3 py-3">
                             <div className="font-semibold text-body">{o.name}</div>
                             <div className="text-xs text-muted mt-0.5">
-                              {o.count} zmlúv · top: {o.topSupplierName} ({o.topSupplierShare.toFixed(0)} %)
+                              {o.count} zmlúv{o.topSupplierName !== "—" && <> · top ext.: {o.topSupplierName} ({o.topSupplierShare.toFixed(0)} %)</>}
                               {!o.enoughData && <span className="ml-2 text-amber-400">· málo dát</span>}
                             </div>
                           </td>
                           <td className="px-3 py-3 text-right font-mono text-body">{formatEur(o.total)}</td>
-                          <td className="px-3 py-3 text-right font-mono text-muted">{o.hhi.toFixed(2)}</td>
+                          <td className="px-3 py-3 text-right font-mono text-muted">{o.inhouseShare >= 1 ? `${o.inhouseShare.toFixed(0)} %` : "—"}</td>
+                          <td className="px-3 py-3 text-right font-mono text-muted">{o.enoughData ? o.hhi.toFixed(2) : "—"}</td>
                           <td className="px-3 py-3 text-right font-mono text-muted">{o.decShare.toFixed(0)} %</td>
                           <td className="px-3 py-3 text-right font-mono text-muted">{o.big}</td>
                           <td className="px-3 py-3 text-right">
