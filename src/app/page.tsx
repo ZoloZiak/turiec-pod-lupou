@@ -87,10 +87,18 @@ export default function Dashboard() {
     new Set(data?.transactions?.map((t: Tx) => new Date(t.date_published).getFullYear()).filter(Boolean))
   ).sort((a, b) => (b as number) - (a as number));
 
+  // Počty nálezov pre "Rýchly audit" tlačidlá (celý dataset, nezávisle od aktuálneho filtra) —
+  // nahrádza samostatné /upozornenia; číslo v tlačidle = koľko zákaziek spĺňa daný red-flag.
+  const auditCounts = {
+    high_amount: data?.transactions?.filter((t: Tx) => !t.is_income && t.amount_eur >= 100000).length || 0,
+    missing_contract: data?.transactions?.filter((t: Tx) => t.suspicious).length || 0,
+    december: data?.transactions?.filter((t: Tx) => new Date(t.date_published).getMonth() === 11).length || 0,
+  };
+
   // Compute filtered transactions
   const filteredTransactions = data?.transactions?.filter((t: Tx) => {
     if (selectedSupplierName && t.supplier?.name !== selectedSupplierName) return false;
-    if (redFlagFilter === 'high_amount' && t.amount_eur < 100000) return false;
+    if (redFlagFilter === 'high_amount' && (t.is_income || t.amount_eur < 100000)) return false;
     if (redFlagFilter === 'missing_contract' && !t.suspicious) return false;
     if (redFlagFilter === 'december' && new Date(t.date_published).getMonth() !== 11) return false;
     if (sourceTypeFilter !== 'all' && t.source_type !== sourceTypeFilter) return false;
@@ -141,10 +149,6 @@ export default function Dashboard() {
               <ShieldAlert className="w-4 h-4" aria-hidden="true" />
               Majetky
             </Link>
-            <Link href="/upozornenia" className="text-sm font-medium bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-lg text-red-400 border border-red-500/20 transition-all flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" aria-hidden="true" />
-              Upozornenia
-            </Link>
             <Link href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated px-4 py-2 rounded-lg text-body border border-line transition-all">
               Administrácia
             </Link>
@@ -173,10 +177,6 @@ export default function Dashboard() {
                <a href="/majetky" className="text-sm font-medium bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 px-4 py-2.5 rounded-lg text-indigo-400 transition-colors flex items-center justify-center gap-2">
                  <ShieldAlert className="w-4 h-4" aria-hidden="true" />
                  Majetky
-               </a>
-               <a href="/upozornenia" className="text-sm font-medium bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-4 py-2.5 rounded-lg text-red-400 transition-colors flex items-center justify-center gap-2">
-                 <AlertTriangle className="w-4 h-4" aria-hidden="true" />
-                 Upozornenia
                </a>
                <a href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated border border-line px-4 py-2.5 rounded-lg text-body transition-colors text-center">
                  Administrácia
@@ -452,6 +452,7 @@ export default function Dashboard() {
                     >
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
                       Zmluvy nad 100 000 €
+                      {auditCounts.high_amount > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold tabular-nums">{auditCounts.high_amount}</span>}
                     </button>
                     <button
                       onClick={() => { setRedFlagFilter('missing_contract'); setCurrentPage(1); }}
@@ -459,6 +460,7 @@ export default function Dashboard() {
                     >
                       <ShieldAlert className="w-3.5 h-3.5 text-red-400" aria-hidden="true" />
                       Chýba zmluva v CRZ
+                      {auditCounts.missing_contract > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold tabular-nums">{auditCounts.missing_contract}</span>}
                     </button>
                     <button
                       onClick={() => { setRedFlagFilter('december'); setCurrentPage(1); }}
@@ -466,6 +468,7 @@ export default function Dashboard() {
                     >
                       <Calendar className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
                       Koncoročný zhonec (December)
+                      {auditCounts.december > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold tabular-nums">{auditCounts.december}</span>}
                     </button>
                   </div>
 
