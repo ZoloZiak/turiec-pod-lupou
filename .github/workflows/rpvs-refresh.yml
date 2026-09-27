@@ -1,0 +1,47 @@
+name: RPVS Status Refresh
+
+# Precompute stavu dodávateľov v Registri partnerov verejného sektora (RPVS)
+# pre audit "zákazky nad 100k bez RPVS". Beží v cloude nezávisle od lokálneho Macu.
+# Prečo precompute a nie živý fetch: rpvs.gov.sk je pri paralelných dopytoch nespoľahlivý
+# (timeouty) → živý audit by dával nedeterministický výsledok. Skript overí kandidátov
+# sekvenčne (spoľahlivo) a commitne výsledok do repa; Vercel ho potom deployne.
+
+on:
+  schedule:
+    # Každý pondelok o 03:00 UTC (RPVS sa nemení denne; nekoliduje s krtko o 02:00)
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    # Manuálne spustenie z GitHub Actions tabu
+
+# Auto-commit výsledku späť do repa vyžaduje zápisové právo na obsah
+permissions:
+  contents: write
+
+jobs:
+  refresh-rpvs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Refresh RPVS status (z produkčného /api/data)
+        run: node scripts/build_rpvs_status.js https://turiec-pod-lupou.vercel.app
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/rpvs-status.json
+          if git diff --staged --quiet; then
+            echo "RPVS stav bez zmeny — nič sa necommituje."
+          else
+            git commit -m "chore(rpvs): automatická obnova RPVS stavu [skip ci]"
+            git push
+            echo "RPVS stav aktualizovaný a pushnutý."
+          fi
