@@ -13,6 +13,7 @@
     "krtko:all": "npm run krtko && npm run krtko:pdf && npm run krtko:audit",
     "scrape": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/scraper-invoices.ts",
     "krtko:dpm": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/krtko-dpm.ts",
+    "krtko:egov": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/krtko-egov.ts",
     "sync:nku": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_nku.js",
     "sync:eurofondy": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_eurofondy.js",
     "sync:companies": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_companies.js",

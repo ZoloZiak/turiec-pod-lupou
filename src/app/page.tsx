@@ -555,9 +555,9 @@ export default function Dashboard() {
                     <div>
                       <p className="font-semibold text-red-300 mb-0.5">Faktúry od dodávateľov bez zverejnenej zmluvy v CRZ</p>
                       {auditCounts.missing_contract > 0 ? (
-                        <p className="text-muted">Nájdených <span className="font-bold text-red-300">{auditCounts.missing_contract}</span> faktúr od dodávateľov, ktorí <span className="font-semibold text-body">nemajú žiadnu zmluvu v Centrálnom registri zmlúv</span>. Zobrazené sú len významné prípady — jednotlivá faktúra od <span className="font-semibold text-body">3 000 €</span> alebo od dodávateľa s faktúrami spolu nad <span className="font-semibold text-body">5 000 €</span>; drobné priebežné nákupy (servis) zmluvu zo zákona mať nemusia. Faktúra bez zmluvy môže znamenať obídenie povinnosti zverejniť zmluvu — treba overiť.</p>
+                        <p className="text-muted">Nájdených <span className="font-bold text-red-300">{auditCounts.missing_contract}</span> faktúr <span className="font-semibold text-body">nad 10 000 €</span> od dodávateľov, ktorí <span className="font-semibold text-body">nemajú žiadnu zmluvu v Centrálnom registri zmlúv</span>. Jedna platba tejto výšky bez zverejnenej zmluvy je konkrétny otáznik — pri plnení nad limity zákon zverejnenie zmluvy vyžaduje. Drobné priebežné nákupy (servis, réžia) sme zámerne vynechali, aby zostali len reálne prípady. Zdroj faktúr: portál zverejňovania mesta Martin a Dopravného podniku.</p>
                       ) : (
-                        <p className="text-muted">Žiadna významná faktúra od dodávateľa bez zmluvy v CRZ. Zdroj faktúr: portál zverejňovania Dopravného podniku mesta Martin.</p>
+                        <p className="text-muted">Žiadna faktúra nad 10 000 € od dodávateľa bez zmluvy v CRZ. Zdroj faktúr: portál zverejňovania mesta Martin a Dopravného podniku.</p>
                       )}
                     </div>
                   </div>

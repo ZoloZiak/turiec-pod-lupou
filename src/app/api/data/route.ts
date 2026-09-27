@@ -124,16 +124,13 @@ export async function GET(request: Request) {
         .map((t) => t.supplier!.ico)
     );
 
-    // Predpočet: kumulatívny objem faktúr (WEB_INVOICE) per dodávateľ, ktorý NEMÁ zmluvu v CRZ.
-    // Slúži na prahovanie auditu "faktúra bez zmluvy" — drobné priebežné nákupy (servis) nie sú
-    // porušenie, červenú vlajku dvíhame len pri významných sumách (viď enrichment nižšie).
-    const invoiceSumByIco = new Map<string, number>();
-    for (const t of transactions) {
-      if (t.source_type === 'WEB_INVOICE' && t.supplier && !crzSuppliers.has(t.supplier.ico)) {
-        const prev = invoiceSumByIco.get(t.supplier.ico) || 0;
-        invoiceSumByIco.set(t.supplier.ico, prev + (Number(t.amount_eur) || 0));
-      }
-    }
+    // Predpočet už nie je potrebný pre kumulatívny prah — audit používa jednotlivú sumu.
+    // (ponechané prázdne miesto zámerne; pozri enrichment nižšie)
+
+    // Interné / verejné subjekty, ktoré NIE sú "dodávateľ bez zmluvy" v pravom zmysle:
+    // samotné mesto (vnútorný transfer), mestské podniky a monopolní správcovia sietí.
+    // Ich faktúra bez CRZ zmluvy nie je red flag (rámcové/zákonné vzťahy).
+    const INTERNAL_SUPPLIER = /mesto martin|dopravný podnik|brantner|stefe|turvod|vodárensk|slovak telekom|slovenská pošta|slovenský plynárensk|stredoslovenská|východoslovenská|západoslovenská|orange slovensk|o2 slovakia/i;
 
     const enrichedTransactions = filteredTransactions.map((t) => {
       // Preferuj DB stlpec direction (rucne admin rozhodnutia) pred INCOME_TX_IDS.
@@ -144,15 +141,14 @@ export async function GET(request: Request) {
       // Príjmy (NFP/dotácie od štátu) nikdy neoznačujeme červenou vlajkou —
       // druhá strana je ministerstvo/agentúra, nie dodávateľ mesta.
       if (!is_income && t.source_type === 'WEB_INVOICE' && t.supplier) {
-        // Faktúra od dodávateľa, ktorý NEMÁ žiadnu zmluvu v CRZ. Ale flag dvíhame len pri
-        // významnej sume — jednotlivá faktúra ≥ 3 000 € ALEBO kumulatívne od toho dodávateľa
-        // ≥ 5 000 €. Drobné priebežné nákupy (napr. servis) zmluvu zo zákona mať nemusia.
-        if (!crzSuppliers.has(t.supplier.ico)) {
-          const singleBig = (Number(t.amount_eur) || 0) >= 3000;
-          const cumulativeBig = (invoiceSumByIco.get(t.supplier.ico) || 0) >= 5000;
-          if (singleBig || cumulativeBig) {
-            suspicious = true;
-          }
+        // RED FLAG: jednotlivá faktúra ≥ 10 000 € od dodávateľa, ktorý NEMÁ žiadnu zmluvu v CRZ.
+        // Prah je data-driven (kalibrované na reálnych dátach): nižšie hodnoty vytvárali šum
+        // z bežných priebežných nákupov (servis áut, drobné dodávky), ktoré zmluvu zo zákona
+        // mať nemusia. Jedna platba nad 10k € bez zverejnenej zmluvy je konkrétny otáznik.
+        // Interné subjekty a monopolných správcov sietí (energie, telco) vylučujeme.
+        const amt = Number(t.amount_eur) || 0;
+        if (amt >= 10000 && !crzSuppliers.has(t.supplier.ico) && !INTERNAL_SUPPLIER.test(t.supplier.name)) {
+          suspicious = true;
         }
       }
       const superseded = supersededIds.has(t.id);
