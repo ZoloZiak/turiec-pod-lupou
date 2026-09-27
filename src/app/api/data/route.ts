@@ -124,6 +124,17 @@ export async function GET(request: Request) {
         .map((t) => t.supplier!.ico)
     );
 
+    // Predpočet: kumulatívny objem faktúr (WEB_INVOICE) per dodávateľ, ktorý NEMÁ zmluvu v CRZ.
+    // Slúži na prahovanie auditu "faktúra bez zmluvy" — drobné priebežné nákupy (servis) nie sú
+    // porušenie, červenú vlajku dvíhame len pri významných sumách (viď enrichment nižšie).
+    const invoiceSumByIco = new Map<string, number>();
+    for (const t of transactions) {
+      if (t.source_type === 'WEB_INVOICE' && t.supplier && !crzSuppliers.has(t.supplier.ico)) {
+        const prev = invoiceSumByIco.get(t.supplier.ico) || 0;
+        invoiceSumByIco.set(t.supplier.ico, prev + (Number(t.amount_eur) || 0));
+      }
+    }
+
     const enrichedTransactions = filteredTransactions.map((t) => {
       // Preferuj DB stlpec direction (rucne admin rozhodnutia) pred INCOME_TX_IDS.
       const is_income = hasDirectionColumn && t.direction
@@ -133,9 +144,15 @@ export async function GET(request: Request) {
       // Príjmy (NFP/dotácie od štátu) nikdy neoznačujeme červenou vlajkou —
       // druhá strana je ministerstvo/agentúra, nie dodávateľ mesta.
       if (!is_income && t.source_type === 'WEB_INVOICE' && t.supplier) {
-        // Skontrolujeme, či dodávateľ má vôbec nejakú zmluvu v CRZ
+        // Faktúra od dodávateľa, ktorý NEMÁ žiadnu zmluvu v CRZ. Ale flag dvíhame len pri
+        // významnej sume — jednotlivá faktúra ≥ 3 000 € ALEBO kumulatívne od toho dodávateľa
+        // ≥ 5 000 €. Drobné priebežné nákupy (napr. servis) zmluvu zo zákona mať nemusia.
         if (!crzSuppliers.has(t.supplier.ico)) {
-          suspicious = true;
+          const singleBig = (Number(t.amount_eur) || 0) >= 3000;
+          const cumulativeBig = (invoiceSumByIco.get(t.supplier.ico) || 0) >= 5000;
+          if (singleBig || cumulativeBig) {
+            suspicious = true;
+          }
         }
       }
       const superseded = supersededIds.has(t.id);
@@ -149,13 +166,22 @@ export async function GET(request: Request) {
 
     // Výdavky = všetko okrem príjmov (NFP/dotácie mestu). Príjmy sčítame zvlášť.
     // Sumy rátame z effective_amount_eur (superseded dodatky = 0, viď contract-amendments).
+    //
+    // DÔLEŽITÉ — žiadne dvojité počítanie: hlavné peňažné súčty (totalSpent, top dodávatelia)
+    // rátame LEN z CRZ zmlúv. Faktúry (WEB_INVOICE) sú platby ČASTO V RÁMCI existujúcej zmluvy;
+    // sčítať zmluvy + faktúry by nafúklo objem (tá istá data-pasca ako kumulatívne dodatky).
+    // Faktúry sú samostatná transparentná vrstva (zobrazené v zozname, cross-check na chýbajúcu
+    // zmluvu), nie sčítavajú sa do "objemu zmlúv".
     const expenseTx = enrichedTransactions.filter((t) => !t.is_income);
     const incomeTx = enrichedTransactions.filter((t) => t.is_income);
-    const totalSpent = expenseTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
+    const contractExpenseTx = expenseTx.filter((t) => t.source_type === 'CRZ_CONTRACT');
+    const invoiceTx = expenseTx.filter((t) => t.source_type === 'WEB_INVOICE');
+    const totalSpent = contractExpenseTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
     const totalIncome = incomeTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
+    const totalInvoiced = invoiceTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
 
-    // Top dodávatelia (Sumár výdavkov podľa dodávateľa) — bez príjmov (tam je "dodávateľ" štát).
-    const supplierAgg = expenseTx.reduce((acc: Record<string, number>, curr) => {
+    // Top dodávatelia (Sumár výdavkov podľa dodávateľa) — len CRZ zmluvy, bez príjmov aj faktúr.
+    const supplierAgg = contractExpenseTx.reduce((acc: Record<string, number>, curr) => {
       if (!curr.supplier) return acc;
       const supplierName = curr.supplier.name;
       if (!acc[supplierName]) {
@@ -175,7 +201,9 @@ export async function GET(request: Request) {
       stats: {
         totalSpent,
         totalIncome,
-        totalContracts: expenseTx.length,
+        totalInvoiced,
+        totalContracts: contractExpenseTx.length,
+        invoiceCount: invoiceTx.length,
         incomeCount: incomeTx.length,
         entitiesCount: entities?.length || 0,
       },

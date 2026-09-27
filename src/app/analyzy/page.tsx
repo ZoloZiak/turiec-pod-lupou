@@ -64,8 +64,10 @@ export default function AnalyzyPage() {
   const analysis = useMemo(() => {
     if (!data) return null;
     const entityIcos = new Set(data.entities.map((e) => e.ico));
-    // Výdavky = všetko okrem príjmov (NFP/dotácie mestu).
-    const expenses = data.transactions.filter((t) => !t.is_income);
+    // Výdavky pre analýzy = CRZ ZMLUVY okrem príjmov. Faktúry (WEB_INVOICE) sú samostatná
+    // vrstva a NErátame ich do trendov/koncentrácie/HHI — boli by dvojité počítanie (faktúra
+    // je platba často v rámci zmluvy, ktorá už je započítaná). Analýzy sú o zmluvách mesta.
+    const expenses = data.transactions.filter((t) => !t.is_income && t.source_type === "CRZ_CONTRACT");
 
     // 1) TREND po rokoch
     const yearMap = new Map<string, { total: number; count: number }>();

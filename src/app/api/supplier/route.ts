@@ -110,11 +110,18 @@ export async function GET(request: Request) {
     );
 
     // Calculate stats — sumy z efektívnej sumy (superseded dodatky = 0).
+    // totalAmount = LEN objem zmlúv (CRZ). Faktúry (WEB_INVOICE) sčítame zvlášť do totalInvoiced,
+    // aby sa nezdvojovali (faktúra je platba často v rámci zmluvy). Trend graf = objem zmlúv.
     let totalAmount = 0;
+    let totalInvoiced = 0;
     const yearlyVolume: Record<string, number> = {};
 
     dedupTransactions?.forEach(t => {
       const amount = supersededIds.has(t.id) ? 0 : (Number(t.amount_eur) || 0);
+      if (t.source_type === 'WEB_INVOICE') {
+        totalInvoiced += amount;
+        return;
+      }
       totalAmount += amount;
       const year = new Date(t.date_published).getFullYear().toString();
       yearlyVolume[year] = (yearlyVolume[year] || 0) + amount;
@@ -136,6 +143,7 @@ export async function GET(request: Request) {
       })),
       stats: {
         totalAmount,
+        totalInvoiced,
         totalCount: dedupTransactions?.length || 0,
         chartData
       }

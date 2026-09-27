@@ -34,7 +34,7 @@ type Tx = {
 type SupplierAgg = { name: string; value: number };
 type DashboardData = {
   success: boolean;
-  stats: { totalSpent: number; totalIncome: number; totalContracts: number; incomeCount: number; entitiesCount: number };
+  stats: { totalSpent: number; totalIncome: number; totalInvoiced: number; totalContracts: number; invoiceCount: number; incomeCount: number; entitiesCount: number };
   topSuppliers: SupplierAgg[];
   transactions: Tx[];
   entities: Entity[];
@@ -91,13 +91,13 @@ export default function Dashboard() {
   // Počty nálezov pre "Rýchly audit" tlačidlá (celý dataset, nezávisle od aktuálneho filtra) —
   // nahrádza samostatné /upozornenia; číslo v tlačidle = koľko zákaziek spĺňa daný red-flag.
   const auditCounts = {
-    high_amount: data?.transactions?.filter((t: Tx) => !t.is_income && t.amount_eur >= 100000).length || 0,
+    high_amount: data?.transactions?.filter((t: Tx) => !t.is_income && t.source_type === 'CRZ_CONTRACT' && t.amount_eur >= 100000).length || 0,
     missing_contract: data?.transactions?.filter((t: Tx) => t.suspicious).length || 0,
-    december: data?.transactions?.filter((t: Tx) => new Date(t.date_published).getMonth() === 11).length || 0,
+    december: data?.transactions?.filter((t: Tx) => t.source_type === 'CRZ_CONTRACT' && new Date(t.date_published).getMonth() === 11).length || 0,
     // počet zákaziek (transakcií) nad 100k, kde dodávateľ NIE je v RPVS a nemá výnimku;
     // číta sa z precomputed t.rpvs_status ('not_registered' = potvrdene mimo registra)
     missing_rpvs: data?.transactions?.filter((t: Tx) =>
-      !t.is_income && !t.superseded && t.amount_eur >= 100000 &&
+      !t.is_income && !t.superseded && t.source_type === 'CRZ_CONTRACT' && t.amount_eur >= 100000 &&
       t.rpvs_status === 'not_registered'
     ).length || 0,
   };
@@ -105,13 +105,13 @@ export default function Dashboard() {
   // Compute filtered transactions
   const filteredTransactions = data?.transactions?.filter((t: Tx) => {
     if (selectedSupplierName && t.supplier?.name !== selectedSupplierName) return false;
-    if (redFlagFilter === 'high_amount' && (t.is_income || t.amount_eur < 100000)) return false;
+    if (redFlagFilter === 'high_amount' && (t.is_income || t.source_type !== 'CRZ_CONTRACT' || t.amount_eur < 100000)) return false;
     if (redFlagFilter === 'missing_contract' && !t.suspicious) return false;
     if (redFlagFilter === 'missing_rpvs' && !(
-      !t.is_income && !t.superseded && t.amount_eur >= 100000 &&
+      !t.is_income && !t.superseded && t.source_type === 'CRZ_CONTRACT' && t.amount_eur >= 100000 &&
       t.rpvs_status === 'not_registered'
     )) return false;
-    if (redFlagFilter === 'december' && new Date(t.date_published).getMonth() !== 11) return false;
+    if (redFlagFilter === 'december' && !(t.source_type === 'CRZ_CONTRACT' && new Date(t.date_published).getMonth() === 11)) return false;
     if (sourceTypeFilter !== 'all' && t.source_type !== sourceTypeFilter) return false;
     if (selectedYear !== 'all' && new Date(t.date_published).getFullYear().toString() !== selectedYear) return false;
 
@@ -249,7 +249,7 @@ export default function Dashboard() {
             
             {/* LICZBA-BOHATER (Hero Stat) */}
             <SpotlightCard className="bg-card border border-line rounded-3xl p-6 sm:p-10 flex flex-col items-center justify-center text-center mb-8 shadow-2xl" glowColor="rgba(16, 185, 129, 0.2)">
-              <p className="text-emerald-300 font-bold uppercase tracking-widest text-xs sm:text-sm mb-4">Celkové výdavky mesta a podnikov (zmluvy a faktúry)</p>
+              <p className="text-emerald-300 font-bold uppercase tracking-widest text-xs sm:text-sm mb-4">Celkové výdavky mesta a podnikov (zmluvy v CRZ)</p>
               <div className="w-full text-[2rem] leading-tight sm:text-6xl md:text-8xl font-black text-body font-mono tracking-tight sm:tracking-tighter break-words drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]">
                 <NumberFlow 
                   value={data.stats.totalSpent} 
@@ -257,6 +257,11 @@ export default function Dashboard() {
                   format={{ style: "currency", currency: "EUR", maximumFractionDigits: 0 }} 
                 />
               </div>
+              {data.stats.totalInvoiced > 0 && (
+                <p className="mt-3 text-xs sm:text-sm text-muted">
+                  + {formatEur(data.stats.totalInvoiced)} vo faktúrach ({data.stats.invoiceCount?.toLocaleString('sk-SK')} ks) — samostatná vrstva, nesčítava sa so zmluvami
+                </p>
+              )}
               <div className="mt-6 flex items-center gap-3 text-muted text-sm">
                 <span className="flex items-center gap-1"><CheckCircle className="w-4 h-4 text-emerald-500" /> Živé dáta</span>
                 <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Overené CRZ</span>
@@ -538,6 +543,21 @@ export default function Dashboard() {
                         <p className="text-muted">Nájdených <span className="font-bold text-rose-300">{auditCounts.missing_rpvs}</span> zákaziek, kde dodávateľ <span className="font-semibold text-body">nie je zapísaný v RPVS</span> a nemá zákonnú výnimku (§ 2 ods. 3 zákona č. 315/2016 Z. z.). Zápis v RPVS je pri plnení nad 100 000 € povinný — chýbajúci zápis môže znamenať porušenie zákona. Klikni na dodávateľa pre overenie priamo v registri.</p>
                       ) : (
                         <p className="text-muted">Žiadna zákazka nad 100 000 € od dodávateľa mimo RPVS bez výnimky — všetci dodávatelia sú buď zapísaní v RPVS, alebo majú zákonnú výnimku. To je dobrá správa.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Kontextové vysvetlenie auditu "Chýba zmluva v CRZ" */}
+                {redFlagFilter === 'missing_contract' && (
+                  <div className="mt-3 flex items-start gap-2.5 rounded-lg border border-red-500/25 bg-red-500/[0.07] px-4 py-3 text-xs leading-relaxed text-body">
+                    <ShieldAlert className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+                    <div>
+                      <p className="font-semibold text-red-300 mb-0.5">Faktúry od dodávateľov bez zverejnenej zmluvy v CRZ</p>
+                      {auditCounts.missing_contract > 0 ? (
+                        <p className="text-muted">Nájdených <span className="font-bold text-red-300">{auditCounts.missing_contract}</span> faktúr od dodávateľov, ktorí <span className="font-semibold text-body">nemajú žiadnu zmluvu v Centrálnom registri zmlúv</span>. Zobrazené sú len významné prípady — jednotlivá faktúra od <span className="font-semibold text-body">3 000 €</span> alebo od dodávateľa s faktúrami spolu nad <span className="font-semibold text-body">5 000 €</span>; drobné priebežné nákupy (servis) zmluvu zo zákona mať nemusia. Faktúra bez zmluvy môže znamenať obídenie povinnosti zverejniť zmluvu — treba overiť.</p>
+                      ) : (
+                        <p className="text-muted">Žiadna významná faktúra od dodávateľa bez zmluvy v CRZ. Zdroj faktúr: portál zverejňovania Dopravného podniku mesta Martin.</p>
                       )}
                     </div>
                   </div>
