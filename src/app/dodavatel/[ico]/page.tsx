@@ -16,6 +16,8 @@ interface Transaction {
   source_type?: string;
   source_url?: string;
   date_published: string;
+  superseded?: boolean;
+  effective_amount_eur?: number;
 }
 
 interface SupplierData {
@@ -251,7 +253,12 @@ export default function SupplierProfilePage() {
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        {t.superseded && (
+                          <span className="block text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1" title="Starší dodatok tej istej zmluvy — CRZ v ňom uvádza celkovú cenu diela. Do súčtu sa ráta len posledný (najvyšší) dodatok.">
+                            Prepísaný dodatok
+                          </span>
+                        )}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${t.superseded ? 'bg-elevated text-muted line-through decoration-slate-500' : 'bg-red-100 text-red-800'}`}>
                           {formatEur(t.amount_eur)}
                         </span>
                       </td>
@@ -287,9 +294,14 @@ export default function SupplierProfilePage() {
                   <p className="font-medium text-body mb-1" title={t.subject}>{t.subject}</p>
                   <p className="text-xs text-muted mb-3">Odberateľ: {t.buyer?.name}</p>
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${t.superseded ? 'bg-elevated text-muted line-through decoration-slate-500' : 'bg-red-100 text-red-800'}`}>
                       {formatEur(t.amount_eur)}
                     </span>
+                    {t.superseded && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-elevated text-slate-400 border border-line" title="Starší dodatok tej istej zmluvy — do súčtu sa ráta len posledný dodatok.">
+                        Prepísaný
+                      </span>
+                    )}
                     {t.source_type === 'WEB_INVOICE' ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
                         Faktúra z webu

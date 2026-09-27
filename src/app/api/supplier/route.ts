@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { isDuplicatePublication } from '@/lib/duplicate-ids';
 import { correctIco, wrongIcosFor } from '@/lib/entity-ico-fixes';
+import { computeAmendmentSupersessions } from '@/lib/contract-amendments';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,12 +96,25 @@ export async function GET(request: Request) {
       (t) => !isDuplicatePublication(t.external_id)
     );
 
-    // Calculate stats
+    // Kumulatívne dodatky: CRZ dáva do každého dodatku NOVÚ CELKOVÚ cenu diela → bez korekcie
+    // by profil dodávateľa (napr. BM-MONT: 5× dodatok k tej istej stavbe) mal mnohonásobne
+    // nafúknutý súčet. Superseded (staršie prepisy) sa nerátajú (viď contract-amendments.ts).
+    // Tu sú všetky tx toho istého dodávateľa, preto supplier.ico dodáme jednotne.
+    const { supersededIds } = computeAmendmentSupersessions(
+      dedupTransactions.map((t) => ({
+        id: t.id,
+        subject: t.subject,
+        amount_eur: t.amount_eur,
+        supplier: { ico },
+      }))
+    );
+
+    // Calculate stats — sumy z efektívnej sumy (superseded dodatky = 0).
     let totalAmount = 0;
     const yearlyVolume: Record<string, number> = {};
 
     dedupTransactions?.forEach(t => {
-      const amount = Number(t.amount_eur) || 0;
+      const amount = supersededIds.has(t.id) ? 0 : (Number(t.amount_eur) || 0);
       totalAmount += amount;
       const year = new Date(t.date_published).getFullYear().toString();
       yearlyVolume[year] = (yearlyVolume[year] || 0) + amount;
@@ -115,7 +129,11 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       supplier,
-      transactions: dedupTransactions || [],
+      transactions: (dedupTransactions || []).map((t) => ({
+        ...t,
+        superseded: supersededIds.has(t.id),
+        effective_amount_eur: supersededIds.has(t.id) ? 0 : (Number(t.amount_eur) || 0),
+      })),
       stats: {
         totalAmount,
         totalCount: dedupTransactions?.length || 0,

@@ -27,6 +27,8 @@ type Tx = {
   supplier?: Supplier;
   suspicious?: boolean;
   is_income?: boolean;
+  superseded?: boolean;
+  effective_amount_eur?: number;
 };
 type SupplierAgg = { name: string; value: number };
 type DashboardData = {
@@ -558,7 +560,12 @@ export default function Dashboard() {
                                 Príjem
                               </span>
                             )}
-                            <span className={`font-bold px-2 py-1 rounded border ${t.is_income ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-body bg-elevated border-line'}`}>
+                            {t.superseded && (
+                              <span className="text-[10px] font-bold uppercase tracking-wide bg-slate-500/15 text-slate-400 border border-slate-500/30 px-1.5 py-0.5 rounded" title="Starší dodatok tej istej zmluvy — CRZ v ňom uvádza celkovú cenu diela. Do súčtu sa ráta len posledný (najvyšší) dodatok, aby sa tá istá zmluva nezapočítala viackrát.">
+                                Prepísaný
+                              </span>
+                            )}
+                            <span className={`font-bold px-2 py-1 rounded border ${t.is_income ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : t.superseded ? 'text-muted bg-elevated/40 border-line line-through decoration-slate-500' : 'text-body bg-elevated border-line'}`}>
                               {t.is_income ? '+' : ''}{formatEur(t.amount_eur)}
                             </span>
                             <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />
@@ -663,8 +670,13 @@ export default function Dashboard() {
                         </div>
                         <div className="mt-4 pt-4 border-t border-line flex items-center justify-between">
                         <span className="text-sm text-muted font-medium">Spolu</span>
-                        <div className="flex items-center">
-                          <span className="text-lg font-bold text-body bg-elevated border border-line px-2 py-1 rounded">
+                        <div className="flex items-center gap-2">
+                          {t.superseded && (
+                            <span className="text-[10px] font-bold uppercase tracking-wide bg-slate-500/15 text-slate-400 border border-slate-500/30 px-1.5 py-0.5 rounded" title="Starší dodatok tej istej zmluvy — do súčtu sa ráta len posledný (najvyšší) dodatok.">
+                              Prepísaný
+                            </span>
+                          )}
+                          <span className={`text-lg font-bold px-2 py-1 rounded border ${t.superseded ? 'text-muted bg-elevated/40 border-line line-through decoration-slate-500' : 'text-body bg-elevated border-line'}`}>
                             {formatEur(t.amount_eur)}
                           </span>
                           <VerifiedBadge source={t.source_type === 'CRZ_CONTRACT' ? 'CRZ (Data.gov.sk)' : 'Mesto Martin (Faktúry)'} date={new Date(t.date_published).toLocaleDateString('sk-SK')} />

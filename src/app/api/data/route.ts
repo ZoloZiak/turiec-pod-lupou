@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { INCOME_TX_IDS } from '@/lib/income-ids';
 import { isDuplicatePublication } from '@/lib/duplicate-ids';
 import { correctIco } from '@/lib/entity-ico-fixes';
+import { computeAmendmentSupersessions } from '@/lib/contract-amendments';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,6 +88,20 @@ export async function GET(request: Request) {
       (t) => !isDuplicatePublication(t.external_id)
     );
 
+    // Kumulatívne dodatky: CRZ zverejňuje každý dodatok samostatne a do sumy dáva NOVÚ
+    // CELKOVÚ cenu diela → bez korekcie sa tá istá zmluva ráta viackrát (~26 M €, ~14 %).
+    // Označíme superseded (staršie prepisy tej istej ceny) a rátame len kanonický záznam.
+    // Počítame na celom (deduplikovanom) sete, nezávisle od filterIco, aby zoskupenie
+    // zmluvných línií bolo konzistentné (viď src/lib/contract-amendments.ts).
+    const { supersededIds } = computeAmendmentSupersessions(
+      transactions.map((t) => ({
+        id: t.id,
+        subject: t.subject,
+        amount_eur: t.amount_eur,
+        supplier: t.supplier ? { ico: t.supplier.ico } : null,
+      }))
+    );
+
     // Ak bol zadaný IČO filter pre konkrétnu organizáciu
     let filteredTransactions: TransactionRow[] = transactions;
     if (filterIco) {
@@ -116,14 +131,18 @@ export async function GET(request: Request) {
           suspicious = true;
         }
       }
-      return { ...t, suspicious, is_income };
+      const superseded = supersededIds.has(t.id);
+      // Efektívna suma: superseded (starší prepis ceny dodatku) sa neráta do súčtov.
+      const effective_amount_eur = superseded ? 0 : (Number(t.amount_eur) || 0);
+      return { ...t, suspicious, is_income, superseded, effective_amount_eur };
     });
 
     // Výdavky = všetko okrem príjmov (NFP/dotácie mestu). Príjmy sčítame zvlášť.
+    // Sumy rátame z effective_amount_eur (superseded dodatky = 0, viď contract-amendments).
     const expenseTx = enrichedTransactions.filter((t) => !t.is_income);
     const incomeTx = enrichedTransactions.filter((t) => t.is_income);
-    const totalSpent = expenseTx.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
-    const totalIncome = incomeTx.reduce((acc, curr) => acc + (Number(curr.amount_eur) || 0), 0);
+    const totalSpent = expenseTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
+    const totalIncome = incomeTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
 
     // Top dodávatelia (Sumár výdavkov podľa dodávateľa) — bez príjmov (tam je "dodávateľ" štát).
     const supplierAgg = expenseTx.reduce((acc: Record<string, number>, curr) => {
@@ -132,7 +151,7 @@ export async function GET(request: Request) {
       if (!acc[supplierName]) {
         acc[supplierName] = 0;
       }
-      acc[supplierName] += Number(curr.amount_eur) || 0;
+      acc[supplierName] += curr.effective_amount_eur;
       return acc;
     }, {});
 

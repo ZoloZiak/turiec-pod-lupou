@@ -23,6 +23,8 @@ type Tx = {
   buyer?: Entity;
   supplier?: Entity;
   is_income?: boolean;
+  superseded?: boolean;
+  effective_amount_eur?: number;
 };
 type ApiData = { success: boolean; transactions: Tx[]; entities: Entity[] };
 
@@ -32,6 +34,9 @@ const formatEurFull = (v: number) =>
   new Intl.NumberFormat("sk-SK", { style: "currency", currency: "EUR", maximumFractionDigits: 2 }).format(v);
 
 const num = (v: unknown) => Number(v) || 0;
+// Efektívna (rátaná) suma: superseded dodatky (staršie prepisy tej istej ceny) = 0,
+// aby sa tá istá zmluva nezapočítala viackrát (viď src/lib/contract-amendments.ts).
+const eff = (t: Tx) => (t.superseded ? 0 : num(t.amount_eur));
 const crzUrl = (t: Tx) =>
   t.source_url ? (t.source_url.startsWith("http") ? t.source_url : `https://${t.source_url}`) : null;
 
@@ -68,7 +73,7 @@ export default function AnalyzyPage() {
       const y = t.date_published?.slice(0, 4);
       if (!y) continue;
       const e = yearMap.get(y) || { total: 0, count: 0 };
-      e.total += num(t.amount_eur);
+      e.total += eff(t);
       e.count += 1;
       yearMap.set(y, e);
     }
@@ -80,7 +85,7 @@ export default function AnalyzyPage() {
     const december = trend.map(({ rok }) => {
       const decTotal = expenses
         .filter((t) => t.date_published?.slice(0, 4) === rok && t.date_published?.slice(5, 7) === "12")
-        .reduce((s, t) => s + num(t.amount_eur), 0);
+        .reduce((s, t) => s + eff(t), 0);
       const yearTotal = yearMap.get(rok)?.total || 0;
       return { rok, dec: Math.round(decTotal), share: yearTotal ? (decTotal / yearTotal) * 100 : 0 };
     });
@@ -99,7 +104,7 @@ export default function AnalyzyPage() {
       const b = t.buyer;
       if (!b || !entityIcos.has(b.ico)) continue;
       const o = orgs.get(b.ico) || { ico: b.ico, name: b.name, total: 0, count: 0, dec: 0, big: 0, extTotal: 0, inhouseTotal: 0, extSuppliers: new Map() };
-      const amt = num(t.amount_eur);
+      const amt = eff(t);
       o.total += amt;
       o.count += 1;
       if (t.date_published?.slice(5, 7) === "12") o.dec += amt;
@@ -150,13 +155,13 @@ export default function AnalyzyPage() {
       hrefLabel?: string;
     }[] = [];
 
-    // 4a) najväčšia jednotlivá zmluva
-    const biggest = [...expenses].sort((a, b) => num(b.amount_eur) - num(a.amount_eur))[0];
+    // 4a) najväčšia jednotlivá zmluva (z efektívnych — superseded prepisy nerátame)
+    const biggest = [...expenses].sort((a, b) => eff(b) - eff(a))[0];
     if (biggest) {
       anomalies.push({
         icon: "big",
         title: "Najväčšia jednotlivá zmluva",
-        detail: `${formatEurFull(num(biggest.amount_eur))} — ${biggest.supplier?.name || "neznámy dodávateľ"}. Predmet: ${biggest.subject?.slice(0, 90) || "—"}.`,
+        detail: `${formatEurFull(eff(biggest))} — ${biggest.supplier?.name || "neznámy dodávateľ"}. Predmet: ${biggest.subject?.slice(0, 90) || "—"}.`,
         href: crzUrl(biggest),
         hrefLabel: "Otvoriť zmluvu v CRZ",
       });
@@ -183,11 +188,13 @@ export default function AnalyzyPage() {
     }
 
     // 4d) jednorazový veľký dodávateľ (1 zmluva, veľká suma)
+    // Superseded prepisy nerátame ani do sumy, ani do počtu — inak by dodávateľ s jednou
+    // zmluvou a viacerými dodatkami vyzeral ako viac zmlúv a vypadol by z detekcie.
     const supMap = new Map<string, { total: number; count: number; ico?: string }>();
     for (const t of expenses) {
-      if (!t.supplier) continue;
+      if (!t.supplier || t.superseded) continue;
       const s = supMap.get(t.supplier.name) || { total: 0, count: 0, ico: t.supplier.ico };
-      s.total += num(t.amount_eur);
+      s.total += eff(t);
       s.count += 1;
       supMap.set(t.supplier.name, s);
     }
@@ -204,7 +211,7 @@ export default function AnalyzyPage() {
       });
     }
 
-    const totalExpenses = expenses.reduce((s, t) => s + num(t.amount_eur), 0);
+    const totalExpenses = expenses.reduce((s, t) => s + eff(t), 0);
     return { trend, december, orgIndex, anomalies, totalExpenses, txCount: expenses.length };
   }, [data]);
 
