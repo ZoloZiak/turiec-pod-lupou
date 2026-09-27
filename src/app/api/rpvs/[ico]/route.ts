@@ -20,6 +20,7 @@ export async function GET(request: Request, context: { params: Promise<{ ico: st
       ico: result.resolvedIco || result.ico,
       hasIco: result.hasIco,
       source: result.source,
+      unavailable: result.source === 'ERROR' || Boolean(result.error),
     });
   } catch (error) {
     console.error("RPVS API Route error:", error);

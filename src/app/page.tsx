@@ -29,6 +29,7 @@ type Tx = {
   is_income?: boolean;
   superseded?: boolean;
   effective_amount_eur?: number;
+  rpvs_status?: 'registered' | 'not_registered' | 'exempt' | 'unknown' | null;
 };
 type SupplierAgg = { name: string; value: number };
 type DashboardData = {
@@ -47,7 +48,7 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [redFlagFilter, setRedFlagFilter] = useState<'all' | 'high_amount' | 'december' | 'missing_contract'>('all');
+  const [redFlagFilter, setRedFlagFilter] = useState<'all' | 'high_amount' | 'december' | 'missing_contract' | 'missing_rpvs'>('all');
   const [sourceTypeFilter, setSourceTypeFilter] = useState<'all' | 'CRZ_CONTRACT' | 'WEB_INVOICE'>('all');
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const ITEMS_PER_PAGE = 20;
@@ -93,6 +94,12 @@ export default function Dashboard() {
     high_amount: data?.transactions?.filter((t: Tx) => !t.is_income && t.amount_eur >= 100000).length || 0,
     missing_contract: data?.transactions?.filter((t: Tx) => t.suspicious).length || 0,
     december: data?.transactions?.filter((t: Tx) => new Date(t.date_published).getMonth() === 11).length || 0,
+    // počet zákaziek (transakcií) nad 100k, kde dodávateľ NIE je v RPVS a nemá výnimku;
+    // číta sa z precomputed t.rpvs_status ('not_registered' = potvrdene mimo registra)
+    missing_rpvs: data?.transactions?.filter((t: Tx) =>
+      !t.is_income && !t.superseded && t.amount_eur >= 100000 &&
+      t.rpvs_status === 'not_registered'
+    ).length || 0,
   };
 
   // Compute filtered transactions
@@ -100,6 +107,10 @@ export default function Dashboard() {
     if (selectedSupplierName && t.supplier?.name !== selectedSupplierName) return false;
     if (redFlagFilter === 'high_amount' && (t.is_income || t.amount_eur < 100000)) return false;
     if (redFlagFilter === 'missing_contract' && !t.suspicious) return false;
+    if (redFlagFilter === 'missing_rpvs' && !(
+      !t.is_income && !t.superseded && t.amount_eur >= 100000 &&
+      t.rpvs_status === 'not_registered'
+    )) return false;
     if (redFlagFilter === 'december' && new Date(t.date_published).getMonth() !== 11) return false;
     if (sourceTypeFilter !== 'all' && t.source_type !== sourceTypeFilter) return false;
     if (selectedYear !== 'all' && new Date(t.date_published).getFullYear().toString() !== selectedYear) return false;
@@ -463,6 +474,15 @@ export default function Dashboard() {
                       {auditCounts.missing_contract > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold tabular-nums">{auditCounts.missing_contract}</span>}
                     </button>
                     <button
+                      onClick={() => { setRedFlagFilter('missing_rpvs'); setCurrentPage(1); }}
+                      className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'missing_rpvs' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-elevated/50 text-muted border-line hover:text-rose-400'}`}
+                      title="Zákazky nad 100 000 €, kde dodávateľ NIE JE zapísaný v Registri partnerov verejného sektora (RPVS) a nemá zákonnú výnimku — potenciálne porušenie zákona č. 315/2016 Z. z."
+                    >
+                      <ShieldAlert className="w-3.5 h-3.5 text-rose-400" aria-hidden="true" />
+                      Nad 100k bez RPVS
+                      {auditCounts.missing_rpvs > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold tabular-nums">{auditCounts.missing_rpvs}</span>}
+                    </button>
+                    <button
                       onClick={() => { setRedFlagFilter('december'); setCurrentPage(1); }}
                       className={`px-3 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${redFlagFilter === 'december' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-elevated/50 text-muted border-line hover:text-purple-400'}`}
                     >
@@ -507,6 +527,21 @@ export default function Dashboard() {
                     </select>
                   </div>
                 </div>
+
+                {/* Kontextové vysvetlenie auditu "Nad 100k bez RPVS" */}
+                {redFlagFilter === 'missing_rpvs' && (
+                  <div className="mt-3 flex items-start gap-2.5 rounded-lg border border-rose-500/25 bg-rose-500/[0.07] px-4 py-3 text-xs leading-relaxed text-body">
+                    <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" aria-hidden="true" />
+                    <div>
+                      <p className="font-semibold text-rose-300 mb-0.5">Zákazky nad 100 000 € od dodávateľov mimo RPVS</p>
+                      {auditCounts.missing_rpvs > 0 ? (
+                        <p className="text-muted">Nájdených <span className="font-bold text-rose-300">{auditCounts.missing_rpvs}</span> zákaziek, kde dodávateľ <span className="font-semibold text-body">nie je zapísaný v RPVS</span> a nemá zákonnú výnimku (§ 2 ods. 3 zákona č. 315/2016 Z. z.). Zápis v RPVS je pri plnení nad 100 000 € povinný — chýbajúci zápis môže znamenať porušenie zákona. Klikni na dodávateľa pre overenie priamo v registri.</p>
+                      ) : (
+                        <p className="text-muted">Žiadna zákazka nad 100 000 € od dodávateľa mimo RPVS bez výnimky — všetci dodávatelia sú buď zapísaní v RPVS, alebo majú zákonnú výnimku. To je dobrá správa.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="w-full">
                 {/* DESKTOP TABLE VIEW */}

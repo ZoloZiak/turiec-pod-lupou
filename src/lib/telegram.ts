@@ -80,12 +80,20 @@ export async function checkRpvsStatus(
     return { ico: cleanIco || undefined, resolvedIco: cleanIco || undefined, hasIco: Boolean(cleanIco), active: false, exempt: true, source: 'EXEMPTION' };
   }
 
+  // Sledujeme, či sme vôbec dostali autoritatívnu odpoveď z registra. OData endpoint je
+  // primárny zdroj pravdy: keď vráti res.ok (aj prázdny value[]), vieme spoľahlivo povedať
+  // "zapísaný / nezapísaný". Keď VŠETKY dopyty zlyhajú na sieťovej chybe (timeout, výpadok
+  // rpvs.gov.sk), NESMIEME tvrdiť "nie je v RPVS" — inak by sme firmu falošne obvinili
+  // z porušenia zákona len kvôli výpadku registra. V takom prípade vrátime error.
+  let gotAuthoritativeResponse = false;
+
   // Stage 1: GetPartners API search for PartnerId (Direct working RPVS detail link)
   if (cleanIco) {
     try {
       const getPartnersUrl = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`;
       const getPartnersRes = await fetchWithTimeout(getPartnersUrl);
       if (getPartnersRes.ok) {
+        gotAuthoritativeResponse = true;
         const list = (await getPartnersRes.json()) as RpvsPartner[];
         if (Array.isArray(list) && list.length > 0) {
           const partner = list.find((p: RpvsPartner) => p.TypOsoby === 'Partner verejného sektora' || p.PartnerId);
@@ -112,6 +120,7 @@ export async function checkRpvsStatus(
       const url = `https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?%24filter=${encodeURIComponent(`Ico eq '${cleanIco}'`)}`;
       const res = await fetchWithTimeout(url);
       if (res.ok) {
+        gotAuthoritativeResponse = true;
         const data = (await res.json()) as RpvsODataResponse;
         const isActive = data.value?.some((record: RpvsODataRecord) => {
           if (!record.PlatnostDo) return true;
@@ -142,6 +151,7 @@ export async function checkRpvsStatus(
       const url = `https://rpvs.gov.sk/rpvs/Partner/Partner/GetPartners?text=${encodeURIComponent(cleanIco)}`;
       const res = await fetchWithTimeout(url);
       if (res.ok) {
+        gotAuthoritativeResponse = true;
         const list = (await res.json()) as RpvsPartner[];
         if (Array.isArray(list) && list.length > 0) {
           const partner = list.find((p: RpvsPartner) => p.TypOsoby === 'Partner verejného sektora');
@@ -194,6 +204,12 @@ export async function checkRpvsStatus(
     }
   }
 
+  // Sem sa dostaneme, keď sme nenašli firmu ako aktívneho partnera. Rozlíš dva prípady:
+  // (a) register odpovedal, len firma tam nie je zapísaná -> active:false (pravý red flag)
+  // (b) register vôbec neodpovedal (výpadok/timeout) -> error, NEtvrdíme "nie je v RPVS"
+  if (!gotAuthoritativeResponse) {
+    return { ico: cleanIco, resolvedIco: null, hasIco: !!cleanIco, active: false, error: 'RPVS register nedostupný', source: 'ERROR' };
+  }
   return { ico: cleanIco, resolvedIco: null, hasIco: !!cleanIco, active: false, source: 'NONE' };
 }
 

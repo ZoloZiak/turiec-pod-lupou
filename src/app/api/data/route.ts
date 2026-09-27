@@ -4,8 +4,15 @@ import { INCOME_TX_IDS } from '@/lib/income-ids';
 import { isDuplicatePublication } from '@/lib/duplicate-ids';
 import { correctIco } from '@/lib/entity-ico-fixes';
 import { computeAmendmentSupersessions } from '@/lib/contract-amendments';
+import rpvsData from '@/data/rpvs-status.json';
 
 export const dynamic = 'force-dynamic';
+
+// Precomputed RPVS stav (skript scripts/build_rpvs_status.js). Mapa IČO -> stav zápisu
+// v Registri partnerov verejného sektora: 'registered' | 'not_registered' | 'exempt' | 'unknown'.
+// Používame ho na deterministický audit "zákazky nad 100k bez RPVS" — živý fetch z registra
+// bol pri záťaži nespoľahlivý (timeouty), precompute je stabilný a okamžitý.
+const RPVS_STATUS = (rpvsData as { status: Record<string, string> }).status || {};
 
 interface EntityRef {
   name: string;
@@ -134,7 +141,10 @@ export async function GET(request: Request) {
       const superseded = supersededIds.has(t.id);
       // Efektívna suma: superseded (starší prepis ceny dodatku) sa neráta do súčtov.
       const effective_amount_eur = superseded ? 0 : (Number(t.amount_eur) || 0);
-      return { ...t, suspicious, is_income, superseded, effective_amount_eur };
+      // RPVS stav dodávateľa (precomputed). Pri zákazke nad 100k je 'not_registered' červená
+      // vlajka (dodávateľ mimo Registra partnerov verejného sektora, bez zákonnej výnimky).
+      const rpvs_status = t.supplier ? (RPVS_STATUS[t.supplier.ico] || null) : null;
+      return { ...t, suspicious, is_income, superseded, effective_amount_eur, rpvs_status };
     });
 
     // Výdavky = všetko okrem príjmov (NFP/dotácie mestu). Príjmy sčítame zvlášť.

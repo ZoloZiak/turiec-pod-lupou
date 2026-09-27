@@ -24,7 +24,7 @@ export function isRpvsExempt(ico?: string | null, supplierName?: string | null):
   ];
   if (cleanIco && KNOWN_STATE_ICOS.includes(cleanIco)) return true;
 
-  const STATE_KEYWORDS = /ministerstvo|rezort|štátn|sociálna poisťovňa|environmentálny fond|fond rozvoja|slovenská pošta|železnice|lesy sr|úrad práce|úrad verejného|žilinský samosprávny|mesto |obec |slovenská akadémia|všeobecná zdravotná|všzp|knižnica|osvetové centrum/i;
+  const STATE_KEYWORDS = /ministerstvo|rezort|štátn|sociálna poisťovňa|environmentálny fond|fond rozvoja|fond na podporu|slovenská pošta|železnice|lesy sr|úrad práce|úrad verejného|žilinský samosprávny|mesto |obec |slovenská akadémia|všeobecná zdravotná|všzp|knižnica|osvetové centrum/i;
   if (supplierName && STATE_KEYWORDS.test(supplierName)) return true;
 
   return false;
