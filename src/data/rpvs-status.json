@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-27T17:27:51.411Z",
+  "generatedAt": "2026-09-28T09:20:38.541Z",
   "source": "rpvs.gov.sk OData v2 + GetPartners",
   "note": "Precompute pre audit \"zákazky nad 100k bez RPVS\". unknown = register nedostupný, NIE je to red flag.",
   "counts": {
-    "registered": 62,
+    "registered": 64,
     "not_registered": 3,
     "exempt": 12,
     "unknown": 0
@@ -42,6 +42,7 @@
     "36848751": "registered",
     "36854140": "exempt",
     "43850065": "registered",
+    "44149671": "registered",
     "44523351": "registered",
     "44802030": "registered",
     "44851022": "registered",
@@ -57,6 +58,7 @@
     "47251336": "exempt",
     "47373288": "registered",
     "47454547": "registered",
+    "47552549": "registered",
     "47560746": "registered",
     "47760265": "registered",
     "47846828": "registered",
@@ -80,8 +82,8 @@
     "56214863": "registered",
     "64833186": "registered",
     "00896225": "registered",
-    "00614521": "registered",
     "00316792": "exempt",
+    "00614521": "registered",
     "00151653": "exempt",
     "00585441": "registered",
     "00151513": "exempt",
