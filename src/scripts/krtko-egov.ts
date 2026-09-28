@@ -245,55 +245,100 @@ async function phaseList(page: Page, buyerId: string) {
   }
 }
 
+// Normalizácia mena firmy pre PRESNÉ párovanie (žiadne fuzzy — chybné IČO = chybné obvinenie).
+function normName(s: string): string {
+  return (s || '').toLowerCase().replace(/[.,]/g, '').replace(/\s+/g, ' ')
+    .replace(/\b(s r o|spol s r o|a s|akciová spoločnosť|n o|o z|k s|v o s)\b/g, '').trim();
+}
+function extractSupplierName(subject: string): string | null {
+  const m = (subject || '').match(/—\s*(.+)$/);
+  return m ? m[1].trim() : null;
+}
+
 // ─────────────────────────── FÁZA 2: IČO pre red-flagy ───────────────────────────
 async function phaseIco(page: Page) {
   console.log(`  FÁZA 2 (IČO) — faktúry >= ${MIN_AMOUNT_FOR_ICO} € bez dodávateľa\n`);
-  const target = await getPostbackTarget(page);
-  if (!target) { console.error('  Nenašiel sa postback target.'); return; }
 
-  // faktúry nad prahom, ktoré ešte nemajú dodávateľa (resume-safe)
-  const { data: todo, error } = await supabase.from('transactions')
-    .select('id, external_id, amount_eur, subject')
-    .eq('source_type', 'WEB_INVOICE')
-    .is('supplier_entity_id', null)
-    .gte('amount_eur', MIN_AMOUNT_FOR_ICO)
-    .order('amount_eur', { ascending: false });
-  if (error) { console.error('  DB chyba:', error.message); return; }
-  console.log(`  Na spracovanie: ${todo?.length || 0} faktúr\n`);
-  if (!todo || !todo.length) return;
+  // faktúry nad prahom, ktoré ešte nemajú dodávateľa (resume-safe).
+  // POZOR: Supabase .select() ticho limituje na 1000 riadkov → paginovať cez .range().
+  type TodoRow = { id: string; external_id: string; amount_eur: number; subject: string };
+  const todo: TodoRow[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase.from('transactions')
+      .select('id, external_id, amount_eur, subject')
+      .eq('source_type', 'WEB_INVOICE')
+      .is('supplier_entity_id', null)
+      .gte('amount_eur', MIN_AMOUNT_FOR_ICO)
+      .order('amount_eur', { ascending: false })
+      .range(from, from + 999);
+    if (error) { console.error('  DB chyba:', error.message); return; }
+    if (!data || !data.length) break;
+    todo.push(...(data as TodoRow[]));
+    if (data.length < 1000) break;
+  }
+  console.log(`  Na spracovanie: ${todo.length} faktúr`);
+  if (!todo.length) return;
+
+  // KROK A — spáruj podľa PRESNÉHO mena na existujúce entity s IČO (bez postbacku, rýchle).
+  // Postback (autoritatívny detail) použijeme len pre tie, čo sa nedajú presne spárovať.
+  const nameToEntity = new Map<string, string>(); // normName -> entity id
+  for (let from = 0; ; from += 1000) {
+    const { data } = await supabase.from('entities').select('id, ico, name').not('ico', 'is', null).range(from, from + 999);
+    if (!data || !data.length) break;
+    for (const e of data) {
+      if (e.name && e.ico) { const n = normName(e.name); nameToEntity.set(n, e.id as string); }
+    }
+    if (data.length < 1000) break;
+  }
 
   const supCache = new Map<string, string>();
-  let done = 0, withIco = 0, noIco = 0;
+  let matched = 0, viaPostback = 0, noIco = 0, done = 0;
+  const needPostback: { id: string; docId: string }[] = [];
+
   for (const t of todo) {
-    const docId = (t.external_id as string).replace('MM_INV_', '');
-    let ico: string | null = null, name: string | null = null;
-    try { const r = await fetchIcoByPostback(page, target, docId); ico = r.ico; name = r.name; } catch { ico = null; }
-    if (ico) ico = correctIco(ico) ?? ico;
+    const name = extractSupplierName(t.subject as string);
+    const key = name ? normName(name) : '';
+    if (key && nameToEntity.has(key)) {
+      // presná zhoda mena → použijeme existujúce IČO (deterministické, žiadny odhad)
+      if (APPLY) await supabase.from('transactions').update({ supplier_entity_id: nameToEntity.get(key)! }).eq('id', t.id);
+      matched++;
+    } else {
+      needPostback.push({ id: t.id as string, docId: (t.external_id as string).replace('MM_INV_', '') });
+    }
     done++;
+    if (done % 200 === 0) process.stdout.write(`\r  KROK A (meno): ${done}/${todo.length} — spárovaných ${matched}, na postback ${needPostback.length}`);
+  }
+  console.log(`\n  KROK A hotový: ${matched} spárovaných podľa mena, ${needPostback.length} treba postback.`);
+
+  // KROK B — postback (autoritatívny detail) pre nespárované.
+  const target = await getPostbackTarget(page);
+  if (!target) { console.error('  Nenašiel sa postback target — KROK B preskočený.'); return; }
+  let pb = 0;
+  for (const item of needPostback) {
+    let ico: string | null = null, dname: string | null = null;
+    try { const r = await fetchIcoByPostback(page, target, item.docId); ico = r.ico; dname = r.name; } catch { ico = null; }
+    if (ico) ico = correctIco(ico) ?? ico;
+    pb++;
     if (ico && /^\d{6,8}$/.test(ico)) {
-      withIco++;
+      viaPostback++;
       let supplierId = supCache.get(ico) ?? null;
       if (!supplierId) {
-        const cleanName = (name || `IČO ${ico}`).trim();
+        const cleanName = (dname || `IČO ${ico}`).trim();
         const { data: sup } = await supabase.from('entities')
           .upsert({ ico, name: cleanName, type: 'COMPANY', normalized_name: cleanName.toLowerCase() }, { onConflict: 'ico' })
           .select('id').single();
         if (sup) { supplierId = sup.id as string; supCache.set(ico, supplierId); }
       }
-      if (APPLY && supplierId) {
-        await supabase.from('transactions').update({ supplier_entity_id: supplierId }).eq('id', t.id);
-      }
+      if (APPLY && supplierId) await supabase.from('transactions').update({ supplier_entity_id: supplierId }).eq('id', item.id);
     } else {
       noIco++;
     }
-    if (done % 10 === 0 || done === todo.length) {
-      process.stdout.write(`\r  ${done}/${todo.length} — s IČO ${withIco}, bez IČO ${noIco}`);
-    }
+    if (pb % 10 === 0 || pb === needPostback.length) process.stdout.write(`\r  KROK B (postback): ${pb}/${needPostback.length} — s IČO ${viaPostback}, bez IČO ${noIco}`);
   }
   console.log('');
-  console.log(`\n📊 FÁZA 2 hotová: ${withIco} s IČO, ${noIco} bez IČO (z ${done}).`);
+  console.log(`\n📊 FÁZA 2 hotová: ${matched} podľa mena + ${viaPostback} cez postback = ${matched + viaPostback} s IČO; ${noIco} bez IČO.`);
   if (APPLY) {
-    await supabase.from('system_logs').insert({ source: 'EGOV_SCRAPER', message: `eGOV Martin FÁZA 2: ${withIco} IČO dotiahnutých pre red-flag faktúry.`, parsed_data: { withIco, noIco, done } });
+    await supabase.from('system_logs').insert({ source: 'EGOV_SCRAPER', message: `eGOV Martin FÁZA 2: ${matched + viaPostback} IČO priradených (${matched} meno, ${viaPostback} postback).`, parsed_data: { matched, viaPostback, noIco } });
   } else {
     console.log(`\n✅ DRY-RUN. Pre zápis: --phase=ico --apply`);
   }

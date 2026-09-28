@@ -6,6 +6,7 @@ import { correctIco } from '@/lib/entity-ico-fixes';
 import { computeAmendmentSupersessions } from '@/lib/contract-amendments';
 import rpvsData from '@/data/rpvs-status.json';
 import invoiceStats from '@/data/invoice-stats.json';
+import supplierContracts from '@/data/supplier-contracts.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,16 @@ export const dynamic = 'force-dynamic';
 // Používame ho na deterministický audit "zákazky nad 100k bez RPVS" — živý fetch z registra
 // bol pri záťaži nespoľahlivý (timeouty), precompute je stabilný a okamžitý.
 const RPVS_STATUS = (rpvsData as { status: Record<string, string> }).status || {};
+
+// Precompute "dodávateľ má zmluvu s mestom" (skript scripts/build-supplier-contracts.ts).
+// Set IČO, ktoré majú aspoň jednu zmluvu v národnom CRZ ALEBO na CORA portáli mesta
+// (egov.martin.sk, NavigationState=778, ~30k zmlúv od 2010). Národný CRZ máme v DB len od
+// ~2021 (reálne 2023+), no faktúry od 2010 — bez zmlúv mesta by audit "faktúra bez zmluvy"
+// falošne obviňoval tisíce faktúr z 2010–2022, kde zmluvu len NEMÁME (nie že neexistuje).
+// Zmluvy mesta nemajú v exporte IČO, párovanie je na meno (offline, s kurátorskými override).
+const CONTRACT_ICO = new Set<string>(
+  (supplierContracts as { icoWithContract: string[] }).icoWithContract || []
+);
 
 interface EntityRef {
   name: string;
@@ -166,13 +177,21 @@ export async function GET(request: Request) {
       // Príjmy (NFP/dotácie od štátu) nikdy neoznačujeme červenou vlajkou —
       // druhá strana je ministerstvo/agentúra, nie dodávateľ mesta.
       if (!is_income && t.source_type === 'WEB_INVOICE' && t.supplier) {
-        // RED FLAG: jednotlivá faktúra ≥ 10 000 € od dodávateľa, ktorý NEMÁ žiadnu zmluvu v CRZ.
+        // RED FLAG: jednotlivá faktúra ≥ 10 000 € od dodávateľa, ktorý NEMÁ žiadnu zmluvu.
         // Prah je data-driven (kalibrované na reálnych dátach): nižšie hodnoty vytvárali šum
         // z bežných priebežných nákupov (servis áut, drobné dodávky), ktoré zmluvu zo zákona
         // mať nemusia. Jedna platba nad 10k € bez zverejnenej zmluvy je konkrétny otáznik.
-        // Interné subjekty a monopolných správcov sietí (energie, telco) vylučujeme.
+        // "Bez zmluvy" = ani v národnom CRZ (crzSuppliers, live z DB), ani na CORA portáli
+        // mesta (CONTRACT_ICO, precompute ~30k zmlúv od 2010) — inak by audit falošne obviňoval
+        // faktúry z rokov, kde CRZ pokrytie chýba. Interné subjekty a monopolných správcov
+        // sietí (energie, telco) vylučujeme.
         const amt = Number(t.amount_eur) || 0;
-        if (amt >= 10000 && !crzSuppliers.has(t.supplier.ico) && !INTERNAL_SUPPLIER.test(t.supplier.name)) {
+        if (
+          amt >= 10000 &&
+          !crzSuppliers.has(t.supplier.ico) &&
+          !CONTRACT_ICO.has(t.supplier.ico) &&
+          !INTERNAL_SUPPLIER.test(t.supplier.name)
+        ) {
           suspicious = true;
         }
       }
