@@ -259,7 +259,7 @@ export default function Dashboard() {
               </div>
               {data.stats.totalInvoiced > 0 && (
                 <p className="mt-3 text-xs sm:text-sm text-muted">
-                  + {formatEur(data.stats.totalInvoiced)} vo faktúrach ({data.stats.invoiceCount?.toLocaleString('sk-SK')} ks) — samostatná vrstva, nesčítava sa so zmluvami
+                  + {formatEur(data.stats.totalInvoiced)} vo faktúrach ({data.stats.invoiceCount?.toLocaleString('sk-SK')} ks) — samostatná vrstva, nesčítava sa so zmluvami. V zozname zobrazujeme významné faktúry od 10 000 € (audit „bez zmluvy"); menšie sú v súčte.
                 </p>
               )}
               <div className="mt-6 flex items-center gap-3 text-muted text-sm">
@@ -515,7 +515,7 @@ export default function Dashboard() {
                       onClick={() => { setSourceTypeFilter('WEB_INVOICE'); setCurrentPage(1); }}
                       className={`px-2.5 py-1 rounded-md border transition-all ${sourceTypeFilter === 'WEB_INVOICE' ? 'bg-amber-600 text-white border-amber-500' : 'bg-elevated text-muted border-line hover:text-white'}`}
                     >
-                      Faktúry z webu
+                      Faktúry z webu <span className="opacity-60 text-[10px]">(od 10k €)</span>
                     </button>
 
                     <span className="text-muted uppercase tracking-widest text-[11px] ml-2 mr-1">Rok:</span>

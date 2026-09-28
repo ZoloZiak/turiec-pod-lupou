@@ -7,24 +7,30 @@ import { correctIco } from '../lib/entity-ico-fixes';
 // ─────────────────────────────────────────────────────────────────────────────
 // Krtko: Mesto Martin — REÁLNY scraper dodávateľských faktúr z CORA eGOV portálu
 // (egov.martin.sk, NavigationState 779). Mesto NIE je napojené na centrálny CES,
-// takže otvorené dáta neexistujú — portál je jediný zdroj.
+// takže otvorené dáta neexistujú — portál je jediný zdroj. ~158 000 faktúr od 2010.
 //
-// TECHNICKÁ REALITA (overené prieskumom):
-//  - ~158 000 faktúr, 10 na stránku, stavové ASP.NET postbacky (ViewState/session).
-//    Playwright to zvláda (na rozdiel od curl, kde paging padá na 302).
-//  - Zoznam nesie: číslo, DODÁVATEĽ (meno), predmet, suma, mena, dátum. ICO CHÝBA.
-//  - IČO je len v DETAILE (ďalší postback). Preto IČO ťaháme LEN pre faktúry, ktoré
-//    prekročia prah (>= MIN_AMOUNT) — cross-check s CRZ potrebuje IČO.
-//  - Sort podľa sumy NEFUNGUJE (CORA drží sumu ako text). Sort podľa dátumu funguje,
-//    default poradie je najnovšie → berieme MAX_PAGES najnovších strán.
+// DVOJFÁZOVÁ ARCHITEKTÚRA (overené prieskumom, viď git história _probe_*):
+//  FÁZA 1 (--phase=list): page size 500 (strop CORA; overené), prejdi celú históriu
+//    (~316 strán namiesto 15 788 pri 10/str), batch-upsert po stranách. Zoznam nesie
+//    číslo, DODÁVATEĽ (meno), suma, dátum — ICO CHÝBA → supplier_entity_id = NULL.
+//  FÁZA 2 (--phase=ico): IČO je len v DETAILE. Detail sa otvára cez __doPostBack, ktorý
+//    je NEZÁVISLÝ OD STRANY (overené: cudzí docId sa otvorí z ktorejkoľvek strany) —
+//    cez dočasný <a onclick> element (non-strict kontext, inak strict-mode padne).
+//    IČO ťaháme LEN pre faktúry >= MIN_AMOUNT (cross-check s CRZ = "faktúra bez zmluvy").
+//    Resume-safe: berie len faktúry, ktoré ešte nemajú dodávateľa.
 //
-// BEZPEČNOSŤ (poučenie z pôvodného fabrikovaného stubu): LEN reálne hodnoty zo
-// zdroja. Faktúra pod prahom sa NEZAPÍŠE bez IČO odhadom — buď má IČO z detailu,
-// alebo sa uloží s NULL supplier (nikdy "Neznáma firma"). Idempotentné na external_id.
+// Prečo dve fázy: detail pri page size 500 NEVRACIA IČO (overené), pri 10 áno. Preto
+// zber zoznamu ide rýchlo pri 500 a IČO sa dotiahne osobitne cez page-independent postback.
 //
-// Spustenie: npm run krtko:egov                 (dry-run)
-//            npm run krtko:egov -- --apply       (zápis)
-//            npm run krtko:egov -- --apply --pages=200   (viac strán histórie)
+// BEZPEČNOSŤ (poučenie z pôvodného fabrikovaného stubu): LEN reálne hodnoty zo zdroja.
+// Faktúra bez IČO sa uloží s NULL supplier — NIKDY "Neznáma firma" ani odhad IČO.
+// Idempotentné na external_id (MM_INV_<docId>).
+//
+// Spustenie:
+//   npm run krtko:egov -- --phase=list            (dry-run zberu zoznamu)
+//   npm run krtko:egov -- --phase=list --apply     (zápis celej histórie)
+//   npm run krtko:egov -- --phase=list --apply --max-pages=50   (obmedz strany)
+//   npm run krtko:egov -- --phase=ico --apply      (dotiahni IČO pre red-flagy)
 // ─────────────────────────────────────────────────────────────────────────────
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -32,13 +38,16 @@ dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
 const APPLY = process.argv.includes('--apply');
-const pagesArg = process.argv.find(a => a.startsWith('--pages='));
-const MAX_PAGES = pagesArg ? parseInt(pagesArg.split('=')[1], 10) : 60; // ~600 najnovších faktúr
-const MIN_AMOUNT_FOR_ICO = 10000; // IČO z detailu ťaháme len pre faktúry nad týmto prahom
-const MM_BUYER_ICO = '00316792'; // Mesto Martin
+const phaseArg = process.argv.find(a => a.startsWith('--phase='));
+const PHASE = phaseArg ? phaseArg.split('=')[1] : 'list';
+const maxPagesArg = process.argv.find(a => a.startsWith('--max-pages='));
+const MAX_PAGES = maxPagesArg ? parseInt(maxPagesArg.split('=')[1], 10) : 100000;
+const PAGE_SIZE = 500;             // strop CORA (overené: 500 OK, 1000 spadne na default)
+const MIN_AMOUNT_FOR_ICO = 10000;  // IČO z detailu len pre faktúry nad prahom (audit "bez zmluvy")
+const MM_BUYER_ICO = '00316792';   // Mesto Martin
 const LIST_URL = 'https://egov.martin.sk/Default.aspx?NavigationState=779:0:';
 
-interface EgovRow { cislo: string; docId: string; supplierName: string; amount: number | null; date: string; ico: string | null; }
+interface EgovRow { cislo: string; docId: string; supplierName: string; amount: number | null; date: string; }
 
 function parseAmount(raw: string): number | null {
   const c = (raw || '').replace(/\u00a0/g, '').replace(/&nbsp;/g, '').replace(/€|EUR/gi, '').replace(/\s/g, '').replace(',', '.').trim();
@@ -50,6 +59,18 @@ function parseDate(raw: string): string | null {
   const m = (raw || '').trim().match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
   if (!m) return null;
   return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+}
+
+// Počkaj, kým zmizne ExtJS maska AJ ASP.NET AJAX UpdateProgress overlay (obe blokujú kliky).
+async function waitMaskGone(page: Page): Promise<void> {
+  await page.waitForFunction(() => {
+    const sel = '.ext-el-mask, .x-mask, .ext-el-mask-msg, .UpdateProgress, [id*="UpdateProgress"]';
+    const masks = Array.from(document.querySelectorAll(sel));
+    return masks.every(m => {
+      const el = m as HTMLElement;
+      return el.offsetParent === null || getComputedStyle(el).display === 'none' || getComputedStyle(el).visibility === 'hidden' || el.getAttribute('aria-hidden') === 'true';
+    });
+  }, { timeout: 20000 }).catch(() => {});
 }
 
 // Prečítaj dátové riadky z aktuálnej strany grid-u
@@ -72,155 +93,227 @@ async function readPage(page: Page): Promise<EgovRow[]> {
     supplierName: r.cells[2] || '',
     amount: parseAmount(r.cells[4] || ''),
     date: parseDate(r.cells[6] || r.cells[7] || '') || '',
-    ico: null,
   }));
 }
 
-// Počkaj, kým zmizne ExtJS loading/modal maska (inak blokuje kliky).
-async function waitMaskGone(page: Page): Promise<void> {
-  await page.waitForFunction(() => {
-    const masks = Array.from(document.querySelectorAll('.ext-el-mask, .x-mask, .ext-el-mask-msg'));
-    return masks.every(m => (m as HTMLElement).offsetParent === null || getComputedStyle(m as HTMLElement).display === 'none');
-  }, { timeout: 12000 }).catch(() => {});
+// Nastav počet riadkov na stránku (druhý x-tbar-page-number input = page size). S retry.
+async function setPageSize(page: Page, size: number): Promise<number> {
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    await waitMaskGone(page);
+    const loc = page.locator('.x-tbar-page-number').nth(1);
+    try {
+      await loc.click({ timeout: 8000 });
+      await loc.fill('');
+      await loc.fill(String(size));
+      await loc.press('Enter');
+    } catch { await page.waitForTimeout(2000); continue; }
+    await page.waitForLoadState('networkidle').catch(() => {});
+    await waitMaskGone(page);
+    await page.waitForTimeout(4000);
+    const got = await page.$$eval('[onclick*="Detail:"]', e => e.length);
+    if (got > 10) return got;
+    await page.waitForTimeout(1500);
+  }
+  return page.$$eval('[onclick*="Detail:"]', e => e.length);
 }
 
-// Klik na Detail konkrétneho docId a prečítaj IČO z detailu. Detail sa otvára ako
-// ExtJS panel/okno — zatvárame ho (ESC / close), NIE goBack (goBack resetuje paging).
-async function fetchIco(page: Page, docId: string): Promise<string | null> {
-  await waitMaskGone(page);
-  const icon = await page.$(`[onclick*="Detail:${docId}"]`);
-  if (!icon) return null;
-  try {
-    await icon.click({ timeout: 8000 });
-  } catch { return null; } // maska/nedostupné — radšej preskoč než zamrznúť
-  await page.waitForTimeout(1600);
-  const ico = await page.evaluate(() => {
-    const lines = document.body.innerText.split('\n').map(l => l.trim());
-    const i = lines.findIndex(l => /IČO\s*\/\s*RČ|^IČO$/i.test(l));
-    if (i >= 0 && i + 1 < lines.length) {
-      const m = lines[i + 1].match(/(\d{6,8})/);
-      return m ? m[1] : null;
-    }
-    return null;
-  });
-  // Zatvor detail bez straty stavu grid-u: klik na "Zavrieť"/"Späť" tlačidlo, inak ESC.
-  const closed = await page.evaluate(() => {
-    const btn = Array.from(document.querySelectorAll('button, .x-btn-text, [onclick]'))
-      .find(el => /^(Späť|Zavrieť|Zrušiť|Naspäť)$/i.test((el.textContent || '').trim())) as HTMLElement | null;
-    if (btn) { btn.click(); return true; }
-    return false;
-  });
-  if (!closed) { await page.keyboard.press('Escape'); }
-  await page.waitForLoadState('networkidle').catch(() => {});
-  await waitMaskGone(page);
-  await page.waitForTimeout(600);
-  return ico;
-}
-
-// Prečítaj číslo poslednej strany z pageru (napr. "z 15788") — pre info/log.
-async function readLastPage(page: Page): Promise<number> {
+// Prvý docId aktuálnej strany (na detekciu, či page-next reálne posunul).
+async function firstDocId(page: Page): Promise<string | null> {
   return page.evaluate(() => {
-    const m = document.body.innerText.match(/z\s*([\d\s]+?)(?:\s|$)/);
-    if (m) { const n = parseInt(m[1].replace(/\s/g, ''), 10); if (Number.isFinite(n) && n > 1) return n; }
-    return 0;
+    const el = document.querySelector('[onclick*="Detail:"]');
+    const m = (el?.getAttribute('onclick') || '').match(/Detail:(\d+)/);
+    return m ? m[1] : null;
   });
 }
 
-// Ďalšia strana cez page-next (default poradie CORA = najnovšie faktúry prvé).
-async function goNextPage(page: Page): Promise<boolean> {
+// Ďalšia strana cez page-next; vráť false ak sa obsah nezmenil (koniec) alebo tlačidlo disabled.
+async function goNextPage(page: Page, prevFirst: string | null): Promise<boolean> {
   await waitMaskGone(page);
   const clicked = await page.evaluate(() => {
     const btn = document.querySelector('.x-tbar-page-next:not(.x-item-disabled)') as HTMLElement | null;
     if (btn) { btn.click(); return true; }
     return false;
   });
-  if (clicked) { await page.waitForLoadState('networkidle').catch(() => {}); await waitMaskGone(page); await page.waitForTimeout(1200); }
-  return clicked;
+  if (!clicked) return false;
+  await page.waitForLoadState('networkidle').catch(() => {});
+  await waitMaskGone(page);
+  // počkaj kým sa zmení prvý docId (postback dobehol)
+  for (let i = 0; i < 20; i++) {
+    await page.waitForTimeout(500);
+    const now = await firstDocId(page);
+    if (now && now !== prevFirst) return true;
+  }
+  return false; // obsah sa nezmenil → koniec
+}
+
+// Postback target grid-u (pre page-independent otváranie detailu).
+async function getPostbackTarget(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const el = document.querySelector('[onclick*="Detail:"]');
+    const m = (el?.getAttribute('onclick') || '').match(/__doPostBack\('([^']+)'/);
+    return m ? m[1] : null;
+  });
+}
+
+// Otvor detail ĽUBOVOĽNÉHO docId cez dočasný <a onclick> (non-strict) a prečítaj IČO + meno.
+async function fetchIcoByPostback(page: Page, target: string, docId: string): Promise<{ ico: string | null; name: string | null }> {
+  await waitMaskGone(page);
+  await page.evaluate(({ t, id }) => {
+    const a = document.createElement('a');
+    a.href = '#'; a.id = '__tmpDetail';
+    a.setAttribute('onclick', `__doPostBack('${t}','Detail:${id}');return false;`);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }, { t: target, id: docId });
+  await page.waitForLoadState('networkidle').catch(() => {});
+  await page.waitForTimeout(1800);
+  const info = await page.evaluate(() => {
+    const lines = document.body.innerText.split('\n').map(l => l.trim());
+    const iIco = lines.findIndex(l => /IČO\s*\/\s*RČ|^IČO$/i.test(l));
+    const ico = iIco >= 0 && iIco + 1 < lines.length ? (lines[iIco + 1].match(/(\d{6,8})/) || [])[1] || null : null;
+    const iDod = lines.findIndex(l => /^Dodávateľ$/i.test(l));
+    const name = iDod >= 0 && iDod + 1 < lines.length ? lines[iDod + 1] : null;
+    return { ico, name };
+  });
+  // zatvor detail, aby ďalší postback fungoval
+  const closed = await page.evaluate(() => {
+    const btn = Array.from(document.querySelectorAll('button, .x-btn-text, [onclick]'))
+      .find(el => /^(Späť|Zavrieť|Zrušiť|Naspäť)$/i.test((el.textContent || '').trim())) as HTMLElement | null;
+    if (btn) { btn.click(); return true; }
+    return false;
+  });
+  if (!closed) await page.keyboard.press('Escape');
+  await page.waitForLoadState('networkidle').catch(() => {});
+  await waitMaskGone(page);
+  await page.waitForTimeout(500);
+  return info;
+}
+
+// ─────────────────────────── FÁZA 1: zber zoznamu ───────────────────────────
+async function phaseList(page: Page, buyerId: string) {
+  console.log(`  FÁZA 1 (zoznam) — page size ${PAGE_SIZE}, max ${MAX_PAGES} strán\n`);
+  const got = await setPageSize(page, PAGE_SIZE);
+  console.log(`  Riadkov na stranu: ${got}`);
+  if (got < 100) { console.error('  Page size sa nenastavil — CORA vrátila', got); return; }
+
+  const seen = new Set<string>();
+  let collected = 0, wrote = 0, pageNum = 0;
+  let totalSum = 0;
+
+  while (pageNum < MAX_PAGES) {
+    pageNum++;
+    let rows: EgovRow[];
+    try { rows = await readPage(page); } catch { console.log(`\n  (čítanie strany ${pageNum} zlyhalo)`); break; }
+
+    const batch: Record<string, unknown>[] = [];
+    for (const r of rows) {
+      if (seen.has(r.docId)) continue;
+      seen.add(r.docId);
+      if (r.amount === null || !r.date) continue;
+      collected++;
+      totalSum += r.amount;
+      batch.push({
+        external_id: `MM_INV_${r.docId}`,
+        source_type: 'WEB_INVOICE',
+        source_url: LIST_URL,
+        buyer_entity_id: buyerId,
+        supplier_entity_id: null,
+        amount_eur: r.amount,
+        date_published: r.date,
+        subject: `Faktúra ${r.cislo} — ${r.supplierName}`.slice(0, 300),  // meno v subject (schéma nemá zvlášť stĺpec)
+      });
+    }
+    if (APPLY && batch.length) {
+      const { error } = await supabase.from('transactions').upsert(batch, { onConflict: 'external_id' });
+      if (error) console.log(`\n  upsert chyba strana ${pageNum}: ${error.message}`);
+      else wrote += batch.length;
+    }
+    process.stdout.write(`\r  strana ${pageNum} — zozbieraných ${collected}${APPLY ? `, zapísaných ${wrote}` : ''}`);
+
+    const curFirst = await firstDocId(page);
+    const advanced = await goNextPage(page, curFirst);
+    if (!advanced) { console.log(`\n  (koniec stránkovania na strane ${pageNum})`); break; }
+  }
+  console.log('');
+  console.log(`\n📊 FÁZA 1 hotová: ${collected} faktúr, objem ${totalSum.toLocaleString('sk-SK', { minimumFractionDigits: 2 })} €`);
+  if (APPLY) {
+    console.log(`   Zapísaných/aktualizovaných: ${wrote}`);
+    await supabase.from('system_logs').insert({ source: 'EGOV_SCRAPER', message: `eGOV Martin FÁZA 1: ${wrote} faktúr (zoznam, ${pageNum} strán).`, parsed_data: { wrote, collected, totalSum, pages: pageNum } });
+  } else {
+    console.log(`\n✅ DRY-RUN. Pre zápis: --phase=list --apply`);
+  }
+}
+
+// ─────────────────────────── FÁZA 2: IČO pre red-flagy ───────────────────────────
+async function phaseIco(page: Page) {
+  console.log(`  FÁZA 2 (IČO) — faktúry >= ${MIN_AMOUNT_FOR_ICO} € bez dodávateľa\n`);
+  const target = await getPostbackTarget(page);
+  if (!target) { console.error('  Nenašiel sa postback target.'); return; }
+
+  // faktúry nad prahom, ktoré ešte nemajú dodávateľa (resume-safe)
+  const { data: todo, error } = await supabase.from('transactions')
+    .select('id, external_id, amount_eur, subject')
+    .eq('source_type', 'WEB_INVOICE')
+    .is('supplier_entity_id', null)
+    .gte('amount_eur', MIN_AMOUNT_FOR_ICO)
+    .order('amount_eur', { ascending: false });
+  if (error) { console.error('  DB chyba:', error.message); return; }
+  console.log(`  Na spracovanie: ${todo?.length || 0} faktúr\n`);
+  if (!todo || !todo.length) return;
+
+  const supCache = new Map<string, string>();
+  let done = 0, withIco = 0, noIco = 0;
+  for (const t of todo) {
+    const docId = (t.external_id as string).replace('MM_INV_', '');
+    let ico: string | null = null, name: string | null = null;
+    try { const r = await fetchIcoByPostback(page, target, docId); ico = r.ico; name = r.name; } catch { ico = null; }
+    if (ico) ico = correctIco(ico) ?? ico;
+    done++;
+    if (ico && /^\d{6,8}$/.test(ico)) {
+      withIco++;
+      let supplierId = supCache.get(ico) ?? null;
+      if (!supplierId) {
+        const cleanName = (name || `IČO ${ico}`).trim();
+        const { data: sup } = await supabase.from('entities')
+          .upsert({ ico, name: cleanName, type: 'COMPANY', normalized_name: cleanName.toLowerCase() }, { onConflict: 'ico' })
+          .select('id').single();
+        if (sup) { supplierId = sup.id as string; supCache.set(ico, supplierId); }
+      }
+      if (APPLY && supplierId) {
+        await supabase.from('transactions').update({ supplier_entity_id: supplierId }).eq('id', t.id);
+      }
+    } else {
+      noIco++;
+    }
+    if (done % 10 === 0 || done === todo.length) {
+      process.stdout.write(`\r  ${done}/${todo.length} — s IČO ${withIco}, bez IČO ${noIco}`);
+    }
+  }
+  console.log('');
+  console.log(`\n📊 FÁZA 2 hotová: ${withIco} s IČO, ${noIco} bez IČO (z ${done}).`);
+  if (APPLY) {
+    await supabase.from('system_logs').insert({ source: 'EGOV_SCRAPER', message: `eGOV Martin FÁZA 2: ${withIco} IČO dotiahnutých pre red-flag faktúry.`, parsed_data: { withIco, noIco, done } });
+  } else {
+    console.log(`\n✅ DRY-RUN. Pre zápis: --phase=ico --apply`);
+  }
 }
 
 async function main() {
-  console.log(`🏛️  Krtko eGOV Martin — ${APPLY ? 'APPLY' : 'DRY-RUN'} | max ${MAX_PAGES} strán (najnovšie)\n`);
+  console.log(`🏛️  Krtko eGOV Martin — ${APPLY ? 'APPLY' : 'DRY-RUN'} | fáza=${PHASE}\n`);
   const { data: buyer } = await supabase.from('entities').select('id').eq('ico', MM_BUYER_ICO).single();
   if (!buyer) { console.error(`Buyer Mesto Martin (${MM_BUYER_ICO}) neexistuje v DB.`); process.exit(1); }
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  page.setDefaultTimeout(35000);
+  page.setDefaultTimeout(40000);
   await page.goto(LIST_URL, { waitUntil: 'networkidle' });
   await page.waitForTimeout(2500);
 
-  // CORA default poradie: strana 1 = najstaršie (2010), POSLEDNÁ strana = najnovšie (2026).
-  // Sort podľa dátumu/sumy je nespoľahlivý → skočíme na koniec a ideme DOZADU (najnovšie prvé).
-  const lastPage = await readLastPage(page);
-  console.log(`  Celkovo strán: ${lastPage || '?'} (10 faktúr/strana)`);
-  if (!lastPage) { console.error('  Nepodarilo sa zistiť počet strán.'); await browser.close(); process.exit(1); }
+  if (PHASE === 'list') await phaseList(page, buyer.id as string);
+  else if (PHASE === 'ico') await phaseIco(page);
+  else console.error(`Neznáma fáza: ${PHASE} (použi list alebo ico)`);
 
-  // Príprava zápisu (incrementálny — každá faktúra hneď, aby beh prežil pád CORA).
-  const buyerId = buyer.id as string;
-  const supCache = new Map<string, string>();
-
-  async function persist(r: EgovRow): Promise<'wrote' | 'skip'> {
-    if (r.amount === null || !r.date) return 'skip';
-    let supplierId: string | null = null;
-    if (r.ico && /^\d{6,8}$/.test(r.ico)) {
-      supplierId = supCache.get(r.ico) ?? null;
-      if (!supplierId) {
-        const { data: sup } = await supabase.from('entities')
-          .upsert({ ico: r.ico, name: r.supplierName, type: 'COMPANY', normalized_name: r.supplierName.toLowerCase() }, { onConflict: 'ico' })
-          .select('id').single();
-        if (sup) { supplierId = sup.id as string; supCache.set(r.ico, supplierId); }
-      }
-    }
-    const { error } = await supabase.from('transactions').upsert({
-      external_id: `MM_INV_${r.docId}`,
-      source_type: 'WEB_INVOICE',
-      source_url: LIST_URL,
-      buyer_entity_id: buyerId,
-      supplier_entity_id: supplierId,
-      amount_eur: r.amount,
-      date_published: r.date,
-      subject: `Faktúra ${r.cislo}`,
-    }, { onConflict: 'external_id' });
-    return error ? 'skip' : 'wrote';
-  }
-
-  const seen = new Set<string>();
-  let collected = 0, wrote = 0, skip = 0, overCount = 0;
-  let totalSum = 0;
-  const sample: EgovRow[] = [];
-
-  // Default poradie CORA = najnovšie faktúry na strane 1 → ideme od 1 dopredu cez page-next.
-  for (let p = 1; p <= MAX_PAGES; p++) {
-    let rows: EgovRow[];
-    try { rows = await readPage(page); } catch { console.log(`\n  (čítanie strany ${p} zlyhalo — skúšam ďalšiu)`); if (!(await goNextPage(page))) break; continue; }
-
-    for (const r of rows) {
-      if (seen.has(r.docId)) continue;
-      seen.add(r.docId);
-      // IČO ťaháme z detailu LEN pre faktúry nad prahom (cross-check s CRZ).
-      if ((r.amount || 0) >= MIN_AMOUNT_FOR_ICO) {
-        try { r.ico = await fetchIco(page, r.docId); if (r.ico) r.ico = correctIco(r.ico) ?? r.ico; } catch { r.ico = null; }
-        overCount++;
-        if (sample.length < 12 && r.ico) sample.push(r);
-      }
-      collected++;
-      totalSum += r.amount || 0;
-      if (APPLY) { const res = await persist(r); if (res === 'wrote') wrote++; else skip++; }
-    }
-    process.stdout.write(`\r  strana ${p}/${MAX_PAGES} — zozbieraných ${collected}, nad prahom ${overCount}${APPLY ? `, zapísaných ${wrote}` : ''}`);
-    if (p < MAX_PAGES) { if (!(await goNextPage(page))) { console.log('\n  (koniec stránkovania)'); break; } }
-  }
-  console.log('');
   await browser.close();
-
-  console.log(`\n📊 Spolu ${collected} faktúr, objem ${totalSum.toLocaleString('sk-SK', { minimumFractionDigits: 2 })} €`);
-  console.log(`   Faktúr nad ${MIN_AMOUNT_FOR_ICO} € (s IČO z detailu): ${overCount}`);
-  console.log(`\n🔎 Vzorka nad prahom:`);
-  sample.forEach(r => console.log(`   ${(r.amount || 0).toLocaleString('sk-SK', { minimumFractionDigits: 2 }).padStart(13)} € | ${r.date} | ${r.supplierName} (${r.ico || 'bez IČO'})`));
-
-  if (!APPLY) { console.log(`\n✅ DRY-RUN hotový. Pre zápis --apply.`); return; }
-
-  console.log(`\n🎉 Hotovo: zapísaných ${wrote}, preskočených ${skip}.`);
-  await supabase.from('system_logs').insert({ source: 'EGOV_SCRAPER', message: `eGOV Martin: ${wrote} faktúr zapísaných (${MAX_PAGES} strán od najnovších).`, parsed_data: { wrote, skip, totalSum, overCount } });
 }
 main().then(() => process.exit(0)).catch(e => { console.error('CHYBA:', e); process.exit(1); });

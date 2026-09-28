@@ -5,6 +5,7 @@ import { isDuplicatePublication } from '@/lib/duplicate-ids';
 import { correctIco } from '@/lib/entity-ico-fixes';
 import { computeAmendmentSupersessions } from '@/lib/contract-amendments';
 import rpvsData from '@/data/rpvs-status.json';
+import invoiceStats from '@/data/invoice-stats.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,32 +62,56 @@ export async function GET(request: Request) {
 
     if (entitiesError) throw entitiesError;
 
-    // Načítať VŠETKY transakcie — Supabase .select() ticho limituje na 1000 riadkov,
-    // preto paginujeme cez .range(), kým nedostaneme všetko (overené: 2223+ riadkov).
+    // Načítať transakcie. ŠKÁLOVANIE: faktúr (WEB_INVOICE) je ~158 000 (celá história CORA
+    // mesta Martin od 2010). NEMÁ zmysel ťahať/posielať klientovi všetky — bežné faktúry sú
+    // v agregátoch (src/data/invoice-stats.json, precompute). Do zoznamu berieme:
+    //   - VŠETKY CRZ zmluvy (potrebné pre agregácie, RPVS, dodatky),
+    //   - len RED-FLAG kandidát faktúry (>= INVOICE_LIST_THRESHOLD), z ktorých sa audit počíta,
+    //   - pri filterIco (profil dodávateľa) VŠETKY jeho faktúry (malý rozsah pre jednu firmu).
+    // Supabase .select() ticho limituje na 1000 riadkov → paginujeme cez .range().
+    const INVOICE_LIST_THRESHOLD = 10000;
     const PAGE_SIZE = 1000;
     const selectCols = hasDirectionColumn
       ? 'id, external_id, source_type, amount_eur, subject, date_published, source_url, direction, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)'
       : 'id, external_id, source_type, amount_eur, subject, date_published, source_url, buyer:buyer_entity_id(name, ico), supplier:supplier_entity_id(name, ico)';
     const transactionsData: TransactionRow[] = [];
-    let from = 0;
-    while (true) {
-      const { data: pageRows, error: txError } = await supabase
-        .from('transactions')
-        .select(selectCols)
-        .order('date_published', { ascending: false })
-        .range(from, from + PAGE_SIZE - 1);
-      if (txError) throw txError;
-      const page = (pageRows || []) as unknown as TransactionRow[];
-      // Durabilná korekcia chybného IČO priamo zo zdroja (CRZ preklep, ktorý Krtko cez noc
-      // znova zakladá ako orphan entitu). Opravíme IČO pri čítaní, nech web nikdy neukáže
-      // profil pod neexistujúcim/cudzím IČO — nezávisle od stavu DB (viď entity-ico-fixes.ts).
-      for (const row of page) {
-        if (row.buyer) row.buyer = { ...row.buyer, ico: correctIco(row.buyer.ico) as string };
-        if (row.supplier) row.supplier = { ...row.supplier, ico: correctIco(row.supplier.ico) as string };
+
+    // Ak je filterIco (profil dodávateľa/mesta), zisti jeho entity id pre presný filter faktúr.
+    let filterEntityId: string | null = null;
+    if (filterIco) {
+      const { data: ent } = await supabase.from('entities').select('id').eq('ico', filterIco).maybeSingle();
+      filterEntityId = (ent?.id as string) || null;
+    }
+
+    // Stránkované načítanie jedného zdroja (CRZ / WEB_INVOICE) s voliteľným prahom / entitou.
+    async function loadRange(sourceType: string, opts: { minAmount?: number; supplierId?: string | null; buyerId?: string | null } = {}) {
+      let from = 0;
+      for (;;) {
+        let q = supabase.from('transactions').select(selectCols).eq('source_type', sourceType);
+        if (opts.minAmount != null) q = q.gte('amount_eur', opts.minAmount);
+        if (opts.supplierId && opts.buyerId) q = q.or(`supplier_entity_id.eq.${opts.supplierId},buyer_entity_id.eq.${opts.buyerId}`);
+        const { data: pageRows, error: txError } = await q
+          .order('date_published', { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+        if (txError) throw txError;
+        const page = (pageRows || []) as unknown as TransactionRow[];
+        for (const row of page) {
+          if (row.buyer) row.buyer = { ...row.buyer, ico: correctIco(row.buyer.ico) as string };
+          if (row.supplier) row.supplier = { ...row.supplier, ico: correctIco(row.supplier.ico) as string };
+        }
+        transactionsData.push(...page);
+        if (page.length < PAGE_SIZE) break;
+        from += PAGE_SIZE;
       }
-      transactionsData.push(...page);
-      if (page.length < PAGE_SIZE) break;
-      from += PAGE_SIZE;
+    }
+
+    // 1) Všetky CRZ zmluvy (filtrované podľa entity, ak je filterIco)
+    await loadRange('CRZ_CONTRACT', filterEntityId ? { supplierId: filterEntityId, buyerId: filterEntityId } : {});
+    // 2) Faktúry: pri profile všetky jeho, inak len red-flag kandidáti (>= prah)
+    if (filterEntityId) {
+      await loadRange('WEB_INVOICE', { supplierId: filterEntityId, buyerId: filterEntityId });
+    } else {
+      await loadRange('WEB_INVOICE', { minAmount: INVOICE_LIST_THRESHOLD });
     }
     // Vylúč nekanonické (opakované) zverejnenia tej istej CRZ zmluvy. NFP/dotačné zmluvy
     // zverejňujú v CRZ obe strany (+ re-scrape) → tá istá zmluva má 2–3 CRZ ID; bez tohto
@@ -174,7 +199,13 @@ export async function GET(request: Request) {
     const invoiceTx = expenseTx.filter((t) => t.source_type === 'WEB_INVOICE');
     const totalSpent = contractExpenseTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
     const totalIncome = incomeTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
-    const totalInvoiced = invoiceTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0);
+    // Faktúry: súčet a počet z PRECOMPUTE (invoice-stats.json) — v API máme načítané len
+    // red-flag faktúry (>= prah), nie všetkých ~158k. Pri profile dodávateľa (filterIco) rátame
+    // z reálne načítaných jeho faktúr (presné pre danú firmu).
+    const totalInvoiced = filterIco
+      ? invoiceTx.reduce((acc, curr) => acc + curr.effective_amount_eur, 0)
+      : (invoiceStats.totalInvoiced || 0);
+    const invoiceCountTotal = filterIco ? invoiceTx.length : (invoiceStats.invoiceCount || 0);
 
     // Top dodávatelia (Sumár výdavkov podľa dodávateľa) — len CRZ zmluvy, bez príjmov aj faktúr.
     const supplierAgg = contractExpenseTx.reduce((acc: Record<string, number>, curr) => {
@@ -199,7 +230,7 @@ export async function GET(request: Request) {
         totalIncome,
         totalInvoiced,
         totalContracts: contractExpenseTx.length,
-        invoiceCount: invoiceTx.length,
+        invoiceCount: invoiceCountTotal,
         incomeCount: incomeTx.length,
         entitiesCount: entities?.length || 0,
       },

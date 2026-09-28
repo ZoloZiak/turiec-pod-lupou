@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-09-28T08:19:49.740Z",
+  "source": "WEB_INVOICE agregáty (DPM zverejňovanie + egov.martin.sk CORA)",
+  "note": "Precompute pre škálovateľné zobrazenie faktúr. API neposiela jednotlivé bežné faktúry klientovi — len tieto súčty + red-flag faktúry (>=10k bez CRZ zmluvy).",
+  "totalInvoiced": 14174675.7,
+  "invoiceCount": 4405,
+  "byYear": {
+    "2021": {
+      "count": 157,
+      "sum": 346868.65
+    },
+    "2022": {
+      "count": 714,
+      "sum": 2078999.58
+    },
+    "2023": {
+      "count": 903,
+      "sum": 2662432.09
+    },
+    "2024": {
+      "count": 921,
+      "sum": 3266796.14
+    },
+    "2025": {
+      "count": 1102,
+      "sum": 3710706.82
+    },
+    "2026": {
+      "count": 608,
+      "sum": 2108872.42
+    }
+  }
+}
