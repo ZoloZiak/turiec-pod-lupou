@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-28T12:42:19.855Z",
+  "generatedAt": "2026-09-28T15:43:11.631Z",
   "source": "egov.martin.sk CORA 778 (zmluvy mesta) + CRZ_CONTRACT (DB)",
   "note": "IČO dodávateľov, ktorí majú aspoň jednu zmluvu s mestom (egov alebo národné CRZ). Audit ich NEoznačuje ako \"faktúra bez zmluvy\". Meno-párovanie doplnené kurátorskými override (viď build-supplier-contracts.ts).",
   "icoWithContract": [
@@ -208,6 +208,7 @@
     "36149721",
     "36179507",
     "36211541",
+    "36227552",
     "36237337",
     "36239542",
     "36239631",
@@ -280,6 +281,7 @@
     "36473251",
     "36507881",
     "36525685",
+    "36548014",
     "36558681",
     "36609820",
     "36631124",
@@ -297,6 +299,7 @@
     "36785571",
     "36789291",
     "36815870",
+    "36820652",
     "36832952",
     "36837075",
     "36842176",
@@ -347,6 +350,7 @@
     "42499500",
     "43301606",
     "43549063",
+    "43801366",
     "43823734",
     "43850065",
     "43867243",

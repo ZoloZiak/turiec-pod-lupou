@@ -1,21 +1,25 @@
 {
-  "generatedAt": "2026-09-28T12:45:01.022Z",
+  "generatedAt": "2026-09-28T15:46:31.744Z",
   "source": "WEB_INVOICE agregáty (DPM zverejňovanie + egov.martin.sk CORA)",
   "note": "Precompute pre škálovateľné zobrazenie faktúr. API neposiela jednotlivé bežné faktúry klientovi — len tieto súčty + red-flag faktúry (>=10k bez CRZ zmluvy).",
-  "totalInvoiced": 316998132.05,
-  "invoiceCount": 158405,
+  "totalInvoiced": 328140596.39,
+  "invoiceCount": 162315,
   "byYear": {
+    "2009": {
+      "count": 2,
+      "sum": 18.5
+    },
     "2010": {
-      "count": 1,
-      "sum": 1844
+      "count": 69,
+      "sum": 247681.11
     },
     "2011": {
-      "count": 7,
-      "sum": 4369.17
+      "count": 3599,
+      "sum": 10409182.7
     },
     "2012": {
-      "count": 3915,
-      "sum": 13140077.63
+      "count": 4104,
+      "sum": 13594239.05
     },
     "2013": {
       "count": 4138,
@@ -34,28 +38,28 @@
       "sum": 13317793.76
     },
     "2017": {
-      "count": 12187,
-      "sum": 15034621.97
+      "count": 12189,
+      "sum": 15035381.16
     },
     "2018": {
-      "count": 12754,
-      "sum": 20030275.05
+      "count": 12755,
+      "sum": 20030300.97
     },
     "2019": {
-      "count": 12504,
-      "sum": 20944133.79
+      "count": 12505,
+      "sum": 20944211.26
     },
     "2020": {
-      "count": 11487,
-      "sum": 22203864.5
+      "count": 11490,
+      "sum": 22204421.14
     },
     "2021": {
-      "count": 11671,
-      "sum": 23138506.41
+      "count": 11673,
+      "sum": 23138547.41
     },
     "2022": {
-      "count": 13814,
-      "sum": 30319254.38
+      "count": 13817,
+      "sum": 30320326.63
     },
     "2023": {
       "count": 13987,
@@ -70,8 +74,8 @@
       "sum": 37064738.63
     },
     "2026": {
-      "count": 10249,
-      "sum": 25062277.22
+      "count": 10296,
+      "sum": 25097378.53
     }
   }
 }
