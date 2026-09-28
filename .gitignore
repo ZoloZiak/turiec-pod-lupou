@@ -49,5 +49,8 @@ scripts/_*.js
 scripts/_*.py
 scripts/_*.pdf
 scripts/_*.json
+# temp probe skripty (prefix _) kdekolvek v scripts/ aj src/scripts/
+scripts/_*
+src/scripts/_*
 # theme backupy (jednorazove)
 *.themebak
