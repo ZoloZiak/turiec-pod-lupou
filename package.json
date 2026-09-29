@@ -18,6 +18,7 @@
     "krtko:egov:ico": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/krtko-egov.ts --phase=ico",
     "krtko:egov:fill": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/fill-missing-invoices.ts",
     "build:orders": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/build-order-stats.ts",
+    "build:contracts": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx src/scripts/build-city-contracts.ts",
     "sync:nku": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_nku.js",
     "sync:eurofondy": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_eurofondy.js",
     "sync:companies": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/sync_companies.js",
