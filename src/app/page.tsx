@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck, TrendingUp } from "lucide-react";
+import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck, TrendingUp, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 import InfoIcon from "./components/InfoIcon";
@@ -160,6 +160,10 @@ export default function Dashboard() {
               <ShieldAlert className="w-4 h-4" aria-hidden="true" />
               Majetky
             </Link>
+            <Link href="/objednavky" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 px-4 py-2 rounded-lg text-emerald-400 border border-emerald-500/20 transition-all flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+              Objednávky
+            </Link>
             <Link href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated px-4 py-2 rounded-lg text-body border border-line transition-all">
               Administrácia
             </Link>
@@ -188,6 +192,10 @@ export default function Dashboard() {
                <a href="/majetky" className="text-sm font-medium bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 px-4 py-2.5 rounded-lg text-indigo-400 transition-colors flex items-center justify-center gap-2">
                  <ShieldAlert className="w-4 h-4" aria-hidden="true" />
                  Majetky
+               </a>
+               <a href="/objednavky" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-4 py-2.5 rounded-lg text-emerald-400 transition-colors flex items-center justify-center gap-2">
+                 <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+                 Objednávky
                </a>
                <a href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated border border-line px-4 py-2.5 rounded-lg text-body transition-colors text-center">
                  Administrácia
