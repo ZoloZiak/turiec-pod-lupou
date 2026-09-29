@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { ShoppingCart, AlertTriangle, ExternalLink, Search, CheckCircle, Building } from "lucide-react";
 import Link from "next/link";
 import orderStats from "../../data/order-stats.json";
+import ExportButtons from "../components/ExportButtons";
 
 interface BigOrder {
   cislo: string; supplier: string; ico: string | null; amount_eur: number;
@@ -126,6 +127,23 @@ export default function ObjednavkyPage() {
           </div>
 
           <p className="text-sm text-muted mb-3">Zobrazených {filtered.length} z {stats.bigOrderCount} veľkých objednávok.</p>
+
+          <div className="mb-4">
+            <ExportButtons
+              rows={filtered.map(o => ({
+                cislo_objednavky: o.cislo,
+                datum: o.date,
+                dodavatel: o.supplier,
+                ico: o.ico ?? "",
+                predmet: o.text,
+                suma_eur: o.amount_eur,
+                ma_zmluvu: o.hasContract ? "áno" : "nie",
+                bez_zmluvy_otaznik: o.suspicious ? "áno" : "nie",
+              }))}
+              basename="objednavky-mesta-martin"
+              countLabel={`${filtered.length.toLocaleString("sk-SK")} zobrazených objednávok`}
+            />
+          </div>
 
           <div className="space-y-3">
             {filtered.map((o, i) => (

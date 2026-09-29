@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { FileText, Search, ExternalLink, Calendar, Filter, Loader2 } from "lucide-react";
 import Link from "next/link";
 import contractStats from "../../data/city-contract-stats.json";
+import ExportButtons from "../components/ExportButtons";
 
 interface Contract {
   cislo: string; rok: string; typ: string; druh: string;
@@ -138,6 +139,23 @@ export default function ZmluvyPage() {
         ) : (
           <>
             <p className="text-sm text-muted">Nájdených {filtered.length.toLocaleString("sk-SK")} zmlúv{filtered.length !== stats.totalContracts ? ` (z ${stats.totalContracts.toLocaleString("sk-SK")})` : ""}.</p>
+
+            <div className="mb-4 mt-2">
+              <ExportButtons
+                rows={filtered.map(c => ({
+                  cislo: c.cislo,
+                  rok: c.rok,
+                  typ: c.typ,
+                  druh: c.druh,
+                  zmluvne_strany: c.strany,
+                  predmet: c.predmet,
+                  suma_eur: c.suma,
+                  datum_podpisu: c.podpis,
+                }))}
+                basename="zmluvy-mesta-martin"
+                countLabel={`${filtered.length.toLocaleString("sk-SK")} nájdených zmlúv`}
+              />
+            </div>
 
             <div className="space-y-3">
               {pageItems.map((c, i) => (
