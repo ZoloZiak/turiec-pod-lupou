@@ -168,6 +168,10 @@ export default function Dashboard() {
               <FileText className="w-4 h-4" aria-hidden="true" />
               Zmluvy
             </Link>
+            <Link href="/kontrola" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-lg text-amber-400 border border-amber-500/20 transition-all flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4" aria-hidden="true" />
+              Kontrola
+            </Link>
             <Link href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated px-4 py-2 rounded-lg text-body border border-line transition-all">
               Administrácia
             </Link>
@@ -204,6 +208,10 @@ export default function Dashboard() {
                <a href="/zmluvy" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-4 py-2.5 rounded-lg text-emerald-400 transition-colors flex items-center justify-center gap-2">
                  <FileText className="w-4 h-4" aria-hidden="true" />
                  Zmluvy
+               </a>
+               <a href="/kontrola" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2.5 rounded-lg text-amber-400 transition-colors flex items-center justify-center gap-2">
+                 <ShieldAlert className="w-4 h-4" aria-hidden="true" />
+                 Kontrola
                </a>
                <a href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated border border-line px-4 py-2.5 rounded-lg text-body transition-colors text-center">
                  Administrácia
