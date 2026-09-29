@@ -3,10 +3,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search, Share2, Check } from "lucide-react";
+import { ArrowLeft, Building2, TrendingUp, AlertTriangle, Search, Share2, Check, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { isRpvsExempt } from "@/lib/rpvs-exempt";
 import { isValidIco } from "@/lib/entity-ico-fixes";
+import orderStats from "../../../data/order-stats.json";
+
+interface SupplierOrder {
+  cislo: string; supplier: string; ico: string | null; amount_eur: number;
+  date: string; text: string; hasContract: boolean; suspicious: boolean;
+}
+const ALL_BIG_ORDERS = (orderStats as unknown as { bigOrders: SupplierOrder[] }).bigOrders;
 
 interface Transaction {
   id: string;
@@ -109,6 +116,13 @@ export default function SupplierProfilePage() {
 
   const { supplier, transactions, stats } = data;
   const isNoIco = supplier.ico.startsWith('NO_ICO_');
+
+  // Objednávky tohto dodávateľa (z precompute order-stats.json, veľké ≥10k).
+  // Dopĺňa obstarávací reťazec: objednávka → faktúra/zmluva. IČO-match je exaktný.
+  const supplierOrders = (!isNoIco && isValidIco(supplier.ico))
+    ? ALL_BIG_ORDERS.filter(o => o.ico === supplier.ico).sort((a, b) => b.amount_eur - a.amount_eur)
+    : [];
+  const ordersTotal = supplierOrders.reduce((s, o) => s + o.amount_eur, 0);
 
   return (
     <div className="min-h-screen bg-surface text-body font-sans pb-12">
@@ -330,6 +344,54 @@ export default function SupplierProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* OBJEDNÁVKY MESTA (obstarávací reťazec) */}
+        {supplierOrders.length > 0 && (
+          <div className="bg-card rounded-2xl shadow-sm border border-line overflow-hidden">
+            <div className="p-6 border-b border-line flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-emerald-500" aria-hidden="true" /> Objednávky mesta
+              </h3>
+              <div className="text-sm text-muted">
+                {supplierOrders.length} veľkých objednávok · spolu {formatEur(ordersTotal)}
+              </div>
+            </div>
+            <div className="px-6 py-3 bg-surface/60 text-xs text-muted border-b border-line">
+              Objednávka je predchodca faktúry — mesto ňou zadáva dodávku. Zobrazujeme významné objednávky (od 10 000 €)
+              spárované s týmto IČO. Spolu s faktúrami a zmluvami vyššie tvoria obstarávací reťazec dodávateľa.
+            </div>
+            <div className="divide-y divide-line">
+              {supplierOrders.map((o, i) => (
+                <div key={`${o.cislo}-${i}`} className="p-4 sm:px-6 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="text-xs font-mono text-muted">obj. {o.cislo}</span>
+                      <span className="text-xs text-muted">{o.date}</span>
+                      {o.suspicious ? (
+                        <span className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-500 px-2 py-0.5 rounded-full text-[11px] font-bold">
+                          <AlertTriangle className="w-3 h-3" aria-hidden="true" /> Bez zmluvy
+                        </span>
+                      ) : o.hasContract ? (
+                        <span className="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-full text-[11px] font-bold">
+                          <Check className="w-3 h-3" aria-hidden="true" /> Má zmluvu
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-sm text-body line-clamp-2" title={o.text}>{o.text || "—"}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-xl font-black text-body">{formatEur(o.amount_eur)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="px-6 py-3 border-t border-line text-right">
+              <Link href="/objednavky" className="text-sm text-emerald-500 hover:underline font-medium">
+                Všetky objednávky mesta →
+              </Link>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
