@@ -83,6 +83,18 @@ const ICO_CORRECTIONS: Record<string, string> = {
   //   Bratislava-Ružinov = zhoda s CRZ adresou; RÚZ id 1129902). 7-miestne -> guard isValidIco()
   //   ho držal bez web linkov, correctIco ho teraz opraví aj na write-path (Krtko nezaloží orphan).
   '4612602': '46120602', // Metrostav DS a.s. — CRZ 12780443 (typo, NIE zero-pad 04612602!)
+  // WATCH #286 (2026-09-29): nový DPM/egov CORA scraper (dataset 315->839 IČO) uložil 4
+  //   dodávateľov so SHORT6 IČO surovo (krtko-dpm validácia /^\d{6,8}$/ prijme 6-cifr, correctIco
+  //   ich nepokrýval) -> vznikli ORPHAN entity čo rozštiepili profil dodávateľa (KOOPERATIVA
+  //   50 z 80 tx, Mesto Martin 191 z 220 tx). 2-zdrojovo overené: pre KAŽDÝ pár je zero-pad 8-cifr
+  //   IČO v RÚZ (+ RPO exact kde register neodmietol) priradené presne tomu subjektu (názov sedí),
+  //   kanon clean entita už v DB existuje. NIE pasca "strip->cudzí" (short6, nie whitespace strip).
+  //   DB orphany zmergované (fix_watch286_short6_merge.js). Táto korekcia bráni ich návratu na
+  //   write-path (Krtko zapíše rovno kanon) aj read-path (wrongIcosFor pri zaostávaní merge).
+  '585441': '00585441', // KOOPERATIVA poisťovňa, a.s. VIG — RÚZ+RPO (DPM faktúry short6)
+  '316792': '00316792', // Mesto Martin — RPO exact + RÚZ (DPM faktúry short6)
+  '685852': '00685852', // Messer Tatragas, spol. s r.o. — RÚZ+RPO (DPM faktúry short6)
+  '151653': '00151653', // Slovenská sporiteľňa, a.s. — RÚZ (DPM faktúry short6)
 };
 
 /** Vráti opravené IČO, ak je vstupné IČO známy preklep; inak vráti pôvodné IČO nezmenené. */
