@@ -11,7 +11,7 @@ interface Contract {
 }
 interface Stats {
   generatedAt: string; source: string; sourceUrl: string;
-  totalContracts: number; excludedGraves: number; pricedContracts: number;
+  totalContracts: number; excludedGraves: number; anonymizedPersons: number; pricedContracts: number;
   bigThreshold: number; bigCount: number; hugeCount: number;
   byYear: Record<string, number>; topTypes: [string, number][];
 }
@@ -190,6 +190,7 @@ export default function ZmluvyPage() {
           </p>
           <p>
             Zo zoznamu <strong className="text-body">vynechávame nájmy hrobových miest</strong> ({stats.excludedGraves.toLocaleString("sk-SK")} zmlúv) — obsahujú mená občanov (osobné údaje) a nie sú výdavkom mesta.
+            Pri ostatných zmluvách s fyzickými osobami (nájmy, výpožičky) <strong className="text-body">anonymizujeme meno občana</strong> na „Fyzická osoba" ({stats.anonymizedPersons.toLocaleString("sk-SK")} zmlúv) — suma, predmet a typ zostávajú viditeľné, takže kontrola hospodárenia je zachovaná, ale súkromie občanov chránené. Firmy, živnostníkov a inštitúcie zobrazujeme s názvom.
             Uvedená suma je cena za konkrétnu zmluvu; celkový súčet neuvádzame, lebo dodatky opakovane vykazujú celkovú cenu diela (nie rozdiel), takže by súčet výdavky nafúkol.
             Zmluvy portál nezverejňuje s IČO dodávateľa.
           </p>

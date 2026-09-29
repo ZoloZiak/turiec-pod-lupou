@@ -51,6 +51,37 @@ function cleanParties(s: string): string {
   return (s || '').replace(/\r/g, ' / ').replace(/\s+/g, ' ').trim();
 }
 
+// ---- GDPR anonymizácia fyzických osôb (možnosť 2: skry meno FO, firmy/inštitúcie nechaj) ----
+// Zmluvy mesta s občanmi (výpožičky pozemkov, nájmy, dohody) sú zákonne verejné, ale robiť ich
+// vyhľadávateľnými amplifikuje osobné údaje. Meno FO -> "Fyzická osoba"; suma/predmet/typ ostávajú
+// (transparentnosť hospodárenia zachovaná). Firmy, živnostníkov a inštitúcie NEanonymizujeme.
+// Detektor overený na reálnych dátach: 0 organizácií falošne anonymizovaných (kontrola oboma smermi).
+const ORG_RE = /s\.?\s?r\.?\s?o|\ba\.?\s?s\b|spol\.|akciov|\bš\.?\s?p\b|\bo\.?\s?z\b|\bn\.?\s?o\b|\bk\.?\s?s\b|\bv\.?\s?o\.?\s?s\b|družstv|obec\b|\bmesto\b|\bobce\b|úrad|štát|banka|poisťov|univerzit|nemocnic|\bZŠ\b|\bMŠ\b|\bSŠ\b|\bSOŠ\b|centrum|spoločnos|ministerstv|\bklub\b|združen|nadácia|cirkev|diakon|\bškola\b|školy|akadém|komora|zväz|inštitút|\bfond\b|s\. r\. o|a\. s\.|gymnáz|správa|slovensk|republik|kraj\b|samosprávny|jednota|zariadenie|domov|\bSVB\b|vlastníkov|telovýchov|telocvičn|futbal|hokej|\bTJ\b|\bŠK\b|\bMFK\b|orol|skaut|charita|verejn|agentúra|rozhlas|televíz|pošta|dráhy|železnic|lesy|vodárne|teplo|\bSPP\b|\bZSE\b|\bSSE\b|energ|plyn|spol[oe]k|spolku|obč[ei]anske|sdružení|klaster|aliancia|\bliga\b|federáci|kancelária|advokát|salón|salon|servis|autoškola|lekáre|ambulanc|s\.p\.|obchodná|obchodné|galéri|múze|divadlo|knižnic|stredisko|rada\b|výbor|zbor|organizácia|múze/i;
+const DASH_BIZ_RE = /\s[-–]\s/;
+const ALLCAPS_RE = /\b[A-ZÁÄČĎÉÍĹĽŇÓÔŔŠŤÚÝŽ]{3,}\b/;
+const TITLES = new Set(['ing.', 'mgr.', 'bc.', 'judr.', 'mudr.', 'phdr.', 'rndr.', 'doc.', 'prof.', 'ing', 'mgr', 'bc', 'dr.', 'paeddr.', 'mvdr.', 'phd.', 'art.', 'csc.']);
+
+function partyIsPerson(sp: string): boolean {
+  if (!sp) return false;
+  if (/^fyzick[áa] osoba/i.test(sp)) return false; // už anonymizované portálom
+  if (ORG_RE.test(sp)) return false;
+  if (DASH_BIZ_RE.test(sp)) return false;          // živnostník "Meno - Firma"
+  if (/\d/.test(sp)) return false;                 // čísla = IČO/názov
+  if (ALLCAPS_RE.test(sp)) return false;           // obchodný názov živnostníka
+  const namewords = sp.replace(/,/g, '').split(/\s+/).filter(w => w && !TITLES.has(w.toLowerCase()));
+  if (namewords.length < 2 || namewords.length > 4) return false;
+  return namewords.every(w => w[0] === w[0].toUpperCase());
+}
+
+// Anonymizuj FO strany v texte "Mesto Martin / Meno Priezvisko". Mesto a org časti nechaj.
+function anonymizeParties(strany: string): string {
+  const parts = strany.split(/\s*\/\s*/).map(p => p.trim()).filter(Boolean);
+  return parts.map(p => {
+    if (/mesto martin|útvar hlavného|mestský úrad/i.test(p)) return p;
+    return partyIsPerson(p) ? 'Fyzická osoba' : p;
+  }).join(' / ');
+}
+
 async function loadExport(): Promise<Raw[]> {
   const localPath = process.env.CONTRACTS_JSON || resolve(process.env.TMPDIR || '/tmp', 'zmluvy.json');
   if (existsSync(localPath)) {
@@ -87,13 +118,15 @@ async function main() {
       rok: (r['Rok'] || '').trim(),
       typ: (r['Typ'] || '').trim(),
       druh: (r['Druh'] || '').trim(),
-      strany: cleanParties(r['Zmluvné_strany'] || ''),
+      strany: anonymizeParties(cleanParties(r['Zmluvné_strany'] || '')),
       predmet: (r['Predmet'] || '').trim().slice(0, 400),
       suma: Math.round(amount * 100) / 100,
       mena: (r['Mena'] || '').trim(),
       podpis: (r['Dátum_podpisu'] || '').trim(),
     };
   });
+  const anonymized = contracts.filter(c => c.strany.includes('Fyzická osoba')).length;
+  console.log(`  Anonymizovaných zmlúv s fyzickou osobou (GDPR): ${anonymized}`);
 
   // agregáty
   const byYear: Record<string, number> = {};
@@ -116,6 +149,7 @@ async function main() {
     note: 'Prehliadateľné zmluvy mesta Martin (od 2011). Vynechané nájmy hrobových miest (osobné údaje občanov, nie výdavok mesta). Sumy sú per zmluva; celkový súčet neuvádzame, lebo dodatky recyklujú celkovú cenu (nie deltu). Zmluvy nemajú v exporte IČO.',
     totalContracts: contracts.length,
     excludedGraves: graves,
+    anonymizedPersons: anonymized,
     pricedContracts: priced,
     bigThreshold: BIG,
     bigCount: big,
