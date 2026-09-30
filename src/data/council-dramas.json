@@ -1,0 +1,81 @@
+[
+  {
+    "slug": "dan-z-nehnutelnosti-2023",
+    "title": "Daň z nehnuteľností 2023: hlasovanie, ktoré najprv padlo a o päť týždňov prešlo",
+    "kicker": "Dodatok č. 21 k VZN č. 76 o miestnych daniach",
+    "summary": "Zvýšenie dane z nehnuteľností 26. októbra 2023 neprešlo — chýbal jediný hlas do potrebnej trojpätinovej väčšiny. O päť týždňov, 30. novembra 2023, ten istý návrh prešiel tesne na minime. Medzi oboma hlasovaniami sa zmenili len dve veci.",
+    "quorum": 19,
+    "seats": 31,
+    "votes": [
+      {
+        "date": "2023-10-26",
+        "label": "26. okt 2023",
+        "result": "NEPRESLO",
+        "za": 18,
+        "proti": 13,
+        "zdrzal": 0,
+        "nepritomny": 0,
+        "uznesenie": "207/23",
+        "source": "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-26-10-2023/ds-2487"
+      },
+      {
+        "date": "2023-11-30",
+        "label": "30. nov 2023",
+        "result": "PRESLO",
+        "za": 19,
+        "proti": 11,
+        "zdrzal": 0,
+        "nepritomny": 1,
+        "uznesenie": "236/2023",
+        "source": "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-30-11-2023/ds-2565"
+      }
+    ],
+    "changes": [
+      {
+        "name": "Jozef Petráš",
+        "from": "PROTI",
+        "to": "ZA",
+        "note": "Jediná zmena hlasu. 26. októbra hlasoval proti, 30. novembra za — jeho hlas doplnil chýbajúcu 19-tku."
+      },
+      {
+        "name": "Juraj Stahl",
+        "from": "PROTI",
+        "to": "NEPRÍTOMNÝ",
+        "note": "Odporca z prvého hlasovania sa druhého nezúčastnil, čím počet PROTI klesol z 13 na 11."
+      }
+    ],
+    "rollcall": [
+      { "name": "Marcela Amchová", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Martina Antošová", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Zuzana Badová", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Marcela Balošáková", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Marek Belák", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Tatiana Červeňová", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Zuzana Dobríková", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Milan Ftorek", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Róbert Gajdoš", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Veronika Gajdošová Ladňáková", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Marína Gallová", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Filip Horanský", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Bruno Horecký", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Lucia Hrivnák Klocová", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Martin Hudec", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Tomáš Ignačák", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Jozef Krištoffy", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Martin Lechan", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Martin Lepej", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Juraj Marček", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Michal Matejička", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Jozef Petráš", "v1": "PROTI", "v2": "ZA", "changed": true },
+      { "name": "Andrej Rodák", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Juraj Stahl", "v1": "PROTI", "v2": "NEPRÍTOMNÝ", "changed": true },
+      { "name": "Stanislav Thomka", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Peter Török", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Michal Uherčík", "v1": "PROTI", "v2": "PROTI", "changed": false },
+      { "name": "Ľubomír Vaňko", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Tomáš Zanovit", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Dana Žigová", "v1": "ZA", "v2": "ZA", "changed": false },
+      { "name": "Adam Žilák", "v1": "ZA", "v2": "ZA", "changed": false }
+    ]
+  }
+]

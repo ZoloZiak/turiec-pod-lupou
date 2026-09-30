@@ -49,6 +49,7 @@ const GROUPS: Group[] = [
     accent: "purple",
     items: [
       { href: "/poslanci", label: "Hlasovania MsZ", desc: "Menovité hlasovania poslancov", icon: Vote },
+      { href: "/dramy", label: "Drámy zastupiteľstva", desc: "Kľúčové hlasovania rozobrané", icon: TrendingUp },
       { href: "/majetky", label: "Majetky funkcionárov", desc: "Priznania príjmov a majetku", icon: ShieldAlert },
       { href: "/slubomer", label: "Sľubomer", desc: "Plnenie predvolebných sľubov", icon: Lightbulb },
     ],
