@@ -124,6 +124,22 @@ export default function SupplierProfilePage() {
     : [];
   const ordersTotal = supplierOrders.reduce((s, o) => s + o.amount_eur, 0);
 
+  // Míľniky spolupráce s mestom (to, čo graf nepovie): kedy začal, dokedy, najsilnejší rok.
+  // Počítané z reálnych dátumov transakcií + ročných súčtov (chartData).
+  const txDates = transactions
+    .map(t => t.date_published)
+    .filter(Boolean)
+    .sort();
+  const firstDate = txDates[0] || null;
+  const lastDate = txDates[txDates.length - 1] || null;
+  const yearsActive = new Set(txDates.map(d => d.slice(0, 4))).size;
+  const peakYear = stats.chartData.length
+    ? stats.chartData.reduce((a, b) => (b.value > a.value ? b : a), stats.chartData[0])
+    : null;
+  const fmtDate = (d: string | null) =>
+    d ? new Date(d).toLocaleDateString("sk-SK", { day: "numeric", month: "long", year: "numeric" }) : "—";
+  const hasMilestones = firstDate !== null && stats.totalCount > 0;
+
   return (
     <div className="min-h-screen bg-surface text-body font-sans pb-12">
       {/* HEADER */}
@@ -214,6 +230,31 @@ export default function SupplierProfilePage() {
             )}
           </div>
         </div>
+
+        {/* MÍĽNIKY SPOLUPRÁCE (časová os v číslach) */}
+        {hasMilestones && (
+          <div className="mb-6">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-muted mb-3">Spolupráca s mestom</h3>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-card p-4 rounded-xl border border-line">
+                <p className="text-xs text-muted mb-1">Prvá zákazka</p>
+                <p className="text-base font-bold text-body">{fmtDate(firstDate)}</p>
+              </div>
+              <div className="bg-card p-4 rounded-xl border border-line">
+                <p className="text-xs text-muted mb-1">Posledná zákazka</p>
+                <p className="text-base font-bold text-body">{fmtDate(lastDate)}</p>
+              </div>
+              <div className="bg-card p-4 rounded-xl border border-line">
+                <p className="text-xs text-muted mb-1">Aktívny v rokoch</p>
+                <p className="text-base font-bold text-body">{yearsActive} {yearsActive === 1 ? "rok" : yearsActive < 5 ? "roky" : "rokov"}</p>
+              </div>
+              <div className="bg-card p-4 rounded-xl border border-line">
+                <p className="text-xs text-muted mb-1">Najsilnejší rok</p>
+                <p className="text-base font-bold text-body">{peakYear ? `${peakYear.year} · ${formatEur(peakYear.value)}` : "—"}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* CHART & HISTORY */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

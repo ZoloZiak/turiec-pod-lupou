@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShieldAlert, AlertTriangle, FileWarning, ShoppingCart, Building2, ExternalLink, Loader2, Search } from "lucide-react";
+import { ShieldAlert, AlertTriangle, FileWarning, ShoppingCart, Building2, ExternalLink, Loader2, Search, Link2, Check } from "lucide-react";
 import orderStats from "../../data/order-stats.json";
 
 type Entity = { name: string; ico: string };
@@ -34,10 +35,43 @@ const crzUrl = (u?: string) => (u ? (u.startsWith("http") ? u : `https://${u}`) 
 type Tab = "vsetko" | "faktury" | "objednavky" | "rpvs";
 
 export default function KontrolaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-surface" />}>
+      <KontrolaContent />
+    </Suspense>
+  );
+}
+
+function KontrolaContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const initTab = (["vsetko", "faktury", "objednavky", "rpvs"].includes(searchParams.get("tab") || "")
+    ? searchParams.get("tab") : "vsetko") as Tab;
+
   const [data, setData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>("vsetko");
-  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<Tab>(initTab);
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [copied, setCopied] = useState(false);
+
+  // Drž URL v zhode so stavom (zdieľateľný odkaz na presný filter)
+  useEffect(() => {
+    const p = new URLSearchParams();
+    if (tab !== "vsetko") p.set("tab", tab);
+    if (query.trim()) p.set("q", query.trim());
+    const qs = p.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [tab, query, pathname, router]);
+
+  function copyShareLink() {
+    if (typeof window === "undefined") return;
+    navigator.clipboard?.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  }
 
   useEffect(() => {
     (async () => {
@@ -126,6 +160,11 @@ export default function KontrolaPage() {
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Hľadať dodávateľa, predmet…"
               className="w-full bg-card border border-line rounded-xl pl-10 pr-4 py-2.5 text-body placeholder:text-muted focus:outline-none focus:border-amber-500/50" />
           </div>
+          <button onClick={copyShareLink}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-line bg-card text-sm font-medium text-muted hover:text-amber-400 hover:border-amber-500/50 transition-colors shrink-0"
+            title="Skopíruj odkaz na tento presný filter">
+            {copied ? <><Check className="w-4 h-4 text-emerald-400" aria-hidden="true" /> Skopírované</> : <><Link2 className="w-4 h-4" aria-hidden="true" /> Zdieľať filter</>}
+          </button>
         </div>
 
         {loading ? (
@@ -237,13 +276,13 @@ export default function KontrolaPage() {
           <h3 className="font-bold text-body flex items-center gap-2"><ExternalLink className="w-4 h-4" aria-hidden="true" /> Ako čítať tento prehľad</h3>
           <p>
             Každý riadok je <strong className="text-body">ukazovateľ na ďalšie skúmanie, nie dôkaz pochybenia</strong>.
-            „Bez zmluvy" znamená, že k platbe/objednávke nad 10 000 € sme nenašli zverejnenú zmluvu v národnom
+            „Bez zmluvy&quot; znamená, že k platbe/objednávke nad 10 000 € sme nenašli zverejnenú zmluvu v národnom
             registri CRZ ani v zmluvách mesta — môže ísť o legitímnu dodávku, ktorej zmluva nie je (ešte) online.
           </p>
           <p>
             Štátne inštitúcie (daňový úrad, poisťovne), interné mestské podniky a monopolných správcov sietí
             (energie, voda, telco) z auditu <strong className="text-body">vylučujeme</strong> — ich vzťah s mestom je zákonný/rámcový, nie otáznik.
-            Dodávateľov bez prideleného IČO neoznačujeme, aby nevzniklo falošné obvinenie. „Mimo RPVS" sa
+            Dodávateľov bez prideleného IČO neoznačujeme, aby nevzniklo falošné obvinenie. „Mimo RPVS&quot; sa
             vzťahuje len na zákazky nad zákonný prah 100 000 € a rozlišuje výpadok registra od skutočného nezápisu.
           </p>
         </div>
