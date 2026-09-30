@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-29T21:03:15.461Z",
+  "generatedAt": "2026-09-30T05:37:11.228Z",
   "source": "egov.martin.sk CORA sekcia 781 (objednávky) — open-data JSON export",
   "sourceUrl": "https://egov.martin.sk/Default.aspx?NavigationState=781:0:",
   "note": "Precompute objednávok. Do klienta idú agregáty + veľké objednávky ≥10k € (rovnaká škálovacia logika ako faktúry). IČO z presného meno-matchu na entities; bez zhody null. hasContract = dodávateľ má zmluvu mesta/CRZ (supplier-contracts.json).",
