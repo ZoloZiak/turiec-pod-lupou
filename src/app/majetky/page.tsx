@@ -87,7 +87,10 @@ export default function MajetkyPage() {
               <strong>Prečo je táto karta prázdna:</strong> Podľa čl. 7 ústavného zákona č. 357/2004 Z. z. o ochrane verejného záujmu sú primátor a poslanci MsZ povinní každoročne (do 30. apríla) podať oznámenie funkcií, zamestnaní, činností a majetkových pomerov. Podľa čl. 7 ods. 8 má komisia mestského zastupiteľstva povinnosť tieto oznámenia <strong>zverejniť na webovom sídle mesta</strong>.
             </p>
             <p>
-              K {new Date().toLocaleDateString('sk-SK', { month: 'long', year: 'numeric' })} sa nám tieto oznámenia na oficiálnej stránke <a href="https://www.martin.sk" target="_blank" rel="noreferrer" className="underline">martin.sk</a> nepodarilo nájsť (na rozdiel od porovnateľných miest ako Trenčín, Pezinok či Námestovo, ktoré ich zverejňujú online). Kým nebude k dispozícii overený oficiálny zdroj, nezverejňujeme tu žiadne odhadované ani neoverené údaje o majetku.
+              Mesto Martin má schválený <a href="https://www.martin.sk/etika-predstavitelov/d-1201" target="_blank" rel="noreferrer" className="underline">Etický kódex voleného predstaviteľa</a> aj formulár oznámenia. Zo zápisníc Komisie ochrany verejného záujmu však vyplýva, že podané oznámenia funkcionárov sa členom komisie poskytujú <strong>len „k nahliadnutiu“</strong> — vyplnené priznania sa na <a href="https://www.martin.sk" target="_blank" rel="noreferrer" className="underline">martin.sk</a> k {new Date().toLocaleDateString('sk-SK', { month: 'long', year: 'numeric' })} nezverejňujú online (na rozdiel od miest ako <a href="https://www.pezinok.sk/stranka/majetkove-priznania-1" target="_blank" rel="noreferrer" className="underline">Pezinok</a>, <a href="https://www.kosice.sk/mesto/oznamenia-verejnych-funkcionarov" target="_blank" rel="noreferrer" className="underline">Košice</a> či <a href="https://www.sered.sk/samosprava/mestske-zastupitelstvo/majetkove-priznania-poslancov-1/" target="_blank" rel="noreferrer" className="underline">Sereď</a>, ktoré ich dávajú na web).
+            </p>
+            <p>
+              Kým nebude k dispozícii overený oficiálny zdroj vyplnených oznámení, <strong>nezverejňujeme tu žiadne odhadované ani neoverené údaje o majetku.</strong> Radšej poctivé prázdno než nepodložené číslo.
             </p>
           </div>
         </div>

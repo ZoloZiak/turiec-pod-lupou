@@ -2,7 +2,7 @@
 
 import SiteNav from "../components/SiteNav";
 
-import { ShieldAlert, ArrowRight, XCircle, CheckCircle2 } from "lucide-react";
+import { ShieldAlert, ArrowRight, AlertTriangle, FileSearch } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
 import { useState, useEffect } from "react";
@@ -32,8 +32,8 @@ export default function NkuPage() {
       <header className="bg-card text-body pt-16 pb-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-muted hover:text-body mb-4 block">&larr; Dashboard</Link>
-          <h1 className="text-4xl font-extrabold flex items-center gap-3"><ShieldAlert className="w-10 h-10 text-red-400" aria-hidden="true" /> Kontroly NKÚ SR</h1>
-          <p className="text-lg text-muted mt-4 max-w-2xl">Záznamy a protokoly z kontrol Najvyššieho kontrolného úradu na Mestskom úrade a v mestských podnikoch.</p>
+          <h1 className="text-4xl font-extrabold flex items-center gap-3"><ShieldAlert className="w-10 h-10 text-red-400" aria-hidden="true" /> Nezávislé kontroly mesta</h1>
+          <p className="text-lg text-muted mt-4 max-w-2xl">Prehľad kontrol, ktoré vykonal <strong>Najvyšší kontrolný úrad SR (NKÚ)</strong> a <strong>hlavný kontrolór mesta Martin (ÚHK)</strong> na mestskom úrade a v mestských podnikoch. Uvedenie kontroly neznamená preukázané pochybenie — je to odkaz na oficiálny kontrolný dokument.</p>
         </div>
       </header>
 
@@ -52,8 +52,8 @@ export default function NkuPage() {
             <div key={r.id} className="bg-card rounded-2xl shadow-sm border border-line p-6 flex flex-col md:flex-row gap-6 justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${r.penalty_eur > 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                    {r.penalty_eur > 0 ? <XCircle className="w-4 h-4" aria-hidden="true"/> : <CheckCircle2 className="w-4 h-4" aria-hidden="true"/>}
+                  <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${String(r.status).toLowerCase().includes('zisten') ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
+                    {String(r.status).toLowerCase().includes('zisten') ? <AlertTriangle className="w-4 h-4" aria-hidden="true"/> : <FileSearch className="w-4 h-4" aria-hidden="true"/>}
                     {r.status}
                   </span>
                   <span className="text-muted font-mono text-sm">Rok: {r.year}</span>

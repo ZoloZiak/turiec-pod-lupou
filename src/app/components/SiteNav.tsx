@@ -38,7 +38,7 @@ const GROUPS: Group[] = [
     items: [
       { href: "/kontrola", label: "Otázniky (audit)", desc: "Platby bez zmluvy, dodávatelia mimo RPVS", icon: ShieldAlert },
       { href: "/analyzy", label: "Analýzy a anomálie", desc: "Vývoj výdavkov, koncoročný zhon", icon: TrendingUp },
-      { href: "/nku", label: "Kontroly NKÚ", desc: "Protokoly Najvyššieho kontrolného úradu", icon: ClipboardCheck },
+      { href: "/nku", label: "Nezávislé kontroly", desc: "NKÚ SR a hlavný kontrolór mesta", icon: ClipboardCheck },
     ],
   },
   {
