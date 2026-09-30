@@ -1,5 +1,7 @@
 "use client";
 
+import SiteNav from "../components/SiteNav";
+
 import { Building2, Search, ArrowRight, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -39,6 +41,7 @@ export default function MajetkyPage() {
 
   return (
     <div className="min-h-screen bg-surface text-body font-sans pb-20">
+      <SiteNav />
       
       {/* HEADER */}
       <header className="bg-card text-body pt-16 pb-24 px-4 sm:px-6 lg:px-8">

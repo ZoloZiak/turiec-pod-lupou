@@ -1,5 +1,7 @@
 "use client";
 
+import SiteNav from "../components/SiteNav";
+
 import { Users, ThumbsUp, ThumbsDown, FileText, ExternalLink, MinusCircle } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
@@ -90,6 +92,7 @@ export default function PoslanciPage() {
 
   return (
     <div className="min-h-screen bg-surface text-body pb-20">
+      <SiteNav />
       <header className="bg-card text-body pt-16 pb-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-muted hover:text-body mb-4 block">&larr; Dashboard</Link>

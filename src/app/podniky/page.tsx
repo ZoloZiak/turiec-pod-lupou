@@ -1,5 +1,7 @@
 "use client";
 
+import SiteNav from "../components/SiteNav";
+
 import { Building2, TrendingDown, ArrowRight, Activity, ArrowRightLeft } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -38,6 +40,7 @@ export default function PodnikyPage() {
 
   return (
     <div className="min-h-screen bg-surface text-body pb-20 font-sans">
+      <SiteNav />
       <header className="bg-card border-b border-line text-body pt-12 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-muted hover:text-body mb-4 block">&larr; Dashboard</Link>

@@ -1,5 +1,7 @@
 "use client";
 
+import SiteNav from "../components/SiteNav";
+
 import { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ShoppingCart, AlertTriangle, ExternalLink, Search, CheckCircle, Building } from "lucide-react";
@@ -48,6 +50,7 @@ export default function ObjednavkyPage() {
 
   return (
     <div className="min-h-screen bg-surface text-body pb-20">
+      <SiteNav />
       <header className="bg-card text-body pt-16 pb-24 px-4 sm:px-6 lg:px-8 border-b border-line">
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-muted hover:text-body mb-4 block">&larr; Dashboard</Link>

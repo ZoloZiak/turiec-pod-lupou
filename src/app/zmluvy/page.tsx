@@ -1,5 +1,7 @@
 "use client";
 
+import SiteNav from "../components/SiteNav";
+
 import { useState, useMemo, useEffect } from "react";
 import { FileText, Search, ExternalLink, Calendar, Filter, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -62,6 +64,7 @@ export default function ZmluvyPage() {
 
   return (
     <div className="min-h-screen bg-surface text-body pb-20">
+      <SiteNav />
       <header className="bg-card text-body pt-16 pb-24 px-4 sm:px-6 lg:px-8 border-b border-line">
         <div className="max-w-7xl mx-auto">
           <Link href="/" className="text-sm font-medium text-muted hover:text-body mb-4 block">&larr; Dashboard</Link>

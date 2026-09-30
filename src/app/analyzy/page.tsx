@@ -1,5 +1,7 @@
 "use client";
 
+import SiteNav from "../components/SiteNav";
+
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
@@ -219,6 +221,7 @@ export default function AnalyzyPage() {
 
   return (
     <div className="min-h-screen bg-surface text-body font-sans pb-20">
+      <SiteNav />
       {/* HEADER */}
       <header className="bg-card border-b border-line pt-10 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

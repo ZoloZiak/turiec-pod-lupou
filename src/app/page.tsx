@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, Menu, X, Lightbulb, ShieldCheck, TrendingUp, ShoppingCart, FileText } from "lucide-react";
+import { Search, AlertTriangle, ExternalLink, Calendar, CheckCircle, ShieldAlert, ShieldCheck, Wallet, Users, Landmark } from "lucide-react";
 import Link from "next/link";
 import RpvsBadge from "./components/RpvsBadge";
 import InfoIcon from "./components/InfoIcon";
@@ -12,6 +12,7 @@ import { isRpvsExempt } from "@/lib/rpvs-exempt";
 import { isValidIco } from "@/lib/entity-ico-fixes";
 import NumberFlow from "@number-flow/react";
 import SpotlightCard from "./components/SpotlightCard";
+import SiteNav from "./components/SiteNav";
 
 type Entity = { name: string; ico: string };
 type Supplier = { name: string; ico: string };
@@ -47,7 +48,6 @@ export default function Dashboard() {
   const [selectedSupplierName, setSelectedSupplierName] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [redFlagFilter, setRedFlagFilter] = useState<'all' | 'high_amount' | 'december' | 'missing_contract' | 'missing_rpvs'>('all');
   const [sourceTypeFilter, setSourceTypeFilter] = useState<'all' | 'CRZ_CONTRACT' | 'WEB_INVOICE'>('all');
   const [selectedYear, setSelectedYear] = useState<string>('all');
@@ -138,130 +138,30 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-surface text-body font-sans selection:bg-emerald-500/30">
-      {/* HEADER */}
-      <header className="bg-card/80 backdrop-blur-md border-b border-line sticky top-0 z-20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Search className="w-6 h-6 text-emerald-400" />
-            <h1 className="text-xl font-bold tracking-tight text-body drop-shadow-md">Turiec pod Lupou</h1>
-          </div>
+      {/* JEDNOTNÁ NAVIGÁCIA */}
+      <SiteNav />
 
-          {/* DESKTOP BUTTONS */}
-          <div className="hidden md:flex gap-4 items-center">
-            <Link href="/analyzy" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 px-4 py-2 rounded-lg text-emerald-400 border border-emerald-500/20 transition-all flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" aria-hidden="true" />
-              Analýzy
-            </Link>
-            <Link href="/slubomer" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-lg text-amber-400 border border-amber-500/20 transition-all flex items-center gap-2">
-              <Lightbulb className="w-4 h-4" aria-hidden="true" />
-              Sľubomer
-            </Link>
-            <Link href="/majetky" className="text-sm font-medium bg-indigo-500/10 hover:bg-indigo-500/20 px-4 py-2 rounded-lg text-indigo-400 border border-indigo-500/20 transition-all flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4" aria-hidden="true" />
-              Majetky
-            </Link>
-            <Link href="/objednavky" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 px-4 py-2 rounded-lg text-emerald-400 border border-emerald-500/20 transition-all flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-              Objednávky
-            </Link>
-            <Link href="/zmluvy" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 px-4 py-2 rounded-lg text-emerald-400 border border-emerald-500/20 transition-all flex items-center gap-2">
-              <FileText className="w-4 h-4" aria-hidden="true" />
-              Zmluvy
-            </Link>
-            <Link href="/kontrola" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-lg text-amber-400 border border-amber-500/20 transition-all flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4" aria-hidden="true" />
-              Kontrola
-            </Link>
-            <Link href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated px-4 py-2 rounded-lg text-body border border-line transition-all">
-              Administrácia
-            </Link>
-          </div>
-
-          {/* MOBILE MENU TOGGLE */}
-          <div className="flex md:hidden items-center">
-             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-muted hover:text-body rounded-lg" aria-label={isMenuOpen ? "Zavrieť menu" : "Otvoriť menu"} aria-expanded={isMenuOpen}>
-               {isMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
-             </button>
-          </div>
-        </div>
-        
-        {/* MOBILE DROPDOWN MENU */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-line bg-card px-4 py-4 space-y-4 shadow-lg absolute w-full left-0 max-h-[calc(100vh-4rem)] overflow-y-auto z-30">
-             <div className="flex flex-col gap-2">
-               <a href="/analyzy" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-4 py-2.5 rounded-lg text-emerald-400 transition-colors flex items-center justify-center gap-2">
-                 <TrendingUp className="w-4 h-4" aria-hidden="true" />
-                 Analýzy
-               </a>
-               <a href="/slubomer" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2.5 rounded-lg text-amber-400 transition-colors flex items-center justify-center gap-2">
-                 <Lightbulb className="w-4 h-4" aria-hidden="true" />
-                 Sľubomer
-               </a>
-               <a href="/majetky" className="text-sm font-medium bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 px-4 py-2.5 rounded-lg text-indigo-400 transition-colors flex items-center justify-center gap-2">
-                 <ShieldAlert className="w-4 h-4" aria-hidden="true" />
-                 Majetky
-               </a>
-               <a href="/objednavky" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-4 py-2.5 rounded-lg text-emerald-400 transition-colors flex items-center justify-center gap-2">
-                 <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-                 Objednávky
-               </a>
-               <a href="/zmluvy" className="text-sm font-medium bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-4 py-2.5 rounded-lg text-emerald-400 transition-colors flex items-center justify-center gap-2">
-                 <FileText className="w-4 h-4" aria-hidden="true" />
-                 Zmluvy
-               </a>
-               <a href="/kontrola" className="text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2.5 rounded-lg text-amber-400 transition-colors flex items-center justify-center gap-2">
-                 <ShieldAlert className="w-4 h-4" aria-hidden="true" />
-                 Kontrola
-               </a>
-               <a href="/admin" className="text-sm font-medium bg-elevated hover:bg-elevated border border-line px-4 py-2.5 rounded-lg text-body transition-colors text-center">
-                 Administrácia
-               </a>
-             </div>
-             
-             <div className="pt-4 border-t border-line">
-               <p className="text-xs font-bold text-muted uppercase mb-3">Vyberte organizáciu</p>
-               <div className="flex flex-col gap-2">
-                  <button
-                    onClick={() => { changeIco(""); setIsMenuOpen(false); }}
-                    className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === "" ? "bg-emerald-500 text-white" : "bg-elevated text-body hover:bg-elevated"}`}
-                  >
-                    Všetky organizácie
-                  </button>
-                  {data?.entities?.map((e: Entity) => (
-                    <button
-                      key={e.ico}
-                      onClick={() => { changeIco(e.ico); setIsMenuOpen(false); }}
-                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${selectedIco === e.ico ? "bg-emerald-500 text-white" : "bg-elevated text-body hover:bg-elevated"}`}
-                    >
-                      {e.name}
-                    </button>
-                  ))}
-               </div>
-             </div>
-          </div>
-        )}
-
-        {/* DESKTOP ENTITY FILTER BAR */}
-        <div className="hidden md:block bg-card/80 backdrop-blur-md border-t md:border-t-0 border-line w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-2">
+      {/* FILTER ORGANIZÁCIE (mesto vs. podniky) */}
+      <div className="bg-card/60 backdrop-blur-md border-b border-line">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-muted mr-1">Organizácia:</span>
+          <button
+            onClick={() => changeIco("")}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === "" ? "bg-emerald-500 text-white shadow-md ring-2 ring-emerald-500 ring-offset-1 ring-offset-surface" : "bg-elevated text-muted hover:bg-elevated hover:text-body"}`}
+          >
+            Všetky organizácie
+          </button>
+          {data?.entities?.map((e: Entity) => (
             <button
-              onClick={() => changeIco("")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === "" ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1" : "bg-elevated text-muted hover:bg-elevated"}`}
+              key={e.ico}
+              onClick={() => changeIco(e.ico)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-emerald-500 text-white shadow-md ring-2 ring-emerald-500 ring-offset-1 ring-offset-surface" : "bg-elevated text-muted hover:bg-elevated hover:text-body"}`}
             >
-              Všetky organizácie
+              {e.name}
             </button>
-            {data?.entities?.map((e: Entity) => (
-              <button
-                key={e.ico}
-                onClick={() => changeIco(e.ico)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedIco === e.ico ? "bg-emerald-500 text-white shadow-md ring-2 ring-emerald-500 ring-offset-1 ring-offset-surface" : "bg-elevated text-muted hover:bg-elevated hover:text-body"}`}
-              >
-                {e.name}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
-      </header>
+      </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading || !data ? (
@@ -283,7 +183,7 @@ export default function Dashboard() {
               </div>
               {data.stats.totalInvoiced > 0 && (
                 <p className="mt-3 text-xs sm:text-sm text-muted">
-                  + {formatEur(data.stats.totalInvoiced)} vo faktúrach ({data.stats.invoiceCount?.toLocaleString('sk-SK')} ks) — samostatná vrstva, nesčítava sa so zmluvami. V zozname zobrazujeme významné faktúry od 10 000 € (audit „bez zmluvy"); menšie sú v súčte.
+                  + {formatEur(data.stats.totalInvoiced)} vo faktúrach ({data.stats.invoiceCount?.toLocaleString('sk-SK')} ks) — samostatná vrstva, nesčítava sa so zmluvami. V zozname zobrazujeme významné faktúry od 10 000 € (audit „bez zmluvy&quot;); menšie sú v súčte.
                 </p>
               )}
               <div className="mt-6 flex items-center gap-3 text-muted text-sm">
@@ -322,35 +222,48 @@ export default function Dashboard() {
               <MacroStats />
             </div>
 
-            {/* Z-DYKTY NAVIGAČNÝ HUB */}
-            <div className="mt-12 mb-12 border-t border-line pt-8">
-              <h2 className="text-sm font-bold uppercase tracking-widest mb-6 text-muted">Verejná kontrola</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <Link href="/analyzy" className="group h-full block">
-                  <SpotlightCard className="bg-card border border-line p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(16, 185, 129, 0.15)">
-                    <span className="font-bold text-lg text-body group-hover:text-emerald-400 transition-colors">Analýzy a anomálie</span>
+            {/* ROZCESTNÍK — 4 skupiny podľa otázky občana */}
+            <div className="mt-12 mb-12">
+              <h2 className="text-sm font-bold uppercase tracking-widest mb-2 text-muted">Kam chcete ísť?</h2>
+              <p className="text-sm text-muted mb-6 max-w-2xl">Web sme rozdelili do štyroch oblastí podľa toho, čo vás zaujíma. Kliknite na dlaždicu.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <Link href="/zmluvy" className="group h-full block">
+                  <SpotlightCard className="bg-card border border-line p-6 rounded-2xl h-full transition-all border-l-4 border-l-emerald-500" glowColor="rgba(16, 185, 129, 0.18)">
+                    <Wallet className="w-8 h-8 text-emerald-400 mb-3" aria-hidden="true" />
+                    <span className="block font-bold text-lg text-body group-hover:text-emerald-400 transition-colors">Peniaze</span>
+                    <span className="block text-xs text-muted mt-1 mb-3">Kam idú peniaze mesta?</span>
+                    <span className="block text-xs text-muted leading-relaxed">Zmluvy · Objednávky · Faktúry · Eurofondy</span>
                   </SpotlightCard>
                 </Link>
-                <Link href="/podniky" className="group h-full block">
-                  <SpotlightCard className="bg-card border border-line p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(16, 185, 129, 0.15)">
-                    <span className="font-bold text-lg text-body group-hover:text-emerald-400 transition-colors">Mestské podniky</span>
+
+                <Link href="/kontrola" className="group h-full block">
+                  <SpotlightCard className="bg-card border border-line p-6 rounded-2xl h-full transition-all border-l-4 border-l-amber-500" glowColor="rgba(245, 158, 11, 0.18)">
+                    <ShieldAlert className="w-8 h-8 text-amber-400 mb-3" aria-hidden="true" />
+                    <span className="block font-bold text-lg text-body group-hover:text-amber-400 transition-colors">Kontrola</span>
+                    <span className="block text-xs text-muted mt-1 mb-3">Čo nesedí?</span>
+                    <span className="block text-xs text-muted leading-relaxed">Otázniky (audit) · Analýzy · Kontroly NKÚ</span>
                   </SpotlightCard>
                 </Link>
-                <Link href="/nku" className="group h-full block">
-                  <SpotlightCard className="bg-card border border-line p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(239, 68, 68, 0.15)">
-                    <span className="font-bold text-lg text-body group-hover:text-red-400 transition-colors">Kontroly NKÚ</span>
-                  </SpotlightCard>
-                </Link>
-                <Link href="/eurofondy" className="group h-full block">
-                  <SpotlightCard className="bg-card border border-line p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(59, 130, 246, 0.15)">
-                    <span className="font-bold text-lg text-body group-hover:text-blue-400 transition-colors">Eurofondy</span>
-                  </SpotlightCard>
-                </Link>
+
                 <Link href="/poslanci" className="group h-full block">
-                  <SpotlightCard className="bg-card border border-line p-6 rounded-xl flex flex-col justify-center text-center transition-all h-full" glowColor="rgba(168, 85, 247, 0.15)">
-                    <span className="font-bold text-lg text-body group-hover:text-purple-400 transition-colors">Hlasovania MsZ</span>
+                  <SpotlightCard className="bg-card border border-line p-6 rounded-2xl h-full transition-all border-l-4 border-l-purple-500" glowColor="rgba(168, 85, 247, 0.18)">
+                    <Users className="w-8 h-8 text-purple-400 mb-3" aria-hidden="true" />
+                    <span className="block font-bold text-lg text-body group-hover:text-purple-400 transition-colors">Ľudia a moc</span>
+                    <span className="block text-xs text-muted mt-1 mb-3">Kto rozhoduje a plní sľuby?</span>
+                    <span className="block text-xs text-muted leading-relaxed">Hlasovania MsZ · Majetky · Sľubomer</span>
                   </SpotlightCard>
                 </Link>
+
+                <Link href="/podniky" className="group h-full block">
+                  <SpotlightCard className="bg-card border border-line p-6 rounded-2xl h-full transition-all border-l-4 border-l-blue-500" glowColor="rgba(59, 130, 246, 0.18)">
+                    <Landmark className="w-8 h-8 text-blue-400 mb-3" aria-hidden="true" />
+                    <span className="block font-bold text-lg text-body group-hover:text-blue-400 transition-colors">Mesto vlastní</span>
+                    <span className="block text-xs text-muted mt-1 mb-3">Čo mesto spravuje?</span>
+                    <span className="block text-xs text-muted leading-relaxed">Mestské podniky · Voda a infraštruktúra</span>
+                  </SpotlightCard>
+                </Link>
+
               </div>
             </div>
 
@@ -443,7 +356,7 @@ export default function Dashboard() {
             </div>
 
             {/* TRANSACTIONS TABLE */}
-            <div className="bg-card rounded-2xl shadow-lg border border-line overflow-hidden">
+            <div id="faktury" className="bg-card rounded-2xl shadow-lg border border-line overflow-hidden scroll-mt-20">
               <div className="p-6 border-b border-line space-y-4">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                   <h3 className="text-lg font-semibold text-body">Najnovšie zverejnené zmluvy a faktúry</h3>
