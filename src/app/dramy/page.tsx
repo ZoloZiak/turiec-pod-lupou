@@ -1,6 +1,8 @@
 import SiteNav from "../components/SiteNav";
 import CouncilDrama, { Drama } from "../components/CouncilDrama";
+import ContestedVotes, { Contested } from "../components/ContestedVotes";
 import dramas from "../../data/council-dramas.json";
+import contested from "../../data/council-contested.json";
 import { AlertTriangle, Vote } from "lucide-react";
 import Link from "next/link";
 
@@ -36,6 +38,8 @@ export default function DramyPage() {
         {list.map((d) => (
           <CouncilDrama key={d.slug} drama={d} />
         ))}
+
+        <ContestedVotes items={contested as Contested[]} />
 
         {/* metodika / disclaimer — poctivosť, nie obvinenie */}
         <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl p-5 flex gap-3 items-start">

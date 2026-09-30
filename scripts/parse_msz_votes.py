@@ -36,15 +36,25 @@ def parse(pdf_path, vote_date, source_url):
             m2 = re.search(r"[Uu]znesenie[\s\-]*(?:uznesenie\s*)?č\.\s*([\d]+/\d+)", l)
             if m2:
                 uzn = m2.group(1)
-        if not uzn:
+        # Hlasovanie BEZ uznesenia (procedurálne: schválenie programu, doplnenie bodu,
+        # personálne) je stále platné menovité hlasovanie — NEZAHADZUJ ho (inak vypadne
+        # ~10 % hlasov). Kľúč je vtedy poradové číslo hlasovania (hlas_no).
+        if not uzn and not hlas_no:
             continue
         # nazov: ak titul chyba, pouzi generricky. Normalizuj cislo uznesenia (20/26 -> 20/2026)
-        uzn_n = re.sub(r"/(\d{2})$", r"/20\1", uzn)
-        issue_title = f"Uznesenie č. {uzn_n}"
-        if title_bod:
-            # odstran zvysky "Strana"
-            tb = title_bod.replace("Strana","").strip(" –-")
-            issue_title = f"Uznesenie č. {uzn_n}: {tb}"
+        uzn_n = re.sub(r"/(\d{2})$", r"/20\1", uzn) if uzn else None
+        if uzn_n:
+            issue_title = f"Uznesenie č. {uzn_n}"
+            if title_bod:
+                tb = title_bod.replace("Strana","").strip(" –-")
+                issue_title = f"Uznesenie č. {uzn_n}: {tb}"
+        else:
+            # bez uznesenia: titul z bodu, inak generický s číslom hlasovania
+            if title_bod:
+                tb = title_bod.replace("Strana","").strip(" –-")
+                issue_title = f"Hlasovanie č. {hlas_no} ({vote_date}): {tb}"
+            else:
+                issue_title = f"Hlasovanie č. {hlas_no} ({vote_date})"
         # parsuj riadky poslancov: vzor  <int riadok>\n<int karta>\n<meno>\n<VOTE>
         i = 0
         rows = []
@@ -70,13 +80,15 @@ def parse(pdf_path, vote_date, source_url):
             })
         if rows:
             issues.append((issue_title, len(rows)))
-    # post-pass: ak jedno uznesenie ma viac hlasovani (hlas_no), rozlis titulok
+    # post-pass: ak jedno uznesenie ma viac hlasovani (hlas_no), rozlis titulok.
+    # Len pre reálne uznesenia — uzn-less (_uzn=None) hlasovania nezluč pod jeden kľúč.
     from collections import defaultdict
     uzn_hlasy = defaultdict(set)
     for r in records:
-        uzn_hlasy[r["_uzn"]].add(r["_hlas_no"])
+        if r["_uzn"]:
+            uzn_hlasy[r["_uzn"]].add(r["_hlas_no"])
     for r in records:
-        if len(uzn_hlasy[r["_uzn"]]) > 1 and r["_hlas_no"]:
+        if r["_uzn"] and len(uzn_hlasy[r["_uzn"]]) > 1 and r["_hlas_no"]:
             base = r["issue_title"]
             r["issue_title"] = f"{base} (hlasovanie č. {r['_hlas_no']})"[:300]
     return records, issues
