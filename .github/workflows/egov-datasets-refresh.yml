@@ -1,0 +1,68 @@
+name: Egov Datasets Refresh
+
+# Obnova precompute datasetov objednávok a zmlúv mesta Martin z open-data exportu egov CORA.
+# Beží v cloude nezávisle od lokálneho (firemného/DLP) Macu — ten navyše proxy škrtí 74 MB
+# export objednávok, takže lokálne sťahovanie je nespoľahlivé. GitHub runner ide priamo na
+# egov.martin.sk bez proxy.
+#
+# Prečo tu (a nie krtko-cron): objednávky ani zmluvy mesta NIE sú v Supabase (source_type ENUM
+# nemá pre ne hodnotu) → sú to precompute JSON súbory v repe, ktoré treba commitnúť späť
+# a nechať Vercel deploynúť. Rovnaký vzor ako rpvs-refresh.yml.
+#
+#  - build:contracts → public/data/city-contracts.json + src/data/city-contract-stats.json
+#    (žiadne secrets, len fetch exportu; obsahuje GDPR anonymizáciu FO)
+#  - build:orders    → src/data/order-stats.json (potrebuje Supabase na meno→IČO match a hasContract)
+
+on:
+  schedule:
+    # Prvého v mesiaci o 04:00 UTC (mesto pridáva zmluvy/objednávky priebežne, nie denne;
+    # nekoliduje s krtko 02:00 ani rpvs 03:00 pondelok)
+    - cron: '0 4 1 * *'
+  workflow_dispatch:
+    # Manuálne spustenie z GitHub Actions tabu / `gh workflow run`
+
+# Auto-commit obnovených datasetov späť do repa vyžaduje zápisové právo na obsah
+permissions:
+  contents: write
+
+jobs:
+  refresh-datasets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Refresh zmluvy mesta (CORA 778)
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+        run: npm run build:contracts
+
+      - name: Refresh objednávky mesta (CORA 781)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+        run: npm run build:orders
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/order-stats.json src/data/city-contract-stats.json public/data/city-contracts.json
+          if git diff --staged --quiet; then
+            echo "Datasety bez zmeny — nič sa necommituje."
+          else
+            git commit -m "chore(data): automatická obnova objednávok a zmlúv mesta [skip ci]"
+            git push
+            echo "Datasety aktualizované a pushnuté."
+          fi
