@@ -247,7 +247,12 @@ export default function DodavateliaPage() {
               <p>
                 Poradie vychádza z <strong className="text-body">overených zmlúv v Centrálnom registri zmlúv (CRZ)</strong>.
                 Rátame efektívne sumy: kumulatívne dodatky k tej istej zmluve sa počítajú <strong className="text-body">raz</strong>,
-                nie viackrát — rovnako ako na úvodnej stránke a v Analýzach.
+                nie viackrát (rovnaká metóda ako na úvodnej stránke a v Analýzach).
+              </p>
+              <p>
+                Súčet „Spolu vyplatené“ zahŕňa len platby <strong className="text-body">identifikovaným dodávateľom</strong>.
+                Zmluvy bez priradeného dodávateľa sú započítané v celkových výdavkoch mesta na úvodnej stránke, ale v tomto
+                zozname nie sú — preto môže byť toto číslo mierne nižšie.
               </p>
               <p>
                 Faktúry sú <strong className="text-body">samostatná vrstva</strong> a do tohto súčtu sa nespočítavajú
@@ -257,6 +262,10 @@ export default function DodavateliaPage() {
                 Toto je <strong className="text-body">verejný záznam platieb, nie obvinenie z pochybenia</strong>. Vysoká suma
                 znamená len to, že firma pre mesto veľa pracovala. Meno dodávateľa odkazuje na jeho profil len vtedy, keď
                 má platné IČO.
+              </p>
+              <p>
+                Dodávatelia sú zoskupení podľa názvu; rôzne zápisy toho istého subjektu (napr. „s.r.o.“ vs „s. r. o.“)
+                sa môžu zobraziť ako samostatné riadky.
               </p>
             </div>
           </>

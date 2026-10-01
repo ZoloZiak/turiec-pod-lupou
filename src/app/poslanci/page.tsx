@@ -101,7 +101,7 @@ export default function PoslanciPage() {
                 <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
               </a>{" "}
               mapuje vystúpenia, návrhy a hlasovania poslancov z videozáznamov zasadnutí. Naše dáta sú
-              o peniazoch mesta, ich o práci poslancov.
+              o peniazoch mesta, ich dáta o práci poslancov.
             </p>
           </div>
         </div>
