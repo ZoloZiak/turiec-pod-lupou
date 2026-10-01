@@ -7,7 +7,7 @@ import {
   Search, Menu, X, ChevronDown,
   Wallet, ShieldAlert, Users, Landmark,
   FileText, ShoppingCart, Coins, Receipt,
-  TrendingUp, ClipboardCheck, Vote, Lightbulb, Building2, Droplets,
+  TrendingUp, ClipboardCheck, Vote, Lightbulb, Building2, Droplets, Network,
 } from "lucide-react";
 
 type Item = { href: string; label: string; desc: string; icon: React.ComponentType<{ className?: string }> };
@@ -50,6 +50,7 @@ const GROUPS: Group[] = [
     items: [
       { href: "/poslanci", label: "Hlasovania MsZ", desc: "Menovité hlasovania poslancov", icon: Vote },
       { href: "/dramy", label: "Drámy zastupiteľstva", desc: "Kľúčové hlasovania rozobrané", icon: TrendingUp },
+      { href: "/vzory", label: "Vzory v hlasovaní", desc: "Kto s kým drží, opozícia, účasť", icon: Network },
       { href: "/majetky", label: "Majetky funkcionárov", desc: "Priznania príjmov a majetku", icon: ShieldAlert },
       { href: "/slubomer", label: "Sľubomer", desc: "Plnenie predvolebných sľubov", icon: Lightbulb },
     ],
