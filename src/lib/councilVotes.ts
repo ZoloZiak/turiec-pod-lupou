@@ -82,154 +82,215 @@ export const VOTE_ORDER: VoteCast[] = ["ZA", "PROTI", "ZDRŽAL SA", "NEHLASOVAL"
 //  - Koaličný blok sa DETEGUJE, nie zadáva: začne najvernejšou dvojicou a
 //    priberá každého, kto má ≥97 % zhodu so VŠETKÝMI členmi bloku.
 
-export type Analysis = {
-  totalVotings: number;
-  unanimousShare: number;        // podiel hlasovaní, kde bola zhoda ≥95 %
-  bloc: string[];                // mená koaličného jadra (detegované)
-  opposition: OppRow[];          // kto najčastejšie proti väčšine
-  pairs: PairRow[];              // najvernejšie dvojice
-  defectors: OppRow[];           // kto najčastejšie hlasuje inak než blok
-  attendance: AttRow[];          // účasť na hlasovaniach
+export type Group = "jadro" | "opozicia" | "swing";
+
+export type CircleNode = {
+  name: string;
+  group: Group;
+  coreAlign: number;   // % zhody s jadrom na SPORNÝCH hlasovaniach (0–100)
+  activeCount: number;
 };
 
-export type OppRow = { name: string; pct: number; count: number; total: number };
-export type PairRow = { a: string; b: string; pct: number; total: number };
-export type AttRow = { name: string; presentPct: number; present: number; member: number };
+export type CircleEdge = { a: number; b: number; w: number }; // index do circle.nodes, w = zhoda 0–1
+
+export type SwingRow = { name: string; corePct: number; oppPct: number };
+
+export type AttRow = { name: string; presentPct: number; present: number; member: number; fullAbsent: number };
+
+export type Analysis = {
+  totalVotings: number;
+  contestedVotings: number;      // hlasovania, kde menšina ≥ 20 %
+  unanimousShare: number;        // podiel hlasovaní, kde bola zhoda ≥95 %
+  blocSize: number;              // veľkosť koaličného jadra (finálne zaradenie)
+  oppSize: number;               // veľkosť opozičného tábora (finálne zaradenie)
+  swingSize: number;             // počet lavírujúcich
+  circle: { nodes: CircleNode[]; edges: CircleEdge[] };
+  swing: SwingRow[];             // kto lavíruje medzi tábormi
+  attendance: AttRow[];          // účasť na hlasovaniach
+};
 
 const AY = (ch: string): "ZA" | "PROTI" | null =>
   ch === "Z" ? "ZA" : ch === "P" ? "PROTI" : null;
 
-export function analyze(data: CouncilData, minActive = 100): Analysis {
+// Je hlasovanie sporné? (menšina aspoň 20 % z jasných hlasov za/proti)
+function isContested(c: string): boolean {
+  let za = 0, proti = 0;
+  for (let i = 0; i < c.length; i++) { if (c[i] === "Z") za++; else if (c[i] === "P") proti++; }
+  const at = za + proti;
+  return at > 0 && Math.max(za, proti) / at < 0.8;
+}
+
+export function analyze(data: CouncilData, minActive = 150): Analysis {
   const C = data.councillors;
   const N = C.length;
   const V = data.votings;
 
-  // párová zhoda (len na hlasovaniach kde oba Z/P)
-  const agree = new Map<string, number>();
-  const together = new Map<string, number>();
+  // ── zhoda dvojíc: zvlášť na VŠETKÝCH a zvlášť na SPORNÝCH hlasovaniach ──
+  const agreeAll = new Map<string, number>();
+  const togAll = new Map<string, number>();
+  const agreeCon = new Map<string, number>();
+  const togCon = new Map<string, number>();
   const bump = (m: Map<string, number>, k: string) => m.set(k, (m.get(k) ?? 0) + 1);
 
-  // opozícia proti víťaznej strane + účasť + jednomyseľnosť
-  const against = new Array(N).fill(0);
-  const active = new Array(N).fill(0);
+  const active = new Array(N).fill(0);   // počet jasných hlasov Z/P
   const present = new Array(N).fill(0);
   const member = new Array(N).fill(0);
+  const fullAbsent = new Array(N).fill(0); // koľko zasadnutí celkom chýbal
   let unanimous = 0;
+  let contestedVotings = 0;
+
+  // zoskup hlasovania podľa dátumu kvôli "celá absencia na zasadnutí"
+  const byDate = new Map<string, RawVoting[]>();
+  for (const v of V) {
+    const arr = byDate.get(v.d); if (arr) arr.push(v); else byDate.set(v.d, [v]);
+  }
 
   for (const v of V) {
     const c = v.c;
     let za = 0, proti = 0;
     for (let i = 0; i < N; i++) {
       const ch = c[i];
-      if (ch !== ".") {
-        member[i]++;
-        if (ch !== "N") present[i]++;
-      }
-      if (ch === "Z") za++;
-      else if (ch === "P") proti++;
+      if (ch !== ".") { member[i]++; if (ch !== "N") present[i]++; }
+      if (ch === "Z") za++; else if (ch === "P") proti++;
     }
-    const activeTotal = za + proti;
-    if (activeTotal > 0 && Math.max(za, proti) / activeTotal >= 0.95) unanimous++;
+    const at = za + proti;
+    if (at > 0 && Math.max(za, proti) / at >= 0.95) unanimous++;
+    const contested = isContested(c);
+    if (contested) contestedVotings++;
 
-    if (za !== proti && activeTotal > 0) {
-      const winner = za > proti ? "Z" : "P";
-      for (let i = 0; i < N; i++) {
-        const a = AY(c[i]);
-        if (a) {
-          active[i]++;
-          if (c[i] !== winner) against[i]++;
-        }
-      }
-    }
-    // páry
     const act: number[] = [];
-    for (let i = 0; i < N; i++) if (AY(c[i])) act.push(i);
+    for (let i = 0; i < N; i++) if (AY(c[i])) { act.push(i); active[i]++; }
     for (let x = 0; x < act.length; x++) {
       for (let y = x + 1; y < act.length; y++) {
         const i = act[x], j = act[y];
         const k = `${i}-${j}`;
-        bump(together, k);
-        if (c[i] === c[j]) bump(agree, k);
+        bump(togAll, k);
+        if (c[i] === c[j]) bump(agreeAll, k);
+        if (contested) { bump(togCon, k); if (c[i] === c[j]) bump(agreeCon, k); }
       }
     }
   }
 
-  const pairPct = (i: number, j: number): number | null => {
+  // celé absencie: na zasadnutí mal člen aspoň 1 nie-"." kód, ale 0 prítomných (všetko N)
+  for (const [, arr] of byDate) {
+    for (let i = 0; i < N; i++) {
+      let memberHere = false, presentHere = false;
+      for (const v of arr) { const ch = v.c[i]; if (ch !== ".") { memberHere = true; if (ch !== "N") presentHere = true; } }
+      if (memberHere && !presentHere) fullAbsent[i]++;
+    }
+  }
+
+  const pairPctAll = (i: number, j: number): number | null => {
     const k = i < j ? `${i}-${j}` : `${j}-${i}`;
-    const t = together.get(k) ?? 0;
-    return t >= 80 ? (agree.get(k) ?? 0) / t : null;
+    const t = togAll.get(k) ?? 0;
+    return t >= 80 ? (agreeAll.get(k) ?? 0) / t : null;
+  };
+  const pairPctCon = (i: number, j: number): number | null => {
+    const k = i < j ? `${i}-${j}` : `${j}-${i}`;
+    const t = togCon.get(k) ?? 0;
+    return t >= 15 ? (agreeCon.get(k) ?? 0) / t : null;
   };
 
-  // detekcia bloku: seed = najvernejšia dvojica (≥300 spoločných), priber ≥97 %
-  let seedPair: [number, number] | null = null;
-  let seedPct = 0;
-  for (const [k, t] of together) {
-    if (t >= 300) {
-      const p = (agree.get(k) ?? 0) / t;
-      if (p > seedPct) { seedPct = p; const [i, j] = k.split("-").map(Number); seedPair = [i, j]; }
+  // ── detekcia jadra: seed = najvernejšia dvojica (≥300 spol.), priber ≥97 % ──
+  const growBloc = (pool: number[]): number[] => {
+    let seed: [number, number] | null = null, sp = 0;
+    for (let a = 0; a < pool.length; a++) for (let b = a + 1; b < pool.length; b++) {
+      const i = pool[a], j = pool[b];
+      const k = i < j ? `${i}-${j}` : `${j}-${i}`;
+      const t = togAll.get(k) ?? 0;
+      if (t >= 300) { const p = (agreeAll.get(k) ?? 0) / t; if (p > sp) { sp = p; seed = [i, j]; } }
     }
-  }
-  const bloc: number[] = seedPair ? [...seedPair] : [];
-  let changed = true;
-  const TH = 0.97;
-  while (changed) {
-    changed = false;
-    for (let cand = 0; cand < N; cand++) {
-      if (bloc.includes(cand)) continue;
-      if (bloc.every((m) => { const p = pairPct(cand, m); return p !== null && p >= TH; })) {
-        bloc.push(cand); changed = true;
+    if (!seed) return [];
+    const b = [...seed];
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const cand of pool) {
+        if (b.includes(cand)) continue;
+        if (b.every((m) => { const p = pairPctAll(cand, m); return p !== null && p >= 0.97; })) { b.push(cand); changed = true; }
       }
     }
-  }
-  const blocSet = new Set(bloc);
+    return b;
+  };
 
-  // kto hlasuje inak než blok (defectors) — len mimo bloku, min aktívnych
-  const defect = new Array(N).fill(0);
-  const defTotal = new Array(N).fill(0);
-  for (const v of V) {
-    const c = v.c;
-    let bz = 0, bp = 0;
-    for (const m of bloc) { const a = AY(c[m]); if (a === "ZA") bz++; else if (a === "PROTI") bp++; }
-    if (bz + bp < 4) continue;
-    const stance = bz >= bp ? "Z" : "P";
-    for (let i = 0; i < N; i++) {
-      if (blocSet.has(i)) continue;
-      const a = AY(c[i]);
-      if (a) { defTotal[i]++; if (c[i] !== stance) defect[i]++; }
+  const activeIdx = Array.from({ length: N }, (_, i) => i).filter((i) => active[i] >= minActive);
+  const bloc = growBloc(activeIdx);
+  const blocSet = new Set(bloc);
+  const rest = activeIdx.filter((i) => !blocSet.has(i));
+  const opp = growBloc(rest);           // druhý tábor = najvernejší blok vo zvyšku
+  const oppSet = new Set(opp);
+
+  // ── zarovnanie každého aktívneho poslanca na SPORNÝCH hlasovaniach ──
+  // coreAlign = priemerná zhoda s členmi jadra; oppAlign = s členmi opozície
+  const avgCon = (i: number, group: number[]): number | null => {
+    const vals: number[] = [];
+    for (const m of group) { if (m === i) continue; const p = pairPctCon(i, m); if (p !== null) vals.push(p); }
+    return vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+  };
+
+  const nodes: CircleNode[] = [];
+  const swing: SwingRow[] = [];
+  for (const i of activeIdx) {
+    const core = avgCon(i, bloc);
+    const oppa = avgCon(i, opp);
+    const coreAlign = core === null ? 50 : core * 100;
+    let group: Group;
+    if (blocSet.has(i)) group = "jadro";
+    else if (oppSet.has(i)) group = "opozicia";
+    else {
+      // nezaradení: podľa zarovnania na sporných
+      if (core !== null && oppa !== null) {
+        if (core >= 0.65 && core - oppa > 0.25) group = "jadro";
+        else if (oppa >= 0.65 && oppa - core > 0.25) group = "opozicia";
+        else group = "swing";
+      } else group = "swing";
+    }
+    nodes.push({ name: C[i], group, coreAlign, activeCount: active[i] });
+    if (group === "swing" && core !== null && oppa !== null)
+      swing.push({ name: C[i], corePct: core * 100, oppPct: oppa * 100 });
+  }
+
+  // zoraď uzly podľa zarovnania s jadrom (jadro → swing → opozícia) pre pekný kruh
+  nodes.sort((a, b) => b.coreAlign - a.coreAlign);
+  const idxOf = new Map(nodes.map((n, k) => [n.name, k]));
+
+  // ── hrany kruhu: zhoda na SPORNÝCH ≥ 80 % (min 15 spol.) ──
+  const edges: CircleEdge[] = [];
+  for (let a = 0; a < nodes.length; a++) {
+    for (let b = a + 1; b < nodes.length; b++) {
+      const i = C.indexOf(nodes[a].name), j = C.indexOf(nodes[b].name);
+      const p = pairPctCon(i, j);
+      if (p !== null && p >= 0.8) edges.push({ a, b, w: p });
     }
   }
+  void idxOf;
 
-  const opposition: OppRow[] = [];
-  const defectors: OppRow[] = [];
+  swing.sort((a, b) => b.corePct - a.corePct);
+
+  // finálne počty táborov podľa zaradenia uzlov (nie seed detekcie)
+  let nJadro = 0, nOpoz = 0, nSwing = 0;
+  for (const n of nodes) {
+    if (n.group === "jadro") nJadro++;
+    else if (n.group === "opozicia") nOpoz++;
+    else nSwing++;
+  }
+
   const attendance: AttRow[] = [];
   for (let i = 0; i < N; i++) {
-    if (active[i] >= minActive)
-      opposition.push({ name: C[i], pct: (100 * against[i]) / active[i], count: against[i], total: active[i] });
-    if (defTotal[i] >= minActive)
-      defectors.push({ name: C[i], pct: (100 * defect[i]) / defTotal[i], count: defect[i], total: defTotal[i] });
     if (member[i] >= minActive)
-      attendance.push({ name: C[i], presentPct: (100 * present[i]) / member[i], present: present[i], member: member[i] });
+      attendance.push({ name: C[i], presentPct: (100 * present[i]) / member[i], present: present[i], member: member[i], fullAbsent: fullAbsent[i] });
   }
-  opposition.sort((a, b) => b.pct - a.pct);
-  defectors.sort((a, b) => b.pct - a.pct);
   attendance.sort((a, b) => b.presentPct - a.presentPct);
-
-  const pairs: PairRow[] = [];
-  for (const [k, t] of together) {
-    if (t >= 150) {
-      const [i, j] = k.split("-").map(Number);
-      pairs.push({ a: C[i], b: C[j], pct: (100 * (agree.get(k) ?? 0)) / t, total: t });
-    }
-  }
-  pairs.sort((a, b) => b.pct - a.pct);
 
   return {
     totalVotings: V.length,
+    contestedVotings,
     unanimousShare: (100 * unanimous) / V.length,
-    bloc: bloc.map((i) => C[i]).sort((a, b) => a.localeCompare(b, "sk")),
-    opposition,
-    pairs,
-    defectors,
+    blocSize: nJadro,
+    oppSize: nOpoz,
+    swingSize: nSwing,
+    circle: { nodes, edges },
+    swing,
     attendance,
   };
 }
