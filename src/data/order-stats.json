@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-09-30T05:37:11.228Z",
+  "generatedAt": "2026-10-01T10:35:51.722Z",
   "source": "egov.martin.sk CORA sekcia 781 (objednávky) — open-data JSON export",
   "sourceUrl": "https://egov.martin.sk/Default.aspx?NavigationState=781:0:",
   "note": "Precompute objednávok. Do klienta idú agregáty + veľké objednávky ≥10k € (rovnaká škálovacia logika ako faktúry). IČO z presného meno-matchu na entities; bez zhody null. hasContract = dodávateľ má zmluvu mesta/CRZ (supplier-contracts.json).",
-  "totalOrdered": 47566688.69,
-  "orderCount": 90979,
+  "totalOrdered": 47586676.59,
+  "orderCount": 91033,
   "bigThreshold": 10000,
   "bigOrderCount": 531,
   "bigOrdersMatchedIco": 460,
@@ -74,8 +74,8 @@
       "sum": 5894022.23
     },
     "2026": {
-      "count": 5417,
-      "sum": 4339189.3
+      "count": 5471,
+      "sum": 4359177.2
     }
   },
   "bigOrders": [
