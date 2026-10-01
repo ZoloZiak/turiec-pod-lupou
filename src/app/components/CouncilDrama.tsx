@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, Check, X, Minus, ExternalLink } from "lucide-react";
+import DramaSlope from "./DramaSlope";
 
 type VoteCast = "ZA" | "PROTI" | "ZDRŽAL SA" | "NEPRÍTOMNÝ" | "NEHLASOVAL";
 
@@ -38,12 +39,6 @@ export type Drama = {
 };
 
 // Farba podľa hlasu — konzistentné so stránkou /poslanci
-function dotColor(v: VoteCast) {
-  if (v === "ZA") return "bg-emerald-500";
-  if (v === "PROTI") return "bg-red-500";
-  if (v === "ZDRŽAL SA") return "bg-amber-500";
-  return "bg-slate-600"; // neprítomný / nehlasoval
-}
 function textVote(v: VoteCast) {
   if (v === "ZA") return "text-emerald-400";
   if (v === "PROTI") return "text-red-400";
@@ -51,76 +46,15 @@ function textVote(v: VoteCast) {
   return "text-muted";
 }
 
-// Jedno hlasovanie ako mriežka bodiek (31 kresiel) + kvórum čiara
-function VoteGrid({ vote, quorum, seats }: { vote: DramaVote; quorum: number; seats: number }) {
-  // poradie bodiek: ZA, PROTI, zdržal, neprítomný
-  const dots: VoteCast[] = [
-    ...Array(vote.za).fill("ZA"),
-    ...Array(vote.proti).fill("PROTI"),
-    ...Array(vote.zdrzal).fill("ZDRŽAL SA"),
-    ...Array(vote.nepritomny).fill("NEPRÍTOMNÝ"),
-  ] as VoteCast[];
-  while (dots.length < seats) dots.push("NEPRÍTOMNÝ");
-  const passed = vote.result === "PRESLO";
-
-  return (
-    <div className="bg-elevated rounded-xl p-5 border border-line flex-1 min-w-[260px]">
-      <div className="flex items-center justify-between gap-2 mb-1">
-        <span className="text-sm font-semibold text-muted">{vote.label}</span>
-        <span
-          className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-            passed ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
-          }`}
-        >
-          {passed ? "Prešlo".toUpperCase() : "Neprešlo".toUpperCase()}
-        </span>
-      </div>
-      <div className="text-3xl font-extrabold text-body mb-3">
-        {vote.za} <span className="text-lg font-medium text-muted">za</span>
-      </div>
-
-      {/* mriežka kresiel */}
-      <div className="grid grid-cols-8 gap-1.5 mb-4" aria-hidden="true">
-        {dots.map((d, i) => (
-          <div key={i} className={`aspect-square rounded-full ${dotColor(d)}`} title={d} />
-        ))}
-      </div>
-
-      {/* kvórum ukazovateľ */}
-      <div className="relative h-2 rounded-full bg-slate-700 overflow-hidden mb-1">
-        <div
-          className={`h-full ${passed ? "bg-emerald-500" : "bg-red-500"}`}
-          style={{ width: `${Math.min(100, (vote.za / seats) * 100)}%` }}
-        />
-        <div
-          className="absolute top-0 h-full w-0.5 bg-body"
-          style={{ left: `${(quorum / seats) * 100}%` }}
-          title={`Potrebná hranica: ${quorum}`}
-        />
-      </div>
-      <div className="flex justify-between text-[11px] text-muted">
-        <span>
-          {vote.za} za · {vote.proti} proti
-          {vote.zdrzal ? ` · ${vote.zdrzal} zdržal` : ""}
-          {vote.nepritomny ? ` · ${vote.nepritomny} neprít.` : ""}
-        </span>
-        <span className="font-semibold text-body">hranica {quorum}</span>
-      </div>
-
-      <a
-        href={vote.source}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 mt-3"
-      >
-        <ExternalLink className="w-3 h-3" aria-hidden="true" /> Uznesenie č. {vote.uznesenie} · martin.sk
-      </a>
-    </div>
-  );
-}
-
 export default function CouncilDrama({ drama }: { drama: Drama }) {
   const [v1, v2] = drama.votes;
+
+  // krátke anotácie moverov pre slopegraph (odvodené z changes)
+  const moverNotes: Record<string, string> = {};
+  for (const c of drama.changes) {
+    moverNotes[c.name] =
+      c.to === "NEPRÍTOMNÝ" ? "neprišiel (bol PROTI)" : `otočil ${c.from}→${c.to}`;
+  }
 
   return (
     <article className="bg-card rounded-2xl border border-line overflow-hidden">
@@ -131,24 +65,24 @@ export default function CouncilDrama({ drama }: { drama: Drama }) {
         <p className="text-muted mt-3 max-w-3xl">{drama.summary}</p>
       </div>
 
-      {/* dve hlasovania vedľa seba so šípkou */}
+      {/* prepojovací graf oboch hlasovaní — tábory aj flip v jednom obraze */}
       <div className="p-6">
-        <div className="flex flex-col md:flex-row items-stretch gap-4">
-          <VoteGrid vote={v1} quorum={drama.quorum} seats={drama.seats} />
-          <div className="flex md:flex-col items-center justify-center gap-2 px-2">
-            <ArrowRight className="w-8 h-8 text-purple-400 rotate-90 md:rotate-0" aria-hidden="true" />
-            <span className="text-xs font-semibold text-muted whitespace-nowrap">o 5 týždňov</span>
-          </div>
-          <VoteGrid vote={v2} quorum={drama.quorum} seats={drama.seats} />
-        </div>
+        <DramaSlope
+          v1={v1}
+          v2={v2}
+          rollcall={drama.rollcall}
+          quorum={drama.quorum}
+          movers={moverNotes}
+        />
 
-        {/* legenda */}
-        <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted">
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500" /> za</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-500" /> proti</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500" /> zdržal sa</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-slate-600" /> neprítomný</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block w-0.5 h-3 bg-body" /> potrebná hranica ({drama.quorum} z {drama.seats})</span>
+        {/* zdroje — odkazy na oficiálne uznesenia */}
+        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-5 justify-center">
+          {drama.votes.map((v) => (
+            <a key={v.uznesenie} href={v.source} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300">
+              <ExternalLink className="w-3 h-3" aria-hidden="true" /> {v.label}: uznesenie č. {v.uznesenie} · martin.sk
+            </a>
+          ))}
         </div>
       </div>
 
