@@ -61,7 +61,8 @@ export default function DramaSlope({
         {/* hranica kvóra */}
         <line x1={leftX - 30} y1={qy} x2={rightX + 30} y2={qy} stroke="var(--foreground)" strokeWidth={1.5} strokeDasharray="6 4" opacity={0.75} />
         <text x={rightX + 34} y={qy - 4} fontSize={12} fill="var(--foreground)" fontWeight="bold">hranica {quorum} hlasov za</text>
-        <text x={rightX + 34} y={qy + 13} fontSize={11} fill="var(--muted-foreground)">(3/5 väčšina na daň)</text>
+        <text x={rightX + 34} y={qy + 13} fontSize={11} fill="var(--muted-foreground)">(3/5 prítomných — 26. 10.</text>
+        <text x={rightX + 34} y={qy + 27} fontSize={11} fill="var(--muted-foreground)">sedelo všetkých 31)</text>
 
         {/* hlavičky stĺpcov */}
         {[

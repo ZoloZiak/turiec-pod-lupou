@@ -58,9 +58,11 @@ export default function ObjednavkyPage() {
             <ShoppingCart className="w-10 h-10 text-emerald-400" aria-hidden="true" /> Objednávky mesta
           </h1>
           <p className="text-lg text-muted mt-4 max-w-3xl">
-            Kompletná história objednávok mesta Martin z portálu egov (sekcia 781), roky 2011–2026.
-            Objednávka je predchodca faktúry — mesto ňou zadáva dodávku. Veľké objednávky (od {formatEur(stats.bigThreshold)})
-            bez zmluvy sledujeme rovnako ako faktúry bez zmluvy.
+            Objednávky mesta Martin z portálu egov (sekcia 781). Objednávka je predchodca faktúry —
+            mesto ňou zadáva menšiu dodávku (priemer rádovo stovky eur). <strong className="text-body">Nie je to
+            celkový rozpočet mesta</strong>: veľké zákazky (stavby, energie, odpad) idú cez zmluvu a faktúru, nie
+            cez objednávku. Hlavný tok peňazí preto nájdete v sekcii faktúr a zmlúv — tu je operatívny nákup.
+            Veľké objednávky (od {formatEur(stats.bigThreshold)}) bez zmluvy sledujeme rovnako ako faktúry bez zmluvy.
           </p>
         </div>
       </header>
@@ -85,8 +87,8 @@ export default function ObjednavkyPage() {
           </div>
           <div className="bg-card p-6 rounded-2xl border border-line shadow-lg">
             <p className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Rozsah</p>
-            <p className="text-3xl font-black text-body">2011–2026</p>
-            <p className="text-sm text-muted mt-1">egov.martin.sk (781)</p>
+            <p className="text-3xl font-black text-body">2016–2026</p>
+            <p className="text-sm text-muted mt-1">roky 2011–2015 v zdroji neúplné</p>
           </div>
         </div>
 
@@ -105,6 +107,12 @@ export default function ObjednavkyPage() {
               <Bar dataKey="sum" fill="#10b981" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          <p className="text-xs text-muted mt-3">
+            Nízke stĺpce 2011–2015 nie sú šetrenie mesta — v tých rokoch portál egov eviduje len
+            zlomok objednávok (~1 300/rok oproti ~8 000/rok od 2016). Zdroj tie roky nemá kompletné,
+            tak ich berte orientačne. Súčet „objednávky spolu“ zahŕňa aj ne, takže reálne číslo
+            za úplné obdobie je o niečo vyššie.
+          </p>
         </div>
 
         {/* FILTER + ZOZNAM */}
