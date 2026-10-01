@@ -56,8 +56,9 @@ export default function DramyPage() {
               záznam prehľadne — záver si spraví čitateľ.
             </p>
             <p>
-              VZN a jeho dodatky potrebujú na schválenie <strong>trojpätinovú väčšinu</strong> — teda 19 z 31 poslancov.
-              Preto môže mať návrh viac hlasov za ako proti a napriek tomu neprejsť.
+              VZN a jeho dodatky potrebujú na schválenie <strong>trojpätinovú väčšinu prítomných</strong> poslancov
+              (bežné uznesenie nadpolovičnú väčšinu prítomných). Kvórum sa počíta z tých, čo sedia v sále, nie z 31
+              kresiel — preto môže mať návrh viac hlasov za ako proti a napriek tomu neprejsť.
             </p>
           </div>
         </div>

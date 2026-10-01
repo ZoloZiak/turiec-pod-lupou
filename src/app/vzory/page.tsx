@@ -2,6 +2,7 @@
 
 import SiteNav from "../components/SiteNav";
 import CouncilCircle from "../components/CouncilCircle";
+import FailedVotes from "../components/FailedVotes";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { Network, CalendarCheck, Shuffle, Info, Trophy } from "lucide-react";
@@ -161,6 +162,59 @@ export default function VzoryPage() {
                 </ul>
               </section>
             )}
+
+            {/* Čo neprešlo — priama odpoveď na "ktoré návrhy tesne padli a kto bol proti" */}
+            <FailedVotes items={a.failed} />
+
+            {/* Zmena pravidiel hry — faktická kotva, bez tvrdenia o obsahu */}
+            <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <Shuffle className="w-6 h-6 text-purple-400" aria-hidden="true" />
+                <h2 className="text-2xl font-bold text-body">Menili sa aj pravidlá rokovania</h2>
+              </div>
+              <p className="text-sm text-muted mb-4 max-w-3xl">
+                Rokovací poriadok určuje, ako zastupiteľstvo funguje — kto kedy dostane slovo, čo sa stane, keď klesne
+                počet poslancov, ako sa vedie rozprava. Za toto obdobie ho rada menila viackrát, a dvakrát pri tom
+                stála pevne proti celá opozícia. Čo presne sa zmenilo, je v texte dodatku (odkaz) — tu ukazujeme len,
+                kedy a ako tesne to prešlo.
+              </p>
+              <ul className="space-y-3">
+                {[
+                  { d: "2024-06-20", t: "Dodatok č. 3 k Rokovaciemu poriadku", za: 15, proti: 11, prit: 26,
+                    s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-20-06-2024/ds-2536" },
+                  { d: "2025-03-27", t: "Dodatok č. 4 k Rokovaciemu poriadku", za: 14, proti: 11, prit: 27,
+                    s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-27-03-2025/ds-2574" },
+                ].map((r) => (
+                  <li key={r.d} className="rounded-xl border border-line p-4">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <div>
+                        <p className="text-sm font-semibold text-body">{r.t}</p>
+                        <p className="text-xs text-muted mt-0.5">{r.d} · prešlo tesne (nadpolovičná prítomných)</p>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 px-2.5 py-0.5 text-[11px] font-bold">
+                        {r.proti} proti
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-emerald-600 shrink-0 w-12 text-right">ZA {r.za}</span>
+                      <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-elevated">
+                        <div className="bg-emerald-500" style={{ width: `${(r.za / r.prit) * 100}%` }} />
+                        <div className="bg-red-500" style={{ width: `${(r.proti / r.prit) * 100}%` }} />
+                      </div>
+                      <span className="text-xs font-bold text-red-600 shrink-0 w-24">{r.proti} proti</span>
+                    </div>
+                    <a
+                      href={r.s}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-purple-500 hover:text-purple-400 mt-2"
+                    >
+                      Menný záznam na martin.sk
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
 
             {/* Metodika */}
             <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl p-5 flex gap-3 items-start">

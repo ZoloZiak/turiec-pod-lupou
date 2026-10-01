@@ -109,6 +109,20 @@ export type SwingRow = { name: string; corePct: number; oppPct: number };
 
 export type AttRow = { name: string; presentPct: number; present: number; member: number; fullAbsent: number };
 
+// Hlasovanie, ktoré podľa zákona 369/1990 NEPREŠLO (p===0). Vrátane menného
+// zoznamu "proti" a "zdržal" — laik vidí, kto návrh nepodporil.
+export type FailedVote = {
+  date: string;
+  resolution: string | null;
+  title: string;
+  za: number; proti: number; zdrzal: number;
+  present: number; needed: number; missing: number;  // koľko ZA chýbalo do kvóra
+  rule: "vzn_3_5" | "nadpolovicna" | null;
+  againstNames: string[];   // kto hlasoval PROTI
+  abstainNames: string[];   // kto sa zdržal
+  source: string;
+};
+
 export type Analysis = {
   totalVotings: number;
   contestedVotings: number;      // hlasovania, kde menšina ≥ 20 %
@@ -119,6 +133,7 @@ export type Analysis = {
   circle: { nodes: CircleNode[]; edges: CircleEdge[] };
   swing: SwingRow[];             // kto lavíruje medzi tábormi
   attendance: AttRow[];          // účasť na hlasovaniach
+  failed: FailedVote[];          // hlasovania, ktoré podľa zákona neprešli
 };
 
 const AY = (ch: string): "ZA" | "PROTI" | null =>
@@ -294,6 +309,30 @@ export function analyze(data: CouncilData, minActive = 150): Analysis {
   }
   attendance.sort((a, b) => b.presentPct - a.presentPct);
 
+  // ── hlasovania, ktoré podľa zákona NEPREŠLI (p===0) ──
+  // Verdikt je predpočítaný v ETL (kvórum z prítomných, 369/1990). Tu len
+  // doplníme menné zoznamy proti/zdržal, aby laik videl, kto návrh nepodporil.
+  const failed: FailedVote[] = [];
+  for (const v of V) {
+    if (v.p !== 0) continue;
+    const againstNames: string[] = [];
+    const abstainNames: string[] = [];
+    for (let i = 0; i < N; i++) {
+      if (v.c[i] === "P") againstNames.push(C[i]);
+      else if (v.c[i] === "D") abstainNames.push(C[i]);
+    }
+    const needed = v.nd ?? 0;
+    failed.push({
+      date: v.d, resolution: v.u, title: v.t,
+      za: v.za, proti: v.proti, zdrzal: v.zdrzal,
+      present: v.pr ?? (v.za + v.proti + v.zdrzal + v.nehl),
+      needed, missing: Math.max(0, needed - v.za),
+      rule: (v.rl as FailedVote["rule"]) ?? null,
+      againstNames, abstainNames, source: v.s,
+    });
+  }
+  failed.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+
   return {
     totalVotings: V.length,
     contestedVotings,
@@ -304,5 +343,6 @@ export function analyze(data: CouncilData, minActive = 150): Analysis {
     circle: { nodes, edges },
     swing,
     attendance,
+    failed,
   };
 }
