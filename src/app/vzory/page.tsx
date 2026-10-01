@@ -124,10 +124,11 @@ export default function VzoryPage() {
                 prekvapivo pevne.
               </p>
               <p className="text-body/90 mt-3">
-                A deliace čiary majú reálne dôsledky. VZN a dodatky (napríklad dane) potrebujú trojpätinovú väčšinu —{" "}
-                <strong>19 z 31</strong> hlasov. Pri dani z nehnuteľností 2023 bolo za presne 18, chýbal jediný hlas —
-                a rozhodlo to, že jeden poslanec z druhého tábora napokon zahlasoval za. Jeden hlas, jedna daň pre celé
-                mesto. To je presne príbeh, ktorý tábory na tomto kruhu vysvetľujú.{" "}
+                A deliace čiary majú reálne dôsledky. VZN a dodatky (napríklad dane) potrebujú trojpätinovú
+                väčšinu <strong>prítomných</strong> poslancov. Pri dani z nehnuteľností 2023 sedelo v sále
+                všetkých 31, takže hranica bola <strong>19 hlasov</strong> — a za bolo presne 18, chýbal jediný hlas.
+                Napokon rozhodlo, že jeden poslanec z druhého tábora pri opakovanom hlasovaní zahlasoval za.
+                Jeden hlas, jedna daň pre celé mesto. To je presne príbeh, ktorý tábory na tomto kruhu vysvetľujú.{" "}
                 <Link href="/dramy" className="text-purple-400 hover:text-purple-300 underline">Pozri drámu →</Link>
               </p>
             </section>

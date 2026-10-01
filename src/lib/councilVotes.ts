@@ -16,6 +16,10 @@ export type RawVoting = {
   za: number; proti: number; zdrzal: number; nepr: number; nehl: number;
   s: string;        // source URL (martin.sk)
   c: string;        // 33-znakovy kod hlasov (poradie = councillors[])
+  p?: number;       // zakonny verdikt: 1 preslo / 0 nepreslo (369/1990 Zb.)
+  pr?: number;      // pocet pritomnych v sale (ZA+PROTI+zdrzal+nehlasoval)
+  nd?: number;      // potrebne ZA na schvalenie (kvorum z pritomnych)
+  rl?: string;      // pouzite pravidlo: "vzn_3_5" | "nadpolovicna"
 };
 
 export type CouncilData = {
@@ -34,6 +38,10 @@ export type Voting = {
   title: string;
   za: number; proti: number; zdrzal: number; nepr: number; nehl: number;
   contested: number;          // proti + zdrzal (miera spornosti)
+  passed: boolean | null;     // zakonny verdikt preslo/nepreslo (null ak sa nehlasovalo)
+  present: number | null;     // pocet pritomnych v sale
+  needed: number | null;      // potrebne ZA na schvalenie (kvorum z pritomnych)
+  rule: "vzn_3_5" | "nadpolovicna" | null;  // pouzite kvorum
   source: string;
   rows: CouncillorVote[];     // dekodovane, len poslanci co v hlasovani figurovali
 };
@@ -53,6 +61,10 @@ export function decodeVoting(raw: RawVoting, councillors: string[]): Voting {
     title: raw.t,
     za: raw.za, proti: raw.proti, zdrzal: raw.zdrzal, nepr: raw.nepr, nehl: raw.nehl,
     contested: raw.proti + raw.zdrzal,
+    passed: raw.p === undefined ? null : raw.p === 1,
+    present: raw.pr ?? null,
+    needed: raw.nd ?? null,
+    rule: (raw.rl as Voting["rule"]) ?? null,
     source: raw.s,
     rows,
   };

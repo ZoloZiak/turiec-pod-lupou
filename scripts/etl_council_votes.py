@@ -80,6 +80,36 @@ def voting_key(date, hlas_no, uzn=None):
     return f"{date}#{hlas_no or 0}#{uzn or ''}"
 
 
+import math
+
+# --- Zákonný verdikt "prešlo / neprešlo" (zákon SNR 369/1990 Zb. o obecnom zriadení) ---
+# § 12 ods. 7: na uznesenie treba súhlas NADPOLOVIČNEJ väčšiny PRÍTOMNÝCH poslancov.
+# § 6 ods. 8 (a § 11 ods. 4 písm. g): na VZN/nariadenie treba súhlas 3/5 PRÍTOMNÝCH.
+# Kľúč: kvórum sa počíta z PRÍTOMNÝCH (= ZA + PROTI + ZDRŽAL + NEHLASOVAL), NIE z 31 kresiel.
+# Overené proti vytlačenému PDF: VZN č.144 prešlo so ZA=18 pri 18 prítomných (3/5 z 18 = 11).
+# PDF invariant (34/34 blokov): prítomných == ZA + ZDRŽAL + PROTI + NEHLASOVAL.
+_VZN_RE = re.compile(r"\bvzn\b|nariaden|dodat\w*.*k\s*vzn|dodat\w*.*vzn\s*č|zmen\w*.*vzn", re.I)
+
+def is_vzn_vote(title):
+    """VZN/nariadenie (vrát. dodatkov a zmien k VZN) -> prísnejšie 3/5 kvórum."""
+    return bool(_VZN_RE.search(title or ""))
+
+def legal_verdict(za, proti, zdrzal, nehl, title):
+    """Vráti ('prešlo'|'neprešlo', prítomných, potrebné_ZA, pravidlo) alebo None ak sa nehlasovalo."""
+    present = za + proti + zdrzal + nehl
+    if present == 0:
+        return None
+    if is_vzn_vote(title):
+        need = math.ceil(3 / 5 * present)          # 3/5 prítomných
+        ok = za >= need and za > proti
+        rule = "vzn_3_5"
+    else:
+        need = present // 2 + 1                     # nadpolovičná prítomných
+        ok = za >= need and za >= proti
+        rule = "nadpolovicna"
+    return ("prešlo" if ok else "neprešlo"), present, need, rule
+
+
 def build_votings_from_records(recs, date, url):
     """Zoskup ploché záznamy (1 poslanec x 1 hlasovanie) do hlasovaní."""
     by_voting = defaultdict(list)
@@ -117,6 +147,13 @@ def to_compact(all_votings):
             "za": v["za"], "proti": v["proti"], "zdrzal": v["zdrzal"],
             "nepr": v["nepr"], "nehl": v["nehl"], "s": v["source"], "c": "".join(code),
         })
+        verdict = legal_verdict(v["za"], v["proti"], v["zdrzal"], v["nehl"], v["title"])
+        if verdict is not None:
+            res, present, need, rule = verdict
+            votings[-1]["p"] = 1 if res == "prešlo" else 0   # passed podľa zákona
+            votings[-1]["pr"] = present                       # prítomných v sále
+            votings[-1]["nd"] = need                          # potrebné ZA na schválenie
+            votings[-1]["rl"] = rule                          # ktoré kvórum sa použilo
     votings.sort(key=lambda x: (x["d"], x["n"] or 0), reverse=True)
     return {
         "councillors": councillors, "votings": votings,
