@@ -164,7 +164,7 @@ export default function VzoryPage() {
             )}
 
             {/* Čo neprešlo — priama odpoveď na "ktoré návrhy tesne padli a kto bol proti" */}
-            <FailedVotes items={a.failed} />
+            <FailedVotes items={a.failed} total={a.decidedVotings} passedPct={a.passedShare.toFixed(1)} />
 
             {/* Zmena pravidiel hry — faktická kotva, bez tvrdenia o obsahu */}
             <section className="bg-card rounded-2xl shadow-sm border border-line p-6">

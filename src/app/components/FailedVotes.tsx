@@ -31,7 +31,7 @@ function ruleLabel(rule: FailedVote["rule"]): string {
   return "";
 }
 
-export default function FailedVotes({ items }: { items: FailedVote[] }) {
+export default function FailedVotes({ items, total, passedPct }: { items: FailedVote[]; total: number; passedPct: string }) {
   if (!items.length) return null;
 
   return (
@@ -41,11 +41,20 @@ export default function FailedVotes({ items }: { items: FailedVote[] }) {
         <h2 className="text-2xl font-bold text-body">Čo neprešlo</h2>
       </div>
       <p className="text-sm text-muted mb-5 max-w-3xl">
-        Za celé volebné obdobie neprešlo iba <strong className="text-body">{items.length}</strong>{" "}
-        {items.length === 1 ? "hlasovanie" : items.length < 5 ? "hlasovania" : "hlasovaní"}. VZN a dodatky potrebujú
-        trojpätinovú väčšinu <strong>prítomných</strong>, bežné uznesenie nadpolovičnú — kvórum sa počíta z tých,
-        čo sedia v sále. Zvislá čiara v pruhu je hranica, ktorú bolo treba prekročiť. Kto bol proti, vidíte menovite;
+        Z <strong className="text-body">{total}</strong> menovitých hlasovaní, ktoré sa dostali na rokovanie,
+        neprešlo <strong className="text-body">{items.length}</strong>{" "}
+        {items.length === 1 ? "hlasovanie" : items.length < 5 ? "hlasovania" : "hlasovaní"}
+        {" "}({passedPct}&nbsp;% návrhov prešlo). VZN a dodatky potrebujú trojpätinovú väčšinu{" "}
+        <strong>prítomných</strong>, bežné uznesenie nadpolovičnú — kvórum sa počíta z tých, čo sedia v sále.
+        Zvislá čiara v pruhu je hranica, ktorú bolo treba prekročiť. Kto bol proti, vidíte menovite;
         je to verejný záznam, nie obvinenie.
+      </p>
+      <p className="text-xs text-muted/80 mb-5 max-w-3xl border-l-2 border-line pl-3">
+        <strong className="text-muted">Čo toto číslo nezahŕňa:</strong> ráta len návrhy, pri ktorých sa
+        reálne hlasovalo menovite a padli na kvóre. Nezapočítava pozmeňujúce a protinávrhy, ktoré neprešli,
+        body stiahnuté z programu pred hlasovaním, ani návrhy, ktoré sa k hlasovaniu vôbec nedostali
+        (zamietnuté v komisii či nezaradené). Zdroj H.E.R. tie samostatne nezaznamenáva, preto ich tu
+        poctivo nevykazujeme ako &bdquo;neprešlé&ldquo;.
       </p>
 
       <ul className="space-y-4">

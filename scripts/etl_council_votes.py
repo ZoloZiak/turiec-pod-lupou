@@ -22,7 +22,7 @@ from collections import Counter, defaultdict
 sys.path.insert(0, os.path.dirname(__file__))
 from parse_msz_votes import parse  # fitz-based, overený per-uznesenie parser
 
-ssl._create_default_https_context = ssl._create_unverified_context  # firemný MITM proxy
+ssl._create_default_https_context = ssl._create_unverified_context  # MITM proxy v sieti
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "public", "data", "council-votes.json")
@@ -111,17 +111,25 @@ def legal_verdict(za, proti, zdrzal, nehl, title):
 
 
 def build_votings_from_records(recs, date, url):
-    """Zoskup ploché záznamy (1 poslanec x 1 hlasovanie) do hlasovaní."""
-    by_voting = defaultdict(list)
+    """Zoskup ploché záznamy (1 poslanec x 1 hlasovanie) do hlasovaní.
+
+    DEDUP: kľúč je (hlasovanie × poslanec). Niektoré zasadnutia zverejnia DVA PDF
+    s identickým exportom tých istých hlasovaní (napr. 2024-02-14: 96292 + 96298).
+    Keby sme hlasy appendovali do listu, Counter by každý hlas zrátal 2× a sumy
+    (za/proti/...) by sa zdvojili (bug: za=44 pri 31 kreslách). Preto zber je
+    idempotentný dict meno->hlas: duplicitné PDF prepíše tú istú hodnotu, nepričíta.
+    """
+    by_voting = defaultdict(dict)
     meta = {}
     for r in recs:
         k = voting_key(date, r.get("_hlas_no"), r.get("_uzn"))
-        by_voting[k].append((r["councillor_name"], r["vote_cast"]))
+        by_voting[k][r["councillor_name"]] = r["vote_cast"]
         meta[k] = (r.get("_hlas_no"), r.get("_uzn"), r["issue_title"], url)
     out = []
-    for k, rows in by_voting.items():
+    for k, rows_map in by_voting.items():
         hlas_no, uzn, title, src = meta[k]
-        c = Counter(v for _, v in rows)
+        rows = list(rows_map.items())
+        c = Counter(rows_map.values())
         # odstráň prefix "Uznesenie č. X: " z titulu (uzn máme samostatne)
         t = re.sub(r"^Uznesenie č\.\s*[\d/]+:?\s*", "", title).strip() or title
         t = re.sub(r"^bod\s+[\w\.\)]+\s*[–-]\s*", "", t).strip()

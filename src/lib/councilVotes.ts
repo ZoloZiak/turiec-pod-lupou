@@ -125,6 +125,8 @@ export type FailedVote = {
 
 export type Analysis = {
   totalVotings: number;
+  decidedVotings: number;        // hlasovania s právnym verdiktom (prešlo/neprešlo)
+  passedShare: number;           // podiel prešlých z rozhodnutých (%)
   contestedVotings: number;      // hlasovania, kde menšina ≥ 20 %
   unanimousShare: number;        // podiel hlasovaní, kde bola zhoda ≥95 %
   blocSize: number;              // veľkosť koaličného jadra (finálne zaradenie)
@@ -333,8 +335,14 @@ export function analyze(data: CouncilData, minActive = 150): Analysis {
   }
   failed.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
+  // počet hlasovaní s právnym verdiktom (p===0|1) a podiel prešlých
+  const decided = V.filter((v) => v.p === 0 || v.p === 1).length;
+  const passedCount = V.filter((v) => v.p === 1).length;
+
   return {
     totalVotings: V.length,
+    decidedVotings: decided,
+    passedShare: decided > 0 ? (100 * passedCount) / decided : 0,
     contestedVotings,
     unanimousShare: (100 * unanimous) / V.length,
     blocSize: nJadro,
