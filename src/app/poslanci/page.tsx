@@ -1,7 +1,7 @@
 "use client";
 
 import SiteNav from "../components/SiteNav";
-import { Users, ThumbsUp, ThumbsDown, FileText, ExternalLink, MinusCircle, Search } from "lucide-react";
+import { Users, ThumbsUp, ThumbsDown, FileText, ExternalLink, MinusCircle, Search, Info } from "lucide-react";
 import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
 import { useState, useEffect, useMemo } from "react";
@@ -84,6 +84,28 @@ export default function PoslanciPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 space-y-6">
+        {/* Súvisiaci nezávislý projekt — doplnková vrstva, ktorú tento web zámerne nepokrýva */}
+        <div className="bg-elevated/60 border border-line rounded-xl p-4 text-sm flex items-start gap-3">
+          <Info className="w-5 h-5 shrink-0 mt-0.5 text-emerald-400" aria-hidden="true" />
+          <div>
+            <p className="font-semibold text-body">Súvisiaci projekt</p>
+            <p className="text-muted mt-0.5">
+              Doplnkový občiansky projekt{" "}
+              <a
+                href="https://skontrolujposlanca.sk/martin"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-medium"
+              >
+                SkontrolujPoslanca.sk
+                <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>{" "}
+              mapuje vystúpenia, návrhy a hlasovania poslancov z videozáznamov zasadnutí. Naše dáta sú
+              o peniazoch mesta, ich o práci poslancov.
+            </p>
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
