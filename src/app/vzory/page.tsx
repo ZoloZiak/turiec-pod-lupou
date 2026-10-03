@@ -105,19 +105,19 @@ export default function VzoryPage() {
               <p className="text-sm text-muted mb-2 max-w-3xl">
                 Každá bodka je poslanec. Čiara spája dvoch, ktorí{" "}
                 <strong>na sporných hlasovaniach</strong> hlasujú rovnako (aspoň v 80 % prípadov). Keď sa čiary
-                zoskupia do dvoch chumáčov, rada má dva tábory — a presne to tu vidno: {a.blocSize} v jednom,{" "}
+                zoskupia do dvoch chumáčov, zastupiteľstvo má dva tábory — a presne to tu vidno: {a.blocSize} v jednom,{" "}
                 {a.oppSize} v druhom. Nikoho sme do tábora nezaradili ručne — vypočítal to algoritmus zo zhody hlasov.
               </p>
               <p className="text-xs text-muted mb-4 max-w-3xl">
-                Dôležité: berieme len {a.contestedVotings} <strong>sporných</strong> hlasovaní (kde sa rada rozdelila),
+                Dôležité: berieme len {a.contestedVotings} <strong>sporných</strong> hlasovaní (kde sa zastupiteľstvo rozdelilo),
                 nie rutinu, kde sú si všetci jednotní. Tam sa totiž tábory ukážu najčistejšie.
               </p>
               <CouncilCircle nodes={a.circle.nodes} edges={a.circle.edges} />
             </section>
 
-            {/* Je rada rozdelená? */}
+            {/* Je zastupiteľstvo rozdelené? */}
             <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
-              <h2 className="text-xl font-bold text-body mb-2">Je martinská rada rozhádaná?</h2>
+              <h2 className="text-xl font-bold text-body mb-2">Je martinské zastupiteľstvo rozhádané?</h2>
               <p className="text-body/90">
                 Na prvý pohľad nie — až <strong className="text-emerald-500">{a.unanimousShare.toFixed(0)} %</strong>{" "}
                 hlasovaní prejde takmer jednomyseľne. Väčšina rozhodnutí je nespornou rutinou. Napätie je v tých pár
@@ -174,7 +174,7 @@ export default function VzoryPage() {
               </div>
               <p className="text-sm text-muted mb-4 max-w-3xl">
                 Rokovací poriadok určuje, ako zastupiteľstvo funguje — kto kedy dostane slovo, čo sa stane, keď klesne
-                počet poslancov, ako sa vedie rozprava. Za toto obdobie ho rada menila viackrát, a dvakrát pri tom
+                počet poslancov, ako sa vedie rozprava. Za toto obdobie ho zastupiteľstvo menilo viackrát, a dvakrát pri tom
                 stála pevne proti celá opozícia. Čo presne sa zmenilo, je v texte dodatku (odkaz) — tu ukazujeme len,
                 kedy a ako tesne to prešlo.
               </p>

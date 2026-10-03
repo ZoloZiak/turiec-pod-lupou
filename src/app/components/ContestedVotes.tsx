@@ -43,7 +43,7 @@ export default function ContestedVotes({ items }: { items: Contested[] }) {
         <h2 className="text-2xl font-bold text-body">Najnapínavejšie hlasovania obdobia</h2>
       </div>
       <p className="text-sm text-muted mb-5 max-w-3xl">
-        Hlasovania, kde bola rada výrazne rozdelená — tesný rozdiel, silná opozícia, alebo VZN tesne pri
+        Hlasovania, kde bolo zastupiteľstvo výrazne rozdelené — tesný rozdiel, silná opozícia, alebo VZN tesne pri
         trojpätinovej hranici. Je to <strong>ukazovateľ, kam sa pozrieť</strong>, nie dôkaz pochybenia. Kliknutím
         na zdroj uvidíte menný záznam.
       </p>
