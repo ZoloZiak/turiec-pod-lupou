@@ -1,0 +1,67 @@
+{
+  "generated_note": "Zdroj: hlavičky uznesení MsZ Martin (martin.sk). Prerušené = zasadnutie sa nedokončilo v jeden deň a muselo pokračovať na ďalšom termíne. Overené z textu uznesení, nie z názvov súborov.",
+  "interruptedMeetings": 6,
+  "continuationDays": 11,
+  "scheduledMeetings": 36,
+  "chains": [
+    {
+      "root": "2023-04-27",
+      "label": "27. apríl 2023",
+      "continuations": [
+        "2023-05-25"
+      ],
+      "src": "https://www.martin.sk/uznesenia-zastupitelstva-2023/ds-2418",
+      "note": "Rokovanie sa dokončilo až 25.5.2023."
+    },
+    {
+      "root": "2023-11-30",
+      "label": "30. november 2023",
+      "continuations": [
+        "2023-12-21"
+      ],
+      "src": "https://www.martin.sk/uznesenia-zastupitelstva-2023/ds-2418",
+      "note": "Rokovanie sa dokončilo až 21.12.2023."
+    },
+    {
+      "root": "2024-04-25",
+      "label": "25. apríl 2024",
+      "continuations": [
+        "2024-05-30",
+        "2024-06-20",
+        "2024-07-11"
+      ],
+      "src": "https://www.martin.sk/uznesenia-zastupitelstva-2024/ds-2501",
+      "note": "Najdlhšia kaskáda: dokončené až po troch ďalších termínoch (30.5. → 20.6. → 11.7.2024)."
+    },
+    {
+      "root": "2024-09-26",
+      "label": "26. september 2024",
+      "continuations": [
+        "2024-10-24",
+        "2024-11-28",
+        "2024-12-05"
+      ],
+      "src": "https://www.martin.sk/uznesenia-zastupitelstva-2024/ds-2501",
+      "note": "Druhá dlhá kaskáda: dokončené až po troch ďalších termínoch (24.10. → 28.11. → 5.12.2024)."
+    },
+    {
+      "root": "2024-12-19",
+      "label": "19. december 2024",
+      "continuations": [
+        "2025-01-30",
+        "2025-02-27"
+      ],
+      "src": "https://www.martin.sk/uznesenia-zastupitelstva-2025/ds-2557",
+      "note": "Dokončené až vo februári 2025 (30.1. → 27.2.2025)."
+    },
+    {
+      "root": "2025-03-27",
+      "label": "27. marec 2025",
+      "continuations": [
+        "2025-04-10"
+      ],
+      "src": "https://www.martin.sk/uznesenia-zastupitelstva-2025/ds-2557",
+      "note": "Rokovanie sa dokončilo až 10.4.2025."
+    }
+  ]
+}

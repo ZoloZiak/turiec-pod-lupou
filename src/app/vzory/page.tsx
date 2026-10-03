@@ -3,6 +3,7 @@
 import SiteNav from "../components/SiteNav";
 import CouncilCircle from "../components/CouncilCircle";
 import FailedVotes from "../components/FailedVotes";
+import InterruptedMeetings from "../components/InterruptedMeetings";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { Network, CalendarCheck, Shuffle, Info, Trophy } from "lucide-react";
@@ -165,6 +166,9 @@ export default function VzoryPage() {
 
             {/* Čo neprešlo — priama odpoveď na "ktoré návrhy tesne padli a kto bol proti" */}
             <FailedVotes items={a.failed} total={a.decidedVotings} presentNotVoting={a.presentNotVoting} />
+
+            {/* Zasadnutia, čo sa nestihli dokončiť — doplnené z parsovania uznesení (predčasné konce) */}
+            <InterruptedMeetings />
 
             {/* Zmena pravidiel hry — faktická kotva, bez tvrdenia o obsahu */}
             <section className="bg-card rounded-2xl shadow-sm border border-line p-6">

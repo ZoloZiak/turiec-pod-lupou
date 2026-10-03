@@ -52,10 +52,10 @@ export default function FailedVotes({ items, total, presentNotVoting }: { items:
         <strong className="text-muted">Toto číslo nie je mierou zhody.</strong> Je to najužšia možná
         kategória — návrh, ktorý sa dostal až k menovitému hlasovaniu a tam nezískal dosť hlasov.
         Reálne sa v zastupiteľstve brzdí aj inak, a tieto cesty sem nespadajú: body stiahnuté z programu
-        pred hlasovaním, pozmeňujúce a protinávrhy, ktoré neprešli, body, ktoré padli po predčasnom
-        ukončení zasadnutia (padnuté kvórum), aj hlasovania, kde sa časť poslancov zaprezentovala, ale
-        nehlasovala (to sa stalo v {presentNotVoting} hlasovaniach). Kde sa zastupiteľstvo reálne delí,
-        ukazuje prehľad <a href="/dramy" className="text-purple-500 hover:text-purple-400 underline">sporných hlasovaní</a>.
+        pred hlasovaním, pozmeňujúce a protinávrhy, ktoré neprešli, aj hlasovania, kde sa časť poslancov
+        zaprezentovala, ale nehlasovala (to sa stalo v {presentNotVoting} hlasovaniach). Samostatná vec sú
+        body odložené po predčasnom konci zasadnutia — <a href="#nedokoncene" className="text-purple-500 hover:text-purple-400 underline">tie sme vyčíslili nižšie</a>.
+        Kde sa zastupiteľstvo reálne delí, ukazuje prehľad <a href="/dramy" className="text-purple-500 hover:text-purple-400 underline">sporných hlasovaní</a>.
       </p>
 
       <ul className="space-y-4">
