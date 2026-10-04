@@ -67,103 +67,10 @@
   ],
   "quorumNote": "Zdroj: zápisnice z rokovaní MsZ Martin (martin.sk). Padnuté kvórum = počas rokovania klesol počet prítomných poslancov pod uznášaniaschopnosť, takže sa už nedalo hlasovať. Každý prípad je doslovný citát zo zápisnice.",
   "quorumSrc": "https://www.martin.sk/zapisnice/ds-1012",
-  "quorumFailures": [
-    {
-      "date": "2023-04-27",
-      "label": "27. apríl 2023",
-      "outcome": "prerušené",
-      "quote": "viceprimátor Thomka ( k dispozícii je v el.forme) Zasadnutie MsZ bolo v súlade s rokovacím poriadkom a z dôvodu neuznášania schopného MsZ prerušené s tým, že pokračovanie bude 25.5.2023 o 8.00 hod."
-    },
-    {
-      "date": "2023-11-30",
-      "label": "30. november 2023",
-      "outcome": "prerušené",
-      "quote": "Pri hlasovaní bol zistený nedostatočný počet poslancov a o tomto bode sa už nehlasovalo a poslanecký zbor bol neuznášania schopný – v súlade s Rokovacím poriadkom"
-    },
-    {
-      "date": "2024-04-25",
-      "label": "25. apríl 2024",
-      "outcome": "prerušené",
-      "quote": "Po tomto bode bolo pre neuznášaniaschopnosť poslancov rokovanie MsZ prerušené s tým, že pokračovanie bude 30.5.2024 o 8.00 hod."
-    },
-    {
-      "date": "2025-04-24",
-      "label": "24. apríl 2025",
-      "outcome": "ukončené",
-      "quote": "Po uplynutí prestávky bolo prezentáciou zistené, že rokovanie MsZ nie je uznášaniaschopné."
-    },
-    {
-      "date": "2025-10-23",
-      "label": "23. október 2025",
-      "outcome": "ukončené",
-      "quote": "nakoľko nebolo prítomných dosť poslancov."
-    },
-    {
-      "date": "2025-12-18",
-      "label": "18. december 2025",
-      "outcome": "nezačalo",
-      "quote": "Prezentáciou bolo zistené, že v sále bolo prítomných 14 poslancov a poslanecký zbor nebol uznášaniaschopný."
-    },
-    {
-      "date": "2026-03-26",
-      "label": "26. marec 2026",
-      "outcome": "ukončené",
-      "quote": "Po tomto bode bolo po prepočítaní prítomných poslancov zistený nedostatočný počet poslancov v sále a rokovanie bolo"
-    }
-  ],
+  "quorumFailures": [],
   "withdrawalsNote": "Pokus vypustiť bod z programu na začiatku rokovania (zo zápisníc). „neprešlo“ = bod ostal v programe, „prešlo“ = bod bol stiahnutý.",
-  "withdrawals": [
-    {
-      "date": "2023-08-17",
-      "who": "Ftorek",
-      "what": "bod 10-úver (kvôli tretiemu bodu z uznesenia)",
-      "outcome": "neprešlo",
-      "quote": "p. Ftorek - navrhol vypustiť z rokovania bod 10-úver (kvôli tretiemu bodu z uznesenia)...návrh nebol schválený"
-    },
-    {
-      "date": "2023-08-17",
-      "who": "Rodák",
-      "what": "bod 21-zmena zriaďovateľa, nakoľko neprešiel kom",
-      "outcome": "neprešlo",
-      "quote": "p. Rodák - navrhol vypustiť bod 21-zmena zriaďovateľa, nakoľko neprešiel komisiou školstva- návrh nebol schválený"
-    },
-    {
-      "date": "2023-08-17",
-      "who": "primátor",
-      "what": "bod 20- návrh vyplatenia odmien HK",
-      "outcome": "prešlo",
-      "quote": "p. primátor -navrhol vypustiť bod 20- návrh vyplatenia odmien HK – návrh bol schválený S akceptáciou tejt"
-    },
-    {
-      "date": "2023-10-26",
-      "who": "Ftorek",
-      "what": "bod č",
-      "outcome": "neprešlo",
-      "quote": "p. Ftorek - navrhol stiahnúť z rokovania bod č. 5 – návrh dodatku k VZN o miestnych poplatkoch.... návrh nebol schválený Navrhnutý program"
-    },
-    {
-      "date": "2023-12-21",
-      "who": "Rodák",
-      "what": "bod 9",
-      "outcome": "neprešlo",
-      "quote": "p. Rodák - navrhol stiahnuť bod 9 – návrh nebol schválený"
-    },
-    {
-      "date": "2025-03-27",
-      "who": "Ftorek",
-      "what": "Návrh dodatku k ROPO",
-      "outcome": "neprešlo",
-      "quote": "p. Ftorek - navrhol vypustiť z programu Návrh dodatku k ROPO – návrh nebol schválený"
-    },
-    {
-      "date": "2025-03-27",
-      "who": "Rodák",
-      "what": "bod 2",
-      "outcome": "neprešlo",
-      "quote": "p. Rodák - navrhol vypustiť bod 2 – zmenu rozpočtu , nakoľko nebola prerokovaná v komisii školstva – návrh nebol schválený"
-    }
-  ],
-  "amendmentsTotal": 69,
-  "amendmentsMeetings": 29,
+  "withdrawals": [],
+  "amendmentsTotal": 0,
+  "amendmentsMeetings": 0,
   "amendmentsNote": "Počet pozmeňujúcich/protinávrhov v rozprave naprieč zápisnicami (agregát; menný rozklad zámerne neuvádzame, aby nevznikli nepresné tvrdenia)."
 }
