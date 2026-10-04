@@ -56,3 +56,6 @@ src/scripts/_*
 scripts/_pdf_cache/
 # theme backupy (jednorazove)
 *.themebak
+
+# throwaway UI mockupy (sketch skill, disponibilne — necommitovat)
+/sketches/

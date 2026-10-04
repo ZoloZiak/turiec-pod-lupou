@@ -8,9 +8,17 @@ import json, re, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 CON = os.path.join(HERE, "..", "src", "data", "council-contested.json")
 FM  = os.path.join(HERE, "_fulltitles.json")
+VOTES = os.path.join(HERE, "..", "public", "data", "council-votes.json")
 
 con = json.load(open(CON, encoding="utf-8"))
-fm  = json.load(open(FM, encoding="utf-8"))
+# _fulltitles.json je gitignored (generuje ho zz_extract_titles.py z PDF stiahnutych
+# lokalne z Macu). Ak chyba, enrichment PLNYCH nazvov sa preskoci, existujuce "full"
+# ostanu; prahove polia (z council-votes.json, verziovany) sa doplnia vzdy.
+fm = json.load(open(FM, encoding="utf-8")) if os.path.exists(FM) else {}
+
+# Index menovitych hlasovani (verziovany zdroj pravdy) pre prahove polia prahovej osi.
+votes = json.load(open(VOTES, encoding="utf-8"))["votings"]
+vidx = {(x["d"], x.get("u")): x for x in votes}
 
 def clean(t):
     t = t.replace("\xad", "")
@@ -67,18 +75,32 @@ def eli5(full):
 
 enr = 0
 desc_cnt = 0
+thr_cnt = 0
 for c in con:
-    full = resolve_full(c)
-    c["full"] = full
+    # PLNY nazov: len ak ho vieme z PDF (fm); inak ponechaj existujuci c["full"] alebo t
+    if fm:
+        full = resolve_full(c)
+        c["full"] = full
+    else:
+        full = c.get("full") or clean(c["t"])
     d = eli5(full)
     if d:
         c["desc"] = d
         desc_cnt += 1
     if full.strip() != c["t"].strip():
         enr += 1
+    # PRAHOVE polia pre prahovu os (z council-votes.json, verziovany zdroj pravdy)
+    m = vidx.get((c["d"], c.get("u")))
+    if m:
+        c["pr"] = m.get("pr")          # pocet pritomnych
+        c["nd"] = m.get("nd")          # potrebna hranica (kvorum pre dany typ)
+        c["passed"] = bool(m.get("p")) # presslo / neprešlo
+        c["rl"] = m.get("rl")          # typ pravidla (nadpolovicna / vzn_3_5)
+        c["nehl"] = m.get("nehl", 0)   # zaprezentoval sa, nehlasoval
+        thr_cnt += 1
 
 json.dump(con, open(CON, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-print(f"zapisanych: {len(con)} | full odlisny od t: {enr} | s ELI5 desc: {desc_cnt}")
+print(f"zapisanych: {len(con)} | full odlisny od t: {enr} | s ELI5 desc: {desc_cnt} | s prahom: {thr_cnt}")
 # ukazka
 for c in con[:5]:
     print("\n", c["d"], "|", c["full"][:80])
