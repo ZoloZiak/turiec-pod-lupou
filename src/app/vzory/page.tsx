@@ -4,9 +4,12 @@ import SiteNav from "../components/SiteNav";
 import CouncilCircle from "../components/CouncilCircle";
 import FailedVotes from "../components/FailedVotes";
 import InterruptedMeetings from "../components/InterruptedMeetings";
+import SilencingOpener from "../components/SilencingOpener";
+import TricksWatchlist from "../components/TricksWatchlist";
+import Disclosure from "../components/Disclosure";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
-import { Network, CalendarCheck, Shuffle, Info, Trophy } from "lucide-react";
+import { Network, CalendarCheck, Shuffle, Info, Trophy, BookOpen, ListChecks } from "lucide-react";
 import { CouncilData, analyze, Analysis } from "../../lib/councilVotes";
 
 function Bar({ pct, tone }: { pct: number; tone: "red" | "emerald" | "amber" }) {
@@ -41,12 +44,14 @@ export default function VzoryPage() {
         <div className="max-w-5xl mx-auto">
           <Link href="/" className="text-sm font-medium text-muted hover:text-body mb-4 block">&larr; Dashboard</Link>
           <h1 className="text-4xl font-extrabold flex items-center gap-3">
-            <Network className="w-10 h-10 text-purple-400" aria-hidden="true" /> Vzory v hlasovaní
+            <Network className="w-10 h-10 text-purple-400" aria-hidden="true" /> Demokratická kultúra v zastupiteľstve
           </h1>
           <p className="text-lg text-muted mt-4 max-w-3xl">
-            Nie jedno hlasovanie, ale celý obraz. Z {a ? a.totalVotings.toLocaleString("sk") : "všetkých"} menovitých
-            hlasovaní zastupiteľstva vidno, kto chodí, kto drží spolu a kde vedú deliace čiary. Všetko sa počíta naživo
-            z dát — keď pribudne zasadnutie, obraz sa prekreslí sám.
+            Zastupiteľstvo nie je len o tom, kto za čo zahlasuje. Je to hlavne o tom, či sa k slovu
+            dostane aj menšina, či sa veci doriešia, a či pravidlá hrajú fér. Táto stránka to
+            vysvetľuje po poriadku — od úplných základov po konkrétne triky, ktoré sme našli v
+            dátach. Všetko sa počíta naživo z {a ? a.totalVotings.toLocaleString("sk") : "oficiálnych"}{" "}
+            menovitých hlasovaní a zo zápisníc zasadnutí.
           </p>
         </div>
       </header>
@@ -58,16 +63,53 @@ export default function VzoryPage() {
           </div>
         ) : (
           <>
-            {/* ÚČASŤ — navrchu, vypromovaná */}
+            {/* ── 0. ŠAMPÓN: po lopate, čo tu nájdeš ── */}
             <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <BookOpen className="w-6 h-6 text-purple-400" aria-hidden="true" />
+                <h2 className="text-2xl font-bold text-body">Po lopate: o čo tu ide</h2>
+              </div>
+              <p className="text-body/90 mb-3 max-w-3xl">
+                Poslanca sme si zvolili, aby <strong className="text-body">chodil</strong>, počúval a
+                rozhodoval za nás. To je jeho práca a berie za ňu plat. Preto začíname tým
+                najjednoduchším: <strong className="text-body">kto na zasadnutia naozaj chodí</strong>.
+              </p>
+              <p className="text-body/90 mb-3 max-w-3xl">
+                Potom príde to, čo nie je vidno na prvý pohľad: ako sa dá v zastupiteľstve{" "}
+                <strong className="text-body">umlčať menšina</strong> a akými <strong className="text-body">trikmi</strong> sa
+                dá návrh „zabiť“ bez toho, aby zaň ktokoľvek otvorene zdvihol ruku. Každý trik
+                vysvetlíme jednou vetou — a kto chce detail, rozklikne si ho.
+              </p>
+              <p className="text-sm text-muted max-w-3xl">
+                A na konci úprimne priznáme, čo ešte sledujeme, ale zatiaľ sa nám to z dát doložiť
+                nepodarilo. Žiadne tvrdenie bez dôkazu.
+              </p>
+              <nav className="mt-5 flex flex-wrap gap-2 text-xs">
+                {[
+                  ["#dochadzka", "1 · Kto chodí"],
+                  ["#umlcanie", "2 · Ako umlčať menšinu"],
+                  ["#triky", "3 · Jednotlivé triky"],
+                  ["#tabory", "4 · Dva tábory"],
+                  ["#sledujeme", "5 · Čo ešte sledujeme"],
+                ].map(([href, label]) => (
+                  <a key={href} href={href} className="rounded-full border border-line px-3 py-1 text-muted hover:text-body hover:border-purple-400 transition-colors">
+                    {label}
+                  </a>
+                ))}
+              </nav>
+            </section>
+
+            {/* ── 1. POSLANEC MÁ HLAVNE CHODIŤ ── */}
+            <section id="dochadzka" className="bg-card rounded-2xl shadow-sm border border-line p-6 scroll-mt-20">
               <div className="flex items-center gap-3 mb-2">
                 <CalendarCheck className="w-6 h-6 text-blue-400" aria-hidden="true" />
-                <h2 className="text-2xl font-bold text-body">Kto chodí hlasovať</h2>
+                <h2 className="text-2xl font-bold text-body">1 · Poslanec má hlavne chodiť</h2>
               </div>
               <p className="text-sm text-muted mb-4 max-w-3xl">
-                Podiel hlasovaní, pri ktorých bol poslanec prítomný, za celý čas jeho členstva v rade. Toto nie je
-                o politike — je to o tom, kto si robí mandát, za ktorý berie plat. Neúčasť môže mať legitímne dôvody,
-                preto ukazujeme aj počet zasadnutí, ktoré niekto <strong>vynechal celé</strong>.
+                Najzákladnejšia vec zo všetkých. Podiel hlasovaní, pri ktorých bol poslanec prítomný,
+                za celý čas jeho členstva v rade. Toto nie je o politike — je to o tom, kto si robí
+                mandát, za ktorý berie plat. Neúčasť môže mať legitímne dôvody, preto ukazujeme aj
+                počet zasadnutí, ktoré niekto <strong>vynechal celé</strong>.
               </p>
               {topAttend && (
                 <div className="mb-4 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 p-4 flex items-start gap-3">
@@ -83,104 +125,110 @@ export default function VzoryPage() {
                   </p>
                 </div>
               )}
-              <ul className="space-y-2">
-                {a.attendance.map((r) => (
-                  <li key={r.name} className="flex items-center gap-3">
-                    <span className="w-48 shrink-0 text-sm text-body truncate">{r.name}</span>
-                    <Bar pct={r.presentPct} tone={r.presentPct >= 85 ? "emerald" : r.presentPct >= 65 ? "amber" : "red"} />
-                    <span className="w-36 shrink-0 text-right text-xs text-muted">
-                      {r.presentPct.toFixed(0)} %
-                      {r.fullAbsent > 0 && <span className="text-red-400"> · {r.fullAbsent}× chýbal celé</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            {/* KRUH TÁBOROV */}
-            <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Network className="w-6 h-6 text-purple-400" aria-hidden="true" />
-                <h2 className="text-2xl font-bold text-body">Dva tábory v rade</h2>
-              </div>
-              <p className="text-sm text-muted mb-2 max-w-3xl">
-                Každá bodka je poslanec. Čiara spája dvoch, ktorí{" "}
-                <strong>na sporných hlasovaniach</strong> hlasujú rovnako (aspoň v 80 % prípadov). Keď sa čiary
-                zoskupia do dvoch chumáčov, zastupiteľstvo má dva tábory — a presne to tu vidno: {a.blocSize} v jednom,{" "}
-                {a.oppSize} v druhom. Nikoho sme do tábora nezaradili ručne — vypočítal to algoritmus zo zhody hlasov.
-              </p>
-              <p className="text-xs text-muted mb-4 max-w-3xl">
-                Dôležité: berieme len {a.contestedVotings} <strong>sporných</strong> hlasovaní (kde sa zastupiteľstvo rozdelilo),
-                nie rutinu, kde sú si všetci jednotní. Tam sa totiž tábory ukážu najčistejšie.
-              </p>
-              <CouncilCircle nodes={a.circle.nodes} edges={a.circle.edges} />
-            </section>
-
-            {/* Je zastupiteľstvo rozdelené? */}
-            <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
-              <h2 className="text-xl font-bold text-body mb-2">Je martinské zastupiteľstvo rozhádané?</h2>
-              <p className="text-body/90">
-                Na prvý pohľad nie — až <strong className="text-emerald-500">{a.unanimousShare.toFixed(0)} %</strong>{" "}
-                hlasovaní prejde takmer jednomyseľne. Väčšina rozhodnutí je nespornou rutinou. Napätie je v tých pár
-                percentách, kde ide o peniaze alebo princíp — a práve tam sa ukáže, že tábory existujú a držia spolu
-                prekvapivo pevne.
-              </p>
-              <p className="text-body/90 mt-3">
-                A deliace čiary majú reálne dôsledky. VZN a dodatky (napríklad dane) potrebujú trojpätinovú
-                väčšinu <strong>prítomných</strong> poslancov. Pri dani z nehnuteľností 2023 sedelo v sále
-                všetkých 31, takže hranica bola <strong>19 hlasov</strong> — a za bolo presne 18, chýbal jediný hlas.
-                Napokon rozhodlo, že jeden poslanec z druhého tábora pri opakovanom hlasovaní zahlasoval za.
-                Jeden hlas, jedna daň pre celé mesto. To je presne príbeh, ktorý tábory na tomto kruhu vysvetľujú.{" "}
-                <Link href="/dramy" className="text-purple-400 hover:text-purple-300 underline">Pozri drámu →</Link>
-              </p>
-            </section>
-
-            {/* Swing — len ak niekto naozaj lavíruje */}
-            {a.swing.length > 0 && (
-              <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <Shuffle className="w-6 h-6 text-amber-400" aria-hidden="true" />
-                  <h2 className="text-2xl font-bold text-body">Kto lavíruje medzi tábormi</h2>
-                </div>
-                <p className="text-sm text-muted mb-4 max-w-3xl">
-                  Väčšina poslancov patrí jasne do jedného tábora. Títo nie — na sporných hlasovaniach sú zhruba
-                  rovnako často s jedným aj druhým. To sú hlasy, ktoré rozhodujú tesné hlasovania.
-                </p>
-                <ul className="space-y-3">
-                  {a.swing.map((r) => (
+              <Disclosure summary={`Zobraziť dochádzku všetkých ${a.attendance.length} poslancov`}>
+                <ul className="space-y-2 mt-3">
+                  {a.attendance.map((r) => (
                     <li key={r.name} className="flex items-center gap-3">
                       <span className="w-48 shrink-0 text-sm text-body truncate">{r.name}</span>
-                      <div className="flex-1 flex items-center gap-2">
-                        <span className="text-xs text-emerald-500 w-20 text-right">jadro {r.corePct.toFixed(0)} %</span>
-                        <div className="flex-1 h-2 rounded-full bg-elevated overflow-hidden flex">
-                          <div className="h-full bg-emerald-500" style={{ width: `${r.corePct}%` }} />
-                          <div className="h-full bg-red-500" style={{ width: `${r.oppPct}%` }} />
-                        </div>
-                        <span className="text-xs text-red-400 w-20">{r.oppPct.toFixed(0)} % opoz.</span>
-                      </div>
+                      <Bar pct={r.presentPct} tone={r.presentPct >= 85 ? "emerald" : r.presentPct >= 65 ? "amber" : "red"} />
+                      <span className="w-36 shrink-0 text-right text-xs text-muted">
+                        {r.presentPct.toFixed(0)} %
+                        {r.fullAbsent > 0 && <span className="text-red-400"> · {r.fullAbsent}× chýbal celé</span>}
+                      </span>
                     </li>
                   ))}
                 </ul>
-              </section>
-            )}
+              </Disclosure>
+            </section>
 
-            {/* Čo neprešlo — priama odpoveď na "ktoré návrhy tesne padli a kto bol proti" */}
+            {/* ── 2. OPENER: AKO SA DÁ UMLČAŤ MENŠINA ── */}
+            <div id="umlcanie" className="scroll-mt-20">
+              <SilencingOpener />
+            </div>
+
+            {/* ── 3. JEDNOTLIVÉ TRIKY (ELI5 index + dropdowny na detail) ── */}
+            <section id="triky" className="bg-card rounded-2xl shadow-sm border border-line p-6 scroll-mt-20">
+              <div className="flex items-center gap-3 mb-2">
+                <ListChecks className="w-6 h-6 text-rose-400" aria-hidden="true" />
+                <h2 className="text-2xl font-bold text-body">3 · Jednotlivé triky, po lopate</h2>
+              </div>
+              <p className="text-sm text-muted mb-5 max-w-3xl">
+                Takto sa dá návrh zastaviť bez toho, aby zaň niekto otvorene hlasoval „proti“. Každý
+                trik má jednu vetu vysvetlenia; kto chce čísla a konkrétne prípady, rozklikne si
+                detail. Všetko je z verejných zápisníc a menovitých hlasovaní.
+              </p>
+              <div className="space-y-3">
+                <Disclosure tone="accent" summary={'① Nechať zasadnutie „vyhniť“ — predčasný koniec'}>
+                  <p className="text-sm text-body/90 mt-2 mb-2">
+                    Po dlhej rozprave sa poslanci rozídu, lavica sa preriedi a zvyšok programu sa už
+                    nestihne. Body, ktoré boli na rade neskôr, sa odložia — alebo (od zmeny pravidla)
+                    rovno padnú. Nižšie to máme vyčíslené: koľko zasadnutí sa nedokončilo a koľko
+                    padlo kvórum priamo v sále, s doslovnými citátmi zo zápisníc.
+                  </p>
+                  <a href="#nedokoncene" className="text-xs text-purple-500 hover:text-purple-400 underline">
+                    Skočiť na čísla a citáty →
+                  </a>
+                </Disclosure>
+
+                <Disclosure tone="accent" summary="② Vyhodiť bod z programu hneď na úvod">
+                  <p className="text-sm text-body/90 mt-2">
+                    Pri schvaľovaní programu sa dá navrhnúť, aby sa niektorý bod vôbec neprerokúval.
+                    Keď to zbor odhlasuje, bod spadne zo stola bez vecnej diskusie. Konkrétne pokusy
+                    (kto ich podal a ako dopadli) sú v sekcii nižšie.
+                  </p>
+                  <a href="#nedokoncene" className="text-xs text-purple-500 hover:text-purple-400 underline mt-2 inline-block">
+                    Skočiť na pokusy vyhodiť bod →
+                  </a>
+                </Disclosure>
+
+                <Disclosure tone="accent" summary="③ Prehlasovať návrh pozmeňovákom">
+                  <p className="text-sm text-body/90 mt-2">
+                    Návrh sa nemusí odmietnuť — dá sa prerobiť priamo na mieste pozmeňujúcim alebo
+                    protinávrhom tak, že z pôvodného zámeru veľa neostane. V sekcii nižšie uvádzame,
+                    koľko takých návrhov zápisnice zachytávajú (agregát; menný rozklad zámerne nie,
+                    aby z toho nevznikli nepresné tvrdenia).
+                  </p>
+                  <a href="#nedokoncene" className="text-xs text-purple-500 hover:text-purple-400 underline mt-2 inline-block">
+                    Skočiť na pozmeňováky →
+                  </a>
+                </Disclosure>
+
+                <Disclosure tone="accent" summary="④ Nafúknuť kvórum — zaprezentovať sa, ale nehlasovať">
+                  <p className="text-sm text-body/90 mt-2">
+                    Poslanec sa prezentuje (ráta sa do počtu prítomných, teda do kvóra), ale pri
+                    samotnom hlasovaní nestlačí nič. Pomôže tak uznášaniaschopnosti, no za rozhodnutie
+                    nenesie zodpovednosť. V sekcii „Čo neprešlo“ uvádzame, v koľkých hlasovaniach sa
+                    to stalo.
+                  </p>
+                </Disclosure>
+
+                <Disclosure tone="accent" summary="⑤ Zmeniť samotné pravidlá rokovania">
+                  <p className="text-sm text-body/90 mt-2">
+                    Najmocnejší nástroj: zmeniť rokovací poriadok tak, aby pravidlá hrali v prospech
+                    väčšiny (napríklad že padnuté kvórum = koniec, nie odklad — viď sekcia 2 vyššie).
+                    Za toto obdobie sa rokovací poriadok menil viackrát a zakaždým stála proti celá
+                    opozícia. Detaily nižšie.
+                  </p>
+                </Disclosure>
+              </div>
+            </section>
+
+            {/* Konkrétne dáta k trikom ①②③ */}
             <FailedVotes items={a.failed} total={a.decidedVotings} presentNotVoting={a.presentNotVoting} />
-
-            {/* Zasadnutia, čo sa nestihli dokončiť — doplnené z parsovania uznesení (predčasné konce) */}
             <InterruptedMeetings />
 
-            {/* Zmena pravidiel hry — faktická kotva, bez tvrdenia o obsahu */}
+            {/* Zmena pravidiel hry — faktická kotva k ⑤ */}
             <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
               <div className="flex items-center gap-3 mb-2">
                 <Shuffle className="w-6 h-6 text-purple-400" aria-hidden="true" />
-                <h2 className="text-2xl font-bold text-body">Menili sa aj pravidlá rokovania</h2>
+                <h2 className="text-2xl font-bold text-body">⑤ Menili sa aj pravidlá rokovania</h2>
               </div>
               <p className="text-sm text-muted mb-4 max-w-3xl">
-                Rokovací poriadok určuje, ako zastupiteľstvo funguje — kto kedy dostane slovo, čo sa stane, keď klesne
-                počet poslancov, ako sa vedie rozprava. Za toto obdobie ho zastupiteľstvo menilo viackrát, a dvakrát pri tom
-                stála pevne proti celá opozícia. Čo presne sa zmenilo, je v texte dodatku (odkaz) — tu ukazujeme len,
-                kedy a ako tesne to prešlo.
+                Rokovací poriadok určuje, ako zastupiteľstvo funguje — kto kedy dostane slovo, čo sa
+                stane, keď klesne počet poslancov, ako sa vedie rozprava. Za toto obdobie ho
+                zastupiteľstvo menilo viackrát, a dvakrát pri tom stála pevne proti celá opozícia. Čo
+                presne sa zmenilo, je v texte dodatku (odkaz) — tu ukazujeme len, kedy a ako tesne to
+                prešlo.
               </p>
               <ul className="space-y-3">
                 {[
@@ -220,24 +268,99 @@ export default function VzoryPage() {
               </ul>
             </section>
 
+            {/* ── 4. DVA TÁBORY (kontext — kto s kým drží) ── */}
+            <section id="tabory" className="bg-card rounded-2xl shadow-sm border border-line p-6 scroll-mt-20">
+              <div className="flex items-center gap-3 mb-2">
+                <Network className="w-6 h-6 text-purple-400" aria-hidden="true" />
+                <h2 className="text-2xl font-bold text-body">4 · Dva tábory v rade</h2>
+              </div>
+              <p className="text-sm text-muted mb-2 max-w-3xl">
+                Aby triky vyššie dávali zmysel, treba vidieť, kto s kým drží. Každá bodka je poslanec.
+                Čiara spája dvoch, ktorí <strong>na sporných hlasovaniach</strong> hlasujú rovnako
+                (aspoň v 80 % prípadov). Keď sa čiary zoskupia do dvoch chumáčov, zastupiteľstvo má
+                dva tábory — a presne to tu vidno: {a.blocSize} v jednom, {a.oppSize} v druhom. Nikoho
+                sme do tábora nezaradili ručne — vypočítal to algoritmus zo zhody hlasov.
+              </p>
+              <p className="text-xs text-muted mb-4 max-w-3xl">
+                Dôležité: berieme len {a.contestedVotings} <strong>sporných</strong> hlasovaní (kde sa
+                zastupiteľstvo rozdelilo), nie rutinu, kde sú si všetci jednotní. Tam sa totiž tábory
+                ukážu najčistejšie.
+              </p>
+              <CouncilCircle nodes={a.circle.nodes} edges={a.circle.edges} />
+
+              <div className="mt-6">
+                <Disclosure summary="Je martinské zastupiteľstvo vlastne rozhádané?">
+                  <p className="text-body/90 mt-3">
+                    Na prvý pohľad nie — až <strong className="text-emerald-500">{a.unanimousShare.toFixed(0)} %</strong>{" "}
+                    hlasovaní prejde takmer jednomyseľne. Väčšina rozhodnutí je nespornou rutinou.
+                    Napätie je v tých pár percentách, kde ide o peniaze alebo princíp — a práve tam sa
+                    ukáže, že tábory existujú a držia spolu prekvapivo pevne.
+                  </p>
+                  <p className="text-body/90 mt-3">
+                    A deliace čiary majú reálne dôsledky. VZN a dodatky (napríklad dane) potrebujú
+                    trojpätinovú väčšinu <strong>prítomných</strong> poslancov. Pri dani z nehnuteľností
+                    2023 sedelo v sále všetkých 31, takže hranica bola <strong>19 hlasov</strong> — a za
+                    bolo presne 18, chýbal jediný hlas. Napokon rozhodlo, že jeden poslanec z druhého
+                    tábora pri opakovanom hlasovaní zahlasoval za. Jeden hlas, jedna daň pre celé mesto.{" "}
+                    <Link href="/dramy" className="text-purple-400 hover:text-purple-300 underline">Pozri drámu →</Link>
+                  </p>
+                </Disclosure>
+              </div>
+
+              {a.swing.length > 0 && (
+                <div className="mt-3">
+                  <Disclosure summary="Kto lavíruje medzi tábormi (rozhoduje tesné hlasovania)">
+                    <p className="text-sm text-muted mt-3 mb-4 max-w-3xl">
+                      Väčšina poslancov patrí jasne do jedného tábora. Títo nie — na sporných
+                      hlasovaniach sú zhruba rovnako často s jedným aj druhým. To sú hlasy, ktoré
+                      rozhodujú tesné hlasovania.
+                    </p>
+                    <ul className="space-y-3">
+                      {a.swing.map((r) => (
+                        <li key={r.name} className="flex items-center gap-3">
+                          <span className="w-48 shrink-0 text-sm text-body truncate">{r.name}</span>
+                          <div className="flex-1 flex items-center gap-2">
+                            <span className="text-xs text-emerald-500 w-20 text-right">jadro {r.corePct.toFixed(0)} %</span>
+                            <div className="flex-1 h-2 rounded-full bg-elevated overflow-hidden flex">
+                              <div className="h-full bg-emerald-500" style={{ width: `${r.corePct}%` }} />
+                              <div className="h-full bg-red-500" style={{ width: `${r.oppPct}%` }} />
+                            </div>
+                            <span className="text-xs text-red-400 w-20">{r.oppPct.toFixed(0)} % opoz.</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </Disclosure>
+                </div>
+              )}
+            </section>
+
+            {/* ── 5. ČO SLEDUJEME, ALE ZATIAĽ NEVIDÍME ── */}
+            <div id="sledujeme" className="scroll-mt-20">
+              <TricksWatchlist />
+            </div>
+
             {/* Metodika */}
             <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl p-5 flex gap-3 items-start">
               <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" aria-hidden="true" />
               <div className="text-sm text-body/90 space-y-2">
                 <p>
                   <strong>Ako to čítame.</strong> Všetky čísla sú vyrátané z {a.totalVotings.toLocaleString("sk")}{" "}
-                  oficiálnych menovitých hlasovaní (systém H.E.R., martin.sk). Zhoda sa počíta len z jasných hlasov{" "}
-                  <em>za/proti</em> — zdržal sa, neprítomný a nehlasoval sa nerátajú.
+                  oficiálnych menovitých hlasovaní (systém H.E.R., martin.sk) a zo zápisníc zasadnutí.
+                  Zhoda sa počíta len z jasných hlasov <em>za/proti</em> — zdržal sa, neprítomný a
+                  nehlasoval sa nerátajú.
                 </p>
                 <p>
-                  Tábory nie sú náš názor — sú detegované algoritmom: začne najvernejšou dvojicou a priberá každého,
-                  kto s celým táborom súhlasí aspoň v 97 % prípadov. Rozdelenie na kruhu vychádza zo zhody na{" "}
-                  {a.contestedVotings} sporných hlasovaniach.
+                  Tábory nie sú náš názor — sú detegované algoritmom: začne najvernejšou dvojicou a
+                  priberá každého, kto s celým táborom súhlasí aspoň v 97 % prípadov. Rozdelenie na
+                  kruhu vychádza zo zhody na {a.contestedVotings} sporných hlasovaniach.
                 </p>
                 <p>
-                  <strong>Toto nie je dôkaz pochybenia ani nálepka.</strong> Byť v tábore alebo v opozícii je úplne
-                  legitímne — tak funguje politika. Hlasovať spolu neznamená „kúpený“ a hlasovať inak neznamená
-                  „čistý“. Ukazujeme len verejný záznam prehľadne, záver si spraví čitateľ sám.
+                  <strong>Toto nie je dôkaz pochybenia ani nálepka.</strong> Byť v tábore alebo v
+                  opozícii je úplne legitímne — tak funguje politika. Hlasovať spolu neznamená
+                  „kúpený“ a hlasovať inak neznamená „čistý“. Procedurálne nástroje tiež nie sú samy
+                  o sebe nezákonné — ukazujeme len verejný záznam prehľadne a po lopate, záver si
+                  spraví čitateľ sám.
                 </p>
               </div>
             </div>
