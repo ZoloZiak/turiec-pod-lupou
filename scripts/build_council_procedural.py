@@ -2,29 +2,37 @@
 """
 build_council_procedural.py — procedurálne deje zastupiteľstva MsZ Martin zo ZÁPISNÍC.
 
-Jeden reprodukovateľný krok: stiahne zápisnice (PDF) z martin.sk, vyparsuje z nich
-procedurálne javy, ktoré v menovitých hlasovaniach NIE SÚ VIDNO, a zapíše
-public/data/council-interrupted.json.
+Procedurálne javy, ktoré v menovitých hlasovaniach NIE SÚ VIDNO, vyparsuje z plných
+zápisníc a zapíše do public/data/council-interrupted.json.
 
 Čo extrahuje (všetko s doslovným citátom / dohľadateľným výsledkom):
   1. PADNUTÉ KVÓRUM počas rokovania (zbor sa stal neuznášaniaschopným).
   2. STIAHNUTIE bodu z programu (poslanec navrhol vypustiť + výsledok hlasovania).
-  3. POKRAČOVANIA (zasadnutie sa nedokončilo v jeden deň — z uznesení aj zápisníc).
+  3. Počet POZMEŇOVÁKOV (agregát; menný rozklad zámerne NIE — regex je hlučný).
+Pole "chains" (pokračovania zasadnutí z hlavičiek uznesení) je ručne kurátorované
+a tento skript ho LEN zachová — needetekuje ho spoľahlivo.
 
-ZÁSADA (web = transparentnosť, falošné obvinenie je najhorší bug):
-  - Tvrdíme len to, čo je doslovne v zápisnici. Pri každom zázname je citát / kontext.
-  - Nevyčísľujeme menný rebríček pozmeňovákov (regex je príliš hlučný) — len agregát.
+ARCHITEKTÚRA (dve fázy, kvôli samoaktualizácii):
+  - KORPUS = scripts/zapisnice_txt/*.txt  (extrahovaný text zápisníc, VERZIOVANÝ v repe).
+    Toto je stabilný zdroj. Parsovanie korpusu je deterministické, bez siete a bez PyMuPDF
+    → beží v GitHub Actions cloude spoľahlivo (martin.sk blokuje datacentrové IP → timeout).
+  - DOWNLOAD (iba lokálne z Macu, kde martin.sk odpovedá): stiahne nové PDF a doplní korpus.
+
+ZÁSADA (web = transparentnosť, falošné/zmiznuté dáta = najhorší bug):
+  - Skript NIKDY neprepíše dobré dáta prázdnymi/degradovanými. Ak parse vráti 0 kvór
+    a 0 stiahnutí, alebo výrazne MENEJ než existujúci dataset → exit 1, nič nezapíše.
+    (Práve toto zlyhalo pri prvom cloud behu: martin.sk timeoutol, 0 zápisníc, prepis prázdnom.)
 
 Použitie:
-  /usr/bin/python3 scripts/build_council_procedural.py            # plný beh (download + parse)
-  /usr/bin/python3 scripts/build_council_procedural.py --cached   # len parse už stiahnutých PDF
+  python3 scripts/build_council_procedural.py              # parse KORPUSU (cloud/CI, default)
+  /usr/bin/python3 scripts/build_council_procedural.py --download  # LOKÁLNE: stiahni PDF + obnov korpus, potom parse
 Výstup: public/data/council-interrupted.json
-Pozn.: vyžaduje PyMuPDF (fitz). Beží mimo Next.js (Python), spúšťa sa cronom / Actions.
 """
-import fitz, re, json, os, sys, time, urllib.request
+import re, json, os, sys, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PDF_DIR = os.path.join(ROOT, "scripts", "_zapisnice_cache")
+TXT_DIR = os.path.join(ROOT, "scripts", "zapisnice_txt")        # verziovaný korpus (zdroj pravdy)
+PDF_DIR = os.path.join(ROOT, "scripts", "_zapisnice_cache")     # lokálna PDF cache (gitignored)
 OUT = os.path.join(ROOT, "public", "data", "council-interrupted.json")
 
 FILE_ASHX = "https://www.martin.sk/assets/File.ashx?id_org=700031&id_dokumenty={}"
@@ -37,18 +45,24 @@ ZAPIS_INDEX = {
 }
 ZAPIS_SRC = "https://www.martin.sk/zapisnice/ds-1012"
 
+# Minimá očakávané z úplného korpusu — poistka proti degradovanému zápisu.
+MIN_QUORUM = 5
+MIN_WITHDRAWALS = 4
+MIN_TXT = 30
+
 MES = {"januára": 1, "februára": 2, "marca": 3, "apríla": 4, "mája": 5, "júna": 6,
        "júla": 7, "augusta": 8, "septembra": 9, "októbra": 10, "novembra": 11, "decembra": 12}
 
 
+# ---------- DOWNLOAD fáza (iba lokálne) ---------------------------------------
 def fetch(url, timeout=60):
+    import urllib.request
     req = urllib.request.Request(url, headers={"User-Agent": "turiec-pod-lupou/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read()
 
 
 def discover_pdf_ids(index_html):
-    """Z HTML indexu vytiahni (id_dokumenty) zápisníc."""
     ids = []
     for href, label in re.findall(r'<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', index_html, re.S):
         if "file.ashx" not in href.lower():
@@ -61,15 +75,46 @@ def discover_pdf_ids(index_html):
     return ids
 
 
-def pdf_text(path):
-    doc = fitz.open(path)
-    t = "\n".join(p.get_text() for p in doc)
-    doc.close()
-    return t
+def download_and_refresh_corpus():
+    """Stiahne PDF z martin.sk a (re)extrahuje text do korpusu. Vyžaduje PyMuPDF.
+    Beží LOKÁLNE z Macu — v cloude martin.sk timeoutuje (blokuje datacentrové IP)."""
+    import fitz
+    os.makedirs(PDF_DIR, exist_ok=True)
+    os.makedirs(TXT_DIR, exist_ok=True)
+    added = 0
+    for yr, idx_url in ZAPIS_INDEX.items():
+        try:
+            html = fetch(idx_url).decode("utf-8", "replace")
+        except Exception as e:
+            print(f"  [WARN] index {yr}: {e}", file=sys.stderr)
+            continue
+        for did in discover_pdf_ids(html):
+            pdf_path = os.path.join(PDF_DIR, f"{yr}_{did}.pdf")
+            txt_path = os.path.join(TXT_DIR, f"{yr}_{did}.txt")
+            if not (os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 5000):
+                try:
+                    data = fetch(FILE_ASHX.format(did))
+                    with open(pdf_path, "wb") as fh:
+                        fh.write(data)
+                    time.sleep(0.4)
+                except Exception as e:
+                    print(f"  [WARN] pdf {did}: {e}", file=sys.stderr)
+                    continue
+            if not os.path.exists(txt_path):
+                try:
+                    doc = fitz.open(pdf_path)
+                    text = "\n".join(p.get_text() for p in doc)
+                    doc.close()
+                    with open(txt_path, "w", encoding="utf-8") as fh:
+                        fh.write(text)
+                    added += 1
+                except Exception as e:
+                    print(f"  [WARN] extract {did}: {e}", file=sys.stderr)
+    print(f"  korpus doplnený o {added} nových zápisníc -> {TXT_DIR}")
 
 
+# ---------- PARSE fáza (cloud + lokál) ----------------------------------------
 def header_date(flat):
-    """ISO dátum konania z hlavičky (prvých ~400 znakov)."""
     h = flat[:400]
     m = re.search(r"konan\w+\s+(?:dňa\s+)?(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})", h)
     if m:
@@ -89,7 +134,6 @@ def human(iso):
     return f"{int(d)}. {names[int(m)]} {y}"
 
 
-# ---- detekcia padnutého kvóra -------------------------------------------------
 QUORUM_HARD = re.compile(
     r"(pre neuznášaniaschop|z dôvodu neuznášania\s*schop|nedostatočný počet poslancov|"
     r"nebolo prítomných dosť|neb(?:ol|olo)[^.]{0,30}uznášaniaschop|"
@@ -99,10 +143,8 @@ BREAKOFF = re.compile(r"(prerušen|ukončil|ukončené|pokračovanie bude|pokra�
 
 
 def _sentence_around(flat, start, end, lookback=200, lookahead=240):
-    """Vyrež citát od začiatku vety (po poslednej '. '/'… ' pred start) po koniec vety."""
     a = max(0, start - lookback)
     seg_before = flat[a:start]
-    # posledný oddeľovač vety pred frázou
     cut = max(seg_before.rfind(". "), seg_before.rfind("… "), seg_before.rfind(".... "))
     begin = a + cut + 2 if cut != -1 else start
     tail = flat[end:end + lookahead]
@@ -129,7 +171,6 @@ def detect_quorum(flat, iso):
     return None
 
 
-# ---- stiahnutie bodu z programu ----------------------------------------------
 WITHDRAW = re.compile(
     r"(?:p\.|Ing\.|Mgr\.|PhDr\.)\s*([A-ZŽŠČ][a-zžščťáíéúäöôľ]+)\s*[-–]\s*(?:navrhol|navrhla)\s*"
     r"(?:stiahn\w+|vypust\w+|vyradi\w+|vyňa\w+)\s+(?:z programu\s+)?(?:z rokovania\s+)?"
@@ -153,47 +194,16 @@ def detect_withdrawals(flat, iso):
     return out
 
 
-# ---- pozmeňováky (len agregát) -----------------------------------------------
 AMEND = re.compile(r"(pozmeňujúc\w+\s+návrh|protinávrh|pozmeňovac\w+\s+návrh|doplňujúc\w+\s+návrh)", re.I)
 
 
-def main():
-    cached = "--cached" in sys.argv
-    os.makedirs(PDF_DIR, exist_ok=True)
-
-    # 1) zisti/stiahni PDF
-    pdfs = []
-    if cached:
-        pdfs = [os.path.join(PDF_DIR, f) for f in sorted(os.listdir(PDF_DIR)) if f.endswith(".pdf")]
-    else:
-        for yr, idx_url in ZAPIS_INDEX.items():
-            try:
-                html = fetch(idx_url).decode("utf-8", "replace")
-            except Exception as e:
-                print(f"  [WARN] index {yr}: {e}", file=sys.stderr)
-                continue
-            for did in discover_pdf_ids(html):
-                path = os.path.join(PDF_DIR, f"{yr}_{did}.pdf")
-                if not (os.path.exists(path) and os.path.getsize(path) > 5000):
-                    try:
-                        data = fetch(FILE_ASHX.format(did))
-                        with open(path, "wb") as fh:
-                            fh.write(data)
-                        time.sleep(0.4)  # šetrný k serveru
-                    except Exception as e:
-                        print(f"  [WARN] pdf {did}: {e}", file=sys.stderr)
-                        continue
-                pdfs.append(path)
-
-    # 2) parse
+def parse_corpus():
+    txts = sorted(f for f in os.listdir(TXT_DIR) if f.endswith(".txt")) if os.path.isdir(TXT_DIR) else []
     quorum, withdrawals, amend_total, amend_meetings = [], [], 0, 0
     seen_q = set()
-    for p in pdfs:
-        try:
-            flat = " ".join(pdf_text(p).split())
-        except Exception as e:
-            print(f"  [WARN] read {p}: {e}", file=sys.stderr)
-            continue
+    for fn in txts:
+        with open(os.path.join(TXT_DIR, fn), encoding="utf-8") as fh:
+            flat = " ".join(fh.read().split())
         iso = header_date(flat)
         q = detect_quorum(flat, iso)
         if q and iso not in seen_q:
@@ -204,26 +214,41 @@ def main():
         if a:
             amend_total += a
             amend_meetings += 1
-
     quorum.sort(key=lambda x: x["date"] or "")
     withdrawals.sort(key=lambda x: x["date"] or "")
+    return len(txts), quorum, withdrawals, amend_total, amend_meetings
 
-    # 3) zlúč s existujúcimi ručne overenými "chains" (pokračovania) — tie needetekuje
-    #    tento parser spoľahlivo pre každý rok, preto ich držíme ako kurátorovaný zoznam.
+
+def main():
+    if "--download" in sys.argv:
+        download_and_refresh_corpus()
+
+    n_txt, quorum, withdrawals, amend_total, amend_meetings = parse_corpus()
+
+    # POISTKA proti degradovanému zápisu — radšej nič nezapíš než zmazať dobré dáta.
+    if n_txt < MIN_TXT or len(quorum) < MIN_QUORUM or len(withdrawals) < MIN_WITHDRAWALS:
+        print(f"[ABORT] Korpus/parse pod minimom (txt={n_txt}/{MIN_TXT}, "
+              f"kvórum={len(quorum)}/{MIN_QUORUM}, stiahnutia={len(withdrawals)}/{MIN_WITHDRAWALS}). "
+              f"Nič sa nezapisuje, aby sa neprepísali dobré dáta prázdnymi.", file=sys.stderr)
+        sys.exit(1)
+
     existing = {}
     if os.path.exists(OUT):
         with open(OUT, encoding="utf-8") as fh:
             existing = json.load(fh)
 
+    # chains (pokračovania) = ručne kurátorované; ak ich v súbore niet (prepísaný prázdnom),
+    # obnov zo zabudovaného fallbacku.
+    chains = existing.get("chains") or FALLBACK_CHAINS
+
     data = {
-        "generated_note": existing.get("generated_note",
-            "Zdroj: hlavičky uznesení MsZ Martin (martin.sk). Prerušené = zasadnutie sa "
-            "nedokončilo v jeden deň a muselo pokračovať na ďalšom termíne."),
+        "generated_note": "Zdroj: hlavičky uznesení MsZ Martin (martin.sk). Prerušené = zasadnutie "
+                          "sa nedokončilo v jeden deň a muselo pokračovať na ďalšom termíne.",
         "generated_at": time.strftime("%Y-%m-%d"),
         "interruptedMeetings": existing.get("interruptedMeetings", 6),
         "continuationDays": existing.get("continuationDays", 11),
         "scheduledMeetings": existing.get("scheduledMeetings", 36),
-        "chains": existing.get("chains", []),
+        "chains": chains,
         "quorumNote": "Zdroj: zápisnice z rokovaní MsZ Martin (martin.sk). Padnuté kvórum = "
                       "počas rokovania klesol počet prítomných poslancov pod uznášaniaschopnosť, "
                       "takže sa už nedalo hlasovať. Každý prípad je doslovný citát zo zápisnice.",
@@ -241,10 +266,36 @@ def main():
         json.dump(data, fh, ensure_ascii=False, indent=2)
 
     print(f"OK -> {OUT}")
-    print(f"  zápisníc spracovaných: {len(pdfs)}")
+    print(f"  zápisníc v korpuse:    {n_txt}")
     print(f"  padnuté kvórum:        {len(quorum)}")
     print(f"  stiahnutia bodu:       {len(withdrawals)}")
     print(f"  pozmeňováky (agregát): {amend_total} v {amend_meetings} zasadnutiach")
+
+
+# Ručne overené pokračovania (chains) — záložná kópia, ak sa JSON prepíše prázdnom.
+FALLBACK_CHAINS = [
+    {"root": "2023-04-27", "label": "Zasadnutie 27. apríl 2023", "continuations": ["2023-05-25"],
+     "src": "https://www.martin.sk/uznesenia-zastupitelstva-2023/ds-2418",
+     "note": "Rokovanie sa dokončilo až 25.5.2023."},
+    {"root": "2023-11-30", "label": "Zasadnutie 30. november 2023", "continuations": ["2023-12-21"],
+     "src": "https://www.martin.sk/uznesenia-zastupitelstva-2023/ds-2418",
+     "note": "Rokovanie sa dokončilo až 21.12.2023."},
+    {"root": "2024-04-25", "label": "Zasadnutie 25. apríl 2024",
+     "continuations": ["2024-05-30", "2024-06-20", "2024-07-11"],
+     "src": "https://www.martin.sk/uznesenia-zastupitelstva-2024/ds-2501",
+     "note": "Najdlhšia kaskáda: dokončené až na troch ďalších termínoch (30.5. → 20.6. → 11.7.2024)."},
+    {"root": "2024-09-26", "label": "Zasadnutie 26. september 2024",
+     "continuations": ["2024-10-24", "2024-11-28", "2024-12-05"],
+     "src": "https://www.martin.sk/uznesenia-zastupitelstva-2024/ds-2501",
+     "note": "Druhá dlhá kaskáda: dokončené až na troch ďalších termínoch (24.10. → 28.11. → 5.12.2024)."},
+    {"root": "2024-12-19", "label": "Zasadnutie 19. december 2024",
+     "continuations": ["2025-01-30", "2025-02-27"],
+     "src": "https://www.martin.sk/uznesenia-zastupitelstva-2025/ds-2557",
+     "note": "Dokončené až vo februári 2025 (30.1. → 27.2.2025)."},
+    {"root": "2025-03-27", "label": "Zasadnutie 27. marec 2025", "continuations": ["2025-04-10"],
+     "src": "https://www.martin.sk/uznesenia-zastupitelstva-2025/ds-2557",
+     "note": "Rokovanie sa dokončilo až 10.4.2025."},
+]
 
 
 if __name__ == "__main__":

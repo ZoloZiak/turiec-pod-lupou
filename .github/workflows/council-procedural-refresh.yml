@@ -1,15 +1,21 @@
 name: Council Procedural Refresh
 
 # Precompute procedurálnych dejov zastupiteľstva MsZ Martin zo ZÁPISNÍC:
-# padnuté kvórum, stiahnuté body z programu, pokračovania, počet pozmeňovákov.
-# Beží v cloude nezávisle od lokálneho Macu (ten je firemný/DLP/môže byť vypnutý).
-# Zdroj = verejné PDF zápisníc na martin.sk → žiadne secrets netreba.
-# Skript stiahne zápisnice, vyparsuje javy s doslovnými citátmi a commitne výsledok;
-# Vercel ho potom deployne automaticky.
+# padnuté kvórum, stiahnuté body z programu, počet pozmeňovákov.
+#
+# DÔLEŽITÉ (poučenie z prvého behu): tento job NESŤAHUJE z martin.sk — martin.sk blokuje
+# GitHub datacentrové IP (urlopen timeout), čo pri prvom pokuse viedlo k spracovaniu 0
+# zápisníc a prepísaniu dobrých dát prázdnymi. Preto:
+#   - Zdroj = VERZIOVANÝ korpus scripts/zapisnice_txt/*.txt (extrahovaný text zápisníc).
+#   - Skript beží v default (parse) režime: bez siete, bez PyMuPDF, deterministicky.
+#   - Má zabudovanú poistku (exit 1), ak by parse spadol pod minimum → žiadny prázdny commit.
+# Sťahovanie nových zápisníc z martin.sk sa robí LOKÁLNE z Macu
+# (`python3 scripts/build_council_procedural.py --download`), kde martin.sk odpovedá,
+# a nový text sa commitne do korpusu. Tento workflow potom len prepočíta JSON.
 
 on:
   schedule:
-    # Raz mesačne, 2. deň o 05:00 UTC (zastupiteľstvo zasadá ~mesačne; nekoliduje s inými cron)
+    # Raz mesačne, 2. deň o 05:00 UTC
     - cron: '0 5 2 * *'
   workflow_dispatch:
     # Manuálne spustenie z GitHub Actions tabu
@@ -31,10 +37,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install PyMuPDF
-        run: pip install PyMuPDF
-
-      - name: Build procedural dataset (download zápisníc + parse)
+      - name: Build procedural dataset (parse versioned corpus, no network)
         run: python scripts/build_council_procedural.py
 
       - name: Commit and push if changed
