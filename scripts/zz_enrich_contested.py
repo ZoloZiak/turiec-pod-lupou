@@ -18,7 +18,34 @@ fm = json.load(open(FM, encoding="utf-8")) if os.path.exists(FM) else {}
 
 # Index menovitych hlasovani (verziovany zdroj pravdy) pre prahove polia prahovej osi.
 votes = json.load(open(VOTES, encoding="utf-8"))["votings"]
-vidx = {(x["d"], x.get("u")): x for x in votes}
+
+# POZOR (fix WATCH #289): parovanie NESMIE byt len cez (d,u). Pri u=null (viacero
+# hlasovani v ten den) alebo pri jednom uzneseni s viacerymi pod-hlasovaniami (napr.
+# 20/2026 ma 4 ciastkove hlasovania) by dict kolizia priradila contested riadku prah
+# z NESPRAVNEHO hlasovania (napr. VZN 130/131 dostali rl=nadpolovicna miesto vzn_3_5).
+# Preto kaskadove, JEDNOZNACNE parovanie: (d,u) ak unikatne -> (d,za,proti,zdrzal) ->
+# +nehl -> ak kandidati maju identicky prah je jedno ktory -> inak NEPRIRADIM (nic
+# sa nevymysla, povodne polia ostanu).
+def match_voting(c):
+    d, u = c["d"], c.get("u")
+    if u is not None:
+        by_u = [v for v in votes if v["d"] == d and v.get("u") == u]
+        if len(by_u) == 1:
+            return by_u[0]
+    cand = [v for v in votes if v["d"] == d and v["za"] == c["za"]
+            and v["proti"] == c["proti"] and v["zdrzal"] == c["zdrzal"]]
+    if len(cand) == 1:
+        return cand[0]
+    if len(cand) > 1 and isinstance(c.get("nehl"), int):
+        by_n = [v for v in cand if v.get("nehl", 0) == c["nehl"]]
+        if len(by_n) == 1:
+            return by_n[0]
+    if len(cand) > 1:
+        sig = {(v["za"] + v["proti"] + v["zdrzal"] + v.get("nehl", 0),
+                v.get("nd"), v.get("rl"), v.get("p"), v.get("nehl", 0)) for v in cand}
+        if len(sig) == 1:
+            return cand[0]
+    return None
 
 def clean(t):
     t = t.replace("\xad", "")
@@ -90,7 +117,7 @@ for c in con:
     if full.strip() != c["t"].strip():
         enr += 1
     # PRAHOVE polia pre prahovu os (z council-votes.json, verziovany zdroj pravdy)
-    m = vidx.get((c["d"], c.get("u")))
+    m = match_voting(c)
     if m:
         c["pr"] = m.get("pr")          # pocet pritomnych
         c["nd"] = m.get("nd")          # potrebna hranica (kvorum pre dany typ)
