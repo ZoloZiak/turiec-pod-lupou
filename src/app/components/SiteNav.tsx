@@ -27,7 +27,7 @@ const GROUPS: Group[] = [
       { href: "/objednavky", label: "Objednávky", desc: "Objednávky mesta 2011–2026", icon: ShoppingCart },
       { href: "/dodavatelia", label: "Dodávatelia", desc: "Kto dostáva peniaze mesta", icon: Building2 },
       { href: "/eurofondy", label: "Eurofondy a dotácie", desc: "Peniaze, ktoré prišli DO mesta", icon: Coins },
-      { href: "/#faktury", label: "Faktúry", desc: "Zoznam významných faktúr", icon: Receipt },
+      { href: "/kontrola?tab=faktury", label: "Faktúry", desc: "Významné faktúry a audit", icon: Receipt },
     ],
   },
   {
