@@ -53,10 +53,10 @@ export const HUB: FlowNode = {
 
 // ── PRAVÁ STRANA: kam idú (výdavky 69.338.395 € + prebytok do rezervy) ───────
 export const OUTFLOW: FlowNode[] = [
-  { id: "chod", label: "Chod mesta", hint: "Bežné výdavky: platy, školy a škôlky, údržba, verejné osvetlenie, zeleň, doprava, sociálne služby.", color: "#34d399", side: "out", href: "/zmluvy" },
-  { id: "investicie", label: "Investície", hint: "Kapitálové výdavky: stavby, rekonštrukcie, nový majetok (napr. úpravy ulíc, budovy, parky).", color: "#60a5fa", side: "out", href: "/kontrola" },
+  { id: "chod", label: "Chod mesta", hint: "Bežné výdavky: platy, školy a škôlky, údržba, verejné osvetlenie, zeleň, doprava, sociálne služby.", color: "#34d399", side: "out" },
+  { id: "investicie", label: "Investície", hint: "Kapitálové výdavky: stavby, rekonštrukcie, nový majetok (napr. úpravy ulíc, budovy, parky).", color: "#60a5fa", side: "out" },
   { id: "rezerva", label: "Do rezervy", hint: "Prebytok hospodárenia — peniaze, ktoré sa v roku 2025 neminuli a odkladajú sa do rezervného fondu.", color: "#94a3b8", side: "out" },
-  { id: "dlh", label: "Splátky úverov", hint: "Splátky istiny skôr prijatých úverov (dlhová služba mesta).", color: "#fb7185", side: "out", href: "/podniky" },
+  { id: "dlh", label: "Splátky úverov", hint: "Splátky istiny skôr prijatých úverov (dlhová služba mesta).", color: "#fb7185", side: "out" },
 ];
 
 // Hodnoty (€) — PLNENIE 2025, overené proti PDF

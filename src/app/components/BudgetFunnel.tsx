@@ -112,21 +112,21 @@ export default function BudgetFunnel() {
                   {/* label */}
                   {n.side === "in" && (
                     <text x={n.x0 - 10} y={(n.y0 + n.y1) / 2} textAnchor="end" dominantBaseline="middle"
-                          fontSize={15} fontWeight={700} fill="#e7ecf5">
+                          fontSize={15} fontWeight={700} fill="var(--body)">
                       <tspan>{n.label}</tspan>
-                      <tspan x={n.x0 - 10} dy={17} fontSize={12.5} fontWeight={800} fill="#aeb9d2">{eurMil(n.value)}</tspan>
+                      <tspan x={n.x0 - 10} dy={17} fontSize={12.5} fontWeight={800} fill="var(--muted)">{eurMil(n.value)}</tspan>
                     </text>
                   )}
                   {n.side === "out" && (
                     <text x={n.x1 + 10} y={(n.y0 + n.y1) / 2} textAnchor="start" dominantBaseline="middle"
-                          fontSize={15} fontWeight={700} fill={clickable ? "#cfe3ff" : "#e7ecf5"}>
+                          fontSize={15} fontWeight={700} fill={clickable ? "#3b82f6" : "var(--body)"}>
                       <tspan>{n.label}{clickable ? " ›" : ""}</tspan>
-                      <tspan x={n.x1 + 10} dy={17} fontSize={12.5} fontWeight={800} fill="#aeb9d2">{eurMil(n.value)}</tspan>
+                      <tspan x={n.x1 + 10} dy={17} fontSize={12.5} fontWeight={800} fill="var(--muted)">{eurMil(n.value)}</tspan>
                     </text>
                   )}
                   {n.side === "hub" && (
                     <text x={(n.x0 + n.x1) / 2} y={(n.y0 + n.y1) / 2} textAnchor="middle" dominantBaseline="middle"
-                          fontSize={15} fontWeight={800} fill="#34d399">
+                          fontSize={15} fontWeight={800} fill="#059669">
                       <tspan x={(n.x0 + n.x1) / 2}>MESTO</tspan>
                       <tspan x={(n.x0 + n.x1) / 2} dy={18}>MARTIN</tspan>
                     </text>
@@ -146,13 +146,12 @@ export default function BudgetFunnel() {
                 {activeNode.label} — {eurFull(activeAmount)}
               </span>
               <span className="text-muted"> · {activeNode.hint}</span>
-              {activeNode.href && <span className="text-blue-400 font-medium"> Klikni → detail.</span>}
             </p>
           ) : (
             <p className="text-sm text-muted leading-relaxed">
               Prejdi myšou po ktoromkoľvek pruhu. Mesto v roku {BUDGET_YEAR} prijalo{" "}
               <b className="text-body">{eurFull(TOTAL_IN)}</b> a minulo <b className="text-body">{eurFull(TOTAL_OUT)}</b>;
-              rozdiel išiel do rezervy. <b className="text-body">Chod mesta</b> a <b className="text-body">Investície</b> sa dajú rozkliknúť na konkrétne platby.
+              rozdiel išiel do rezervy. Konkrétne doklady nájdeš v registroch nižšie.
             </p>
           )}
         </div>
