@@ -96,7 +96,7 @@ export default async function SlubomerPage() {
 
           <div className="divide-y divide-line">
             {!promises || promises.length === 0 ? (
-              <div className="p-8 text-center text-muted">Zatiaľ neboli do databázy vložené žiadne sľuby. (Alebo si ešte nespustil migráciu v databáze).</div>
+              <div className="p-8 text-center text-muted">Databáza predvolebných sľubov sa pripravuje — zatiaľ tu nie sú žiadne overené sľuby.</div>
             ) : promises.map((promise: PromiseItem) => {
               const statusUI = getStatusUI(promise.status);
               const txs = (promise.related_transaction_ids || []).map((id: string) => txMap.get(id)).filter(Boolean);

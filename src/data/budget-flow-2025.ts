@@ -42,7 +42,7 @@ export const INCOME: FlowNode[] = [
   { id: "podielove", label: "Podielové dane", hint: "Časť štátnej dane z príjmov, ktorú štát prerozdelí mestu podľa počtu obyvateľov, detí a seniorov.", color: "#34d399", side: "in" },
   { id: "transfery", label: "Dotácie a transfery", hint: "Účelové peniaze zo štátu a EÚ — najmä na prenesené kompetencie v školstve, sociálne služby a projekty.", color: "#60a5fa", side: "in" },
   { id: "miestne", label: "Miestne dane", hint: "Daň z nehnuteľností, poplatok za odpad, za psa, za ubytovanie a pod. — vyberá ich priamo mesto.", color: "#fbbf24", side: "in" },
-  { id: "vlastne", label: "Vlastné príjmy", hint: "Nájmy mestského majetku, správne poplatky, pokuty a príjmy z vlastnej činnosti.", color: "#fb7185", side: "in" },
+  { id: "vlastne", label: "Vlastné príjmy", hint: "Nájmy a predaj mestského majetku, správne poplatky, pokuty a príjmy z vlastnej činnosti.", color: "#fb7185", side: "in" },
   { id: "uvery", label: "Úvery a fondy", hint: "Čerpané úvery, prevody z rezervného fondu a zostatky z minulých rokov — nie sú to „zarobené“ peniaze.", color: "#a78bfa", side: "in" },
 ];
 
@@ -65,8 +65,8 @@ export const LINKS: FlowLink[] = [
   { source: "transfery", target: "mesto", value: 25_199_539 }, // bežné granty+transfery 23.296.820 + kapitálové 1.902.719
   { source: "podielove", target: "mesto", value: 23_399_377 },
   { source: "miestne", target: "mesto", value: 12_194_404 }, // daň z nehn. 9.076.800 + dane za služby 3.090.093 + používanie 531 + sankcie 26.980
-  { source: "uvery", target: "mesto", value: 10_061_939 }, // fin. operácie príjmové 9.934.380 + kap. predaj majetku 127.559
-  { source: "vlastne", target: "mesto", value: 5_260_264 },
+  { source: "uvery", target: "mesto", value: 9_934_380 }, // fin. operácie príjmové 9.934.380 (PDF Finančné operácie príjmové)
+  { source: "vlastne", target: "mesto", value: 5_387_823 }, // nedaňové bežné 5.260.264 + kapitálový predaj majetku 127.559 (PDF Kapitálové príjmy – nedaňové)
   // mesto -> výdavky
   { source: "mesto", target: "chod", value: 59_149_217 },
   { source: "mesto", target: "investicie", value: 8_517_787 },
