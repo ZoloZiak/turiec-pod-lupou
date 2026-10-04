@@ -265,48 +265,22 @@ export default function VzoryPage() {
                   summary="⑤ Zmeniť samotné pravidlá rokovania"
                   lead="Najmocnejší nástroj: prepísať rokovací poriadok tak, aby pravidlá hrali v prospech väčšiny."
                 >
-                  <div className="mt-3 space-y-4">
+                  <div className="mt-3 space-y-3">
                     <p className="text-xs text-muted max-w-3xl">
                       Napríklad že padnuté kvórum = koniec, nie odklad (viď sekcia 2). Za toto obdobie
-                      sa rokovací poriadok menil viackrát a dvakrát pri tom stála pevne proti celá
-                      opozícia. Tu je, kedy a ako tesne to prešlo.
+                      sa rokovací poriadok menil <strong className="text-body">dvakrát</strong> — Dodatok
+                      č. 3 (jún 2024) a Dodatok č. 4 (marec 2025) — a pri oboch stála pevne proti{" "}
+                      <strong className="text-body">celá jedenásťčlenná opozícia</strong>. Prešli len
+                      tesne, nadpolovičnou väčšinou prítomných.
                     </p>
-                    <ul className="space-y-3">
-                      {[
-                        { d: "2024-06-20", t: "Dodatok č. 3 k Rokovaciemu poriadku", za: 15, proti: 11, prit: 26,
-                          s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-20-06-2024/ds-2536" },
-                        { d: "2025-03-27", t: "Dodatok č. 4 k Rokovaciemu poriadku", za: 14, proti: 11, prit: 27,
-                          s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-27-03-2025/ds-2574" },
-                      ].map((r) => (
-                        <li key={r.d} className="rounded-xl border border-line p-4">
-                          <div className="flex items-start justify-between gap-4 mb-2">
-                            <div>
-                              <p className="text-sm font-semibold text-body">{r.t}</p>
-                              <p className="text-xs text-muted mt-0.5">{r.d} · prešlo tesne (nadpolovičná prítomných)</p>
-                            </div>
-                            <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 px-2.5 py-0.5 text-[11px] font-bold">
-                              {r.proti} proti
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs font-bold text-emerald-600 shrink-0 w-12 text-right">ZA {r.za}</span>
-                            <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-elevated">
-                              <div className="bg-emerald-500" style={{ width: `${(r.za / r.prit) * 100}%` }} />
-                              <div className="bg-red-500" style={{ width: `${(r.proti / r.prit) * 100}%` }} />
-                            </div>
-                            <span className="text-xs font-bold text-red-600 shrink-0 w-24">{r.proti} proti</span>
-                          </div>
-                          <a
-                            href={r.s}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-purple-500 hover:text-purple-400 mt-2"
-                          >
-                            Menný záznam na martin.sk
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+                    <p className="text-xs text-muted">
+                      Obe hlasovania aj s menným rozpisom a tým, ako tesne pri hranici skončili, nájdeš
+                      na stránke{" "}
+                      <Link href="/dramy" className="text-purple-400 hover:text-purple-300 underline font-medium">
+                        Drámy zastupiteľstva →
+                      </Link>
+                      , aby sme tu to isté neopakovali.
+                    </p>
                   </div>
                 </Disclosure>
               </div>
