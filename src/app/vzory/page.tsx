@@ -2,7 +2,6 @@
 
 import SiteNav from "../components/SiteNav";
 import CouncilCircle from "../components/CouncilCircle";
-import FailedVotes from "../components/FailedVotes";
 import { useInterrupted, ChainsList, QuorumList, WithdrawalsList } from "../components/ProceduralLists";
 import SilencingOpener from "../components/SilencingOpener";
 import TricksWatchlist from "../components/TricksWatchlist";
@@ -233,17 +232,31 @@ export default function VzoryPage() {
                   summary="④ Nafúknuť kvórum — zaprezentovať sa, ale nehlasovať"
                   lead="Poslanec sa prezentuje (ráta sa do kvóra), no pri hlasovaní nestlačí nič — pomôže väčšine a nenesie zodpovednosť."
                 >
-                  <div className="mt-3">
-                    <p className="text-xs text-muted mb-4 max-w-3xl">
+                  <div className="mt-3 space-y-3">
+                    <p className="text-xs text-muted max-w-3xl">
                       Opačná strana mince k trikom vyššie: nie „zabiť návrh“, ale „nechať prejsť bez
-                      vlastného podpisu“. Nižšie sú návrhy, ktoré sa dostali až k menovitému hlasovaniu
-                      a tam padli na kvóre — vrátane hranice, ktorú bolo treba prekročiť.
+                      vlastného podpisu“. Za toto obdobie sa to stalo v{" "}
+                      <strong className="text-body">{a.presentNotVoting}</strong> hlasovaniach, kde sa
+                      aspoň jeden poslanec zaprezentoval, ale pri samotnom hlasovaní nestlačil nič.
                     </p>
-                    {a.failed.length > 0 ? (
-                      <FailedVotes items={a.failed} total={a.decidedVotings} presentNotVoting={a.presentNotVoting} />
-                    ) : (
-                      <p className="text-xs text-muted">Žiadne také hlasovanie v dátach.</p>
-                    )}
+                    <p className="text-xs text-muted max-w-3xl">
+                      Má to priamy dôsledok: návrh môže padnúť, aj keď má viac hlasov za ako proti —
+                      lebo kvórum sa ráta z prítomných. Za obdobie tak na kvóre padlo{" "}
+                      <strong className="text-body">{a.failed.length}</strong>{" "}
+                      {a.failed.length === 1 ? "menovité hlasovanie" : a.failed.length < 5 ? "menovité hlasovania" : "menovitých hlasovaní"}.
+                      {a.failed[0] && (
+                        <> Najznámejší prípad: <strong className="text-body">daň z nehnuteľností 2023</strong>{" "}
+                        — chýbal jediný hlas, o päť týždňov tá istá daň prešla.</>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted">
+                      Celý menný rozpis — kto bol proti, kto sa zdržal, kde chýbal jeden hlas a kto
+                      otočil — je prehľadne na stránke{" "}
+                      <Link href="/dramy" className="text-purple-400 hover:text-purple-300 underline font-medium">
+                        Drámy zastupiteľstva →
+                      </Link>
+                      , aby sme tu to isté neopakovali.
+                    </p>
                   </div>
                 </Disclosure>
 
