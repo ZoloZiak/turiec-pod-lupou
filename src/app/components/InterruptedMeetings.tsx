@@ -18,6 +18,14 @@ type QuorumFailure = {
   quote: string;
 };
 
+type Withdrawal = {
+  date: string;
+  who: string;
+  what: string;
+  outcome: string;
+  quote: string;
+};
+
 type InterruptedData = {
   interruptedMeetings: number;
   continuationDays: number;
@@ -26,6 +34,9 @@ type InterruptedData = {
   quorumNote?: string;
   quorumSrc?: string;
   quorumFailures?: QuorumFailure[];
+  withdrawals?: Withdrawal[];
+  amendmentsTotal?: number;
+  amendmentsMeetings?: number;
 };
 
 function fmt(iso: string): string {
@@ -151,6 +162,51 @@ export default function InterruptedMeetings() {
             >
               Zápisnice z rokovaní na martin.sk
             </a>
+          )}
+        </div>
+      )}
+
+      {data.withdrawals && data.withdrawals.length > 0 && (
+        <div className="mt-8 border-t border-line pt-6">
+          <h3 className="text-lg font-bold text-body mb-1">
+            Pokusy vyhodiť bod z programu ešte pred rokovaním
+          </h3>
+          <p className="text-sm text-muted mb-4 max-w-3xl">
+            Hneď na úvod, pri schvaľovaní programu, sa dá navrhnúť, aby sa niektorý bod vôbec
+            neprerokúval. Keď to zbor schváli, bod spadne zo stola bez vecnej diskusie. Za toto
+            obdobie takých návrhov zo zápisníc vychádza{" "}
+            <strong className="text-body">{data.withdrawals.length}</strong> — tu je, kto ich podal
+            a ako dopadli.
+          </p>
+          <ul className="space-y-2.5">
+            {data.withdrawals.map((w, i) => (
+              <li key={`${w.date}-${i}`} className="rounded-xl border border-line p-4">
+                <div className="flex items-start justify-between gap-4 mb-1.5">
+                  <p className="text-sm font-semibold text-body">
+                    {fmt(w.date)} — {w.who}
+                  </p>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                      w.outcome === "prešlo"
+                        ? "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300"
+                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+                    }`}
+                  >
+                    {w.outcome === "prešlo" ? "bod vyhodený" : "bod ostal"}
+                  </span>
+                </div>
+                <p className="text-xs text-muted">{w.quote}</p>
+              </li>
+            ))}
+          </ul>
+          {typeof data.amendmentsTotal === "number" && data.amendmentsTotal > 0 && (
+            <p className="text-xs text-muted mt-4 max-w-3xl">
+              Okrem toho zápisnice za toto obdobie zachytávajú{" "}
+              <strong className="text-body">{data.amendmentsTotal}</strong> pozmeňujúcich a
+              protinávrhov v rozprave (v {data.amendmentsMeetings} zasadnutiach) — návrh sa teda
+              dá aj prerobiť priamo na mieste. Menný rozklad zámerne neuvádzame, aby z toho
+              nevznikli nepresné tvrdenia; detaily sú v zápisniciach.
+            </p>
           )}
         </div>
       )}

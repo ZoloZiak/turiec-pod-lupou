@@ -1,0 +1,51 @@
+name: Council Procedural Refresh
+
+# Precompute procedurálnych dejov zastupiteľstva MsZ Martin zo ZÁPISNÍC:
+# padnuté kvórum, stiahnuté body z programu, pokračovania, počet pozmeňovákov.
+# Beží v cloude nezávisle od lokálneho Macu (ten je firemný/DLP/môže byť vypnutý).
+# Zdroj = verejné PDF zápisníc na martin.sk → žiadne secrets netreba.
+# Skript stiahne zápisnice, vyparsuje javy s doslovnými citátmi a commitne výsledok;
+# Vercel ho potom deployne automaticky.
+
+on:
+  schedule:
+    # Raz mesačne, 2. deň o 05:00 UTC (zastupiteľstvo zasadá ~mesačne; nekoliduje s inými cron)
+    - cron: '0 5 2 * *'
+  workflow_dispatch:
+    # Manuálne spustenie z GitHub Actions tabu
+
+# Auto-commit výsledku späť do repa vyžaduje zápisové právo na obsah
+permissions:
+  contents: write
+
+jobs:
+  refresh-procedural:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyMuPDF
+        run: pip install PyMuPDF
+
+      - name: Build procedural dataset (download zápisníc + parse)
+        run: python scripts/build_council_procedural.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/council-interrupted.json
+          if git diff --staged --quiet; then
+            echo "Procedurálne dáta bez zmeny — nič sa necommituje."
+          else
+            git commit -m "chore(council): automatická obnova procedurálnych dejov zo zápisníc [skip ci]"
+            git push
+            echo "Procedurálne dáta aktualizované a pushnuté."
+          fi
