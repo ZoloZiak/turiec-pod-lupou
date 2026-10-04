@@ -4,16 +4,19 @@ import { useState, ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 /**
- * Disclosure — ELI5 postupné odhaľovanie.
- * Navrchu krátka veta po lopate (summary), detail sa rozbalí až keď chce čitateľ viac.
+ * Disclosure — ELI5 postupné odhaľovanie, JEDNA vrstva.
+ * Nadpis (summary) + jedna veta (lead) sú vždy vidno; detail/dáta sa rozbalia PRIAMO VNÚTRI
+ * až keď čitateľ klikne. Žiadne odkazy, ktoré ho posielajú inam na stránku.
  */
 export default function Disclosure({
   summary,
+  lead,
   children,
   defaultOpen = false,
   tone = "default",
 }: {
   summary: ReactNode;
+  lead?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
   tone?: "default" | "accent";
@@ -30,11 +33,14 @@ export default function Disclosure({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-elevated/60 transition-colors"
+        className="w-full flex items-start justify-between gap-3 px-4 py-3 text-left hover:bg-elevated/60 transition-colors"
       >
-        <span className="text-sm font-semibold text-body">{summary}</span>
+        <span className="min-w-0">
+          <span className="block text-sm font-semibold text-body">{summary}</span>
+          {lead && <span className="block text-xs text-muted mt-0.5">{lead}</span>}
+        </span>
         <ChevronDown
-          className={`w-4 h-4 shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 shrink-0 mt-0.5 text-muted transition-transform ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>

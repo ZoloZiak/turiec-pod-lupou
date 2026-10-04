@@ -3,13 +3,13 @@
 import SiteNav from "../components/SiteNav";
 import CouncilCircle from "../components/CouncilCircle";
 import FailedVotes from "../components/FailedVotes";
-import InterruptedMeetings from "../components/InterruptedMeetings";
+import { useInterrupted, ChainsList, QuorumList, WithdrawalsList } from "../components/ProceduralLists";
 import SilencingOpener from "../components/SilencingOpener";
 import TricksWatchlist from "../components/TricksWatchlist";
 import Disclosure from "../components/Disclosure";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
-import { Network, CalendarCheck, Shuffle, Info, Trophy, BookOpen, ListChecks } from "lucide-react";
+import { Network, CalendarCheck, Info, Trophy, BookOpen, ListChecks } from "lucide-react";
 import { CouncilData, analyze, Analysis } from "../../lib/councilVotes";
 
 function Bar({ pct, tone }: { pct: number; tone: "red" | "emerald" | "amber" }) {
@@ -34,6 +34,7 @@ export default function VzoryPage() {
   }, []);
 
   const a: Analysis | null = useMemo(() => (data ? analyze(data) : null), [data]);
+  const interrupted = useInterrupted();
 
   const topAttend = a?.attendance[0];
 
@@ -146,126 +147,156 @@ export default function VzoryPage() {
               <SilencingOpener />
             </div>
 
-            {/* ── 3. JEDNOTLIVÉ TRIKY (ELI5 index + dropdowny na detail) ── */}
+            {/* ── 3. JEDNOTLIVÉ TRIKY — jedna vrstva, dáta PRIAMO vnútri dropdownu ── */}
             <section id="triky" className="bg-card rounded-2xl shadow-sm border border-line p-6 scroll-mt-20">
               <div className="flex items-center gap-3 mb-2">
                 <ListChecks className="w-6 h-6 text-rose-400" aria-hidden="true" />
                 <h2 className="text-2xl font-bold text-body">3 · Jednotlivé triky, po lopate</h2>
               </div>
               <p className="text-sm text-muted mb-5 max-w-3xl">
-                Takto sa dá návrh zastaviť bez toho, aby zaň niekto otvorene hlasoval „proti“. Každý
-                trik má jednu vetu vysvetlenia; kto chce čísla a konkrétne prípady, rozklikne si
-                detail. Všetko je z verejných zápisníc a menovitých hlasovaní.
+                Päť spôsobov, ako sa dá návrh zastaviť bez toho, aby zaň niekto otvorene hlasoval
+                „proti“. Každý má jednu vetu vysvetlenia — kto chce čísla a konkrétne prípady,
+                rozklikne si ich priamo tu. Všetko je z verejných zápisníc a menovitých hlasovaní.
               </p>
               <div className="space-y-3">
-                <Disclosure tone="accent" summary={'① Nechať zasadnutie „vyhniť“ — predčasný koniec'}>
-                  <p className="text-sm text-body/90 mt-2 mb-2">
-                    Po dlhej rozprave sa poslanci rozídu, lavica sa preriedi a zvyšok programu sa už
-                    nestihne. Body, ktoré boli na rade neskôr, sa odložia — alebo (od zmeny pravidla)
-                    rovno padnú. Nižšie to máme vyčíslené: koľko zasadnutí sa nedokončilo a koľko
-                    padlo kvórum priamo v sále, s doslovnými citátmi zo zápisníc.
-                  </p>
-                  <a href="#nedokoncene" className="text-xs text-purple-500 hover:text-purple-400 underline">
-                    Skočiť na čísla a citáty →
-                  </a>
+                <Disclosure
+                  tone="accent"
+                  summary="① Nechať zasadnutie „vyhniť“ — predčasný koniec"
+                  lead="Po dlhej rozprave sa poslanci rozídu, lavica sa preriedi a zvyšok programu padne."
+                >
+                  {interrupted ? (
+                    <div className="mt-3 space-y-4">
+                      <p className="text-xs text-muted max-w-3xl">
+                        Za toto obdobie sa <strong className="text-body">{interrupted.interruptedMeetings}</strong> z{" "}
+                        <strong className="text-body">{interrupted.scheduledMeetings}</strong> riadnych
+                        zasadnutí nepodarilo dokončiť v jeden deň — vyžiadali si{" "}
+                        <strong className="text-body">{interrupted.continuationDays}</strong> ďalších
+                        rokovacích termínov. Vidno to z hlavičiek úradných uznesení („pokračovanie MsZ z…“).
+                      </p>
+                      <ChainsList chains={interrupted.chains} />
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted mt-3">Načítavam dáta…</p>
+                  )}
                 </Disclosure>
 
-                <Disclosure tone="accent" summary="② Vyhodiť bod z programu hneď na úvod">
-                  <p className="text-sm text-body/90 mt-2">
-                    Pri schvaľovaní programu sa dá navrhnúť, aby sa niektorý bod vôbec neprerokúval.
-                    Keď to zbor odhlasuje, bod spadne zo stola bez vecnej diskusie. Konkrétne pokusy
-                    (kto ich podal a ako dopadli) sú v sekcii nižšie.
-                  </p>
-                  <a href="#nedokoncene" className="text-xs text-purple-500 hover:text-purple-400 underline mt-2 inline-block">
-                    Skočiť na pokusy vyhodiť bod →
-                  </a>
+                <Disclosure
+                  tone="accent"
+                  summary="② Nechať padnúť kvórum priamo v sále"
+                  lead="Keď časť poslancov odíde, zbor prestane byť uznášaniaschopný a o zvyšku sa už nehlasuje."
+                >
+                  {interrupted?.quorumFailures && interrupted.quorumFailures.length > 0 ? (
+                    <div className="mt-3 space-y-4">
+                      <p className="text-xs text-muted max-w-3xl">
+                        Zastupiteľstvo môže hlasovať, len kým je v sále dosť poslancov. Keď kvórum padne,
+                        o zvyšných bodoch sa už nehlasuje — zápisnica to zachytáva doslovne. Stalo sa to{" "}
+                        <strong className="text-body">{interrupted.quorumFailures.length}×</strong>.
+                        Od zmeny pravidla (viď sekcia 2 vyššie) to zakaždým znamená koniec, nie odklad.
+                      </p>
+                      <QuorumList items={interrupted.quorumFailures} src={interrupted.quorumSrc} />
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted mt-3">Načítavam dáta…</p>
+                  )}
                 </Disclosure>
 
-                <Disclosure tone="accent" summary="③ Prehlasovať návrh pozmeňovákom">
-                  <p className="text-sm text-body/90 mt-2">
-                    Návrh sa nemusí odmietnuť — dá sa prerobiť priamo na mieste pozmeňujúcim alebo
-                    protinávrhom tak, že z pôvodného zámeru veľa neostane. V sekcii nižšie uvádzame,
-                    koľko takých návrhov zápisnice zachytávajú (agregát; menný rozklad zámerne nie,
-                    aby z toho nevznikli nepresné tvrdenia).
-                  </p>
-                  <a href="#nedokoncene" className="text-xs text-purple-500 hover:text-purple-400 underline mt-2 inline-block">
-                    Skočiť na pozmeňováky →
-                  </a>
+                <Disclosure
+                  tone="accent"
+                  summary="③ Vyhodiť bod z programu hneď na úvod"
+                  lead="Pri schvaľovaní programu sa dá navrhnúť, aby sa niektorý bod vôbec neprerokúval."
+                >
+                  {interrupted?.withdrawals && interrupted.withdrawals.length > 0 ? (
+                    <div className="mt-3 space-y-4">
+                      <p className="text-xs text-muted max-w-3xl">
+                        Keď to zbor odhlasuje, bod spadne zo stola bez vecnej diskusie. Takých návrhov
+                        zo zápisníc vychádza <strong className="text-body">{interrupted.withdrawals.length}</strong>{" "}
+                        — tu je, kto ich podal a ako dopadli.
+                      </p>
+                      <WithdrawalsList items={interrupted.withdrawals} />
+                      {typeof interrupted.amendmentsTotal === "number" && interrupted.amendmentsTotal > 0 && (
+                        <p className="text-xs text-muted max-w-3xl border-t border-line/70 pt-3">
+                          <strong className="text-body">Príbuzný trik — prerobiť návrh na mieste:</strong>{" "}
+                          zápisnice za toto obdobie zachytávajú{" "}
+                          <strong className="text-body">{interrupted.amendmentsTotal}</strong> pozmeňujúcich
+                          a protinávrhov (v {interrupted.amendmentsMeetings} zasadnutiach). Menný rozklad
+                          zámerne neuvádzame, aby z toho nevznikli nepresné tvrdenia; detaily sú v zápisniciach.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted mt-3">Načítavam dáta…</p>
+                  )}
                 </Disclosure>
 
-                <Disclosure tone="accent" summary="④ Nafúknuť kvórum — zaprezentovať sa, ale nehlasovať">
-                  <p className="text-sm text-body/90 mt-2">
-                    Poslanec sa prezentuje (ráta sa do počtu prítomných, teda do kvóra), ale pri
-                    samotnom hlasovaní nestlačí nič. Pomôže tak uznášaniaschopnosti, no za rozhodnutie
-                    nenesie zodpovednosť. V sekcii „Čo neprešlo“ uvádzame, v koľkých hlasovaniach sa
-                    to stalo.
-                  </p>
+                <Disclosure
+                  tone="accent"
+                  summary="④ Nafúknuť kvórum — zaprezentovať sa, ale nehlasovať"
+                  lead="Poslanec sa prezentuje (ráta sa do kvóra), no pri hlasovaní nestlačí nič — pomôže väčšine a nenesie zodpovednosť."
+                >
+                  <div className="mt-3">
+                    <p className="text-xs text-muted mb-4 max-w-3xl">
+                      Opačná strana mince k trikom vyššie: nie „zabiť návrh“, ale „nechať prejsť bez
+                      vlastného podpisu“. Nižšie sú návrhy, ktoré sa dostali až k menovitému hlasovaniu
+                      a tam padli na kvóre — vrátane hranice, ktorú bolo treba prekročiť.
+                    </p>
+                    {a.failed.length > 0 ? (
+                      <FailedVotes items={a.failed} total={a.decidedVotings} presentNotVoting={a.presentNotVoting} />
+                    ) : (
+                      <p className="text-xs text-muted">Žiadne také hlasovanie v dátach.</p>
+                    )}
+                  </div>
                 </Disclosure>
 
-                <Disclosure tone="accent" summary="⑤ Zmeniť samotné pravidlá rokovania">
-                  <p className="text-sm text-body/90 mt-2">
-                    Najmocnejší nástroj: zmeniť rokovací poriadok tak, aby pravidlá hrali v prospech
-                    väčšiny (napríklad že padnuté kvórum = koniec, nie odklad — viď sekcia 2 vyššie).
-                    Za toto obdobie sa rokovací poriadok menil viackrát a zakaždým stála proti celá
-                    opozícia. Detaily nižšie.
-                  </p>
+                <Disclosure
+                  tone="accent"
+                  summary="⑤ Zmeniť samotné pravidlá rokovania"
+                  lead="Najmocnejší nástroj: prepísať rokovací poriadok tak, aby pravidlá hrali v prospech väčšiny."
+                >
+                  <div className="mt-3 space-y-4">
+                    <p className="text-xs text-muted max-w-3xl">
+                      Napríklad že padnuté kvórum = koniec, nie odklad (viď sekcia 2). Za toto obdobie
+                      sa rokovací poriadok menil viackrát a dvakrát pri tom stála pevne proti celá
+                      opozícia. Tu je, kedy a ako tesne to prešlo.
+                    </p>
+                    <ul className="space-y-3">
+                      {[
+                        { d: "2024-06-20", t: "Dodatok č. 3 k Rokovaciemu poriadku", za: 15, proti: 11, prit: 26,
+                          s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-20-06-2024/ds-2536" },
+                        { d: "2025-03-27", t: "Dodatok č. 4 k Rokovaciemu poriadku", za: 14, proti: 11, prit: 27,
+                          s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-27-03-2025/ds-2574" },
+                      ].map((r) => (
+                        <li key={r.d} className="rounded-xl border border-line p-4">
+                          <div className="flex items-start justify-between gap-4 mb-2">
+                            <div>
+                              <p className="text-sm font-semibold text-body">{r.t}</p>
+                              <p className="text-xs text-muted mt-0.5">{r.d} · prešlo tesne (nadpolovičná prítomných)</p>
+                            </div>
+                            <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 px-2.5 py-0.5 text-[11px] font-bold">
+                              {r.proti} proti
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-emerald-600 shrink-0 w-12 text-right">ZA {r.za}</span>
+                            <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-elevated">
+                              <div className="bg-emerald-500" style={{ width: `${(r.za / r.prit) * 100}%` }} />
+                              <div className="bg-red-500" style={{ width: `${(r.proti / r.prit) * 100}%` }} />
+                            </div>
+                            <span className="text-xs font-bold text-red-600 shrink-0 w-24">{r.proti} proti</span>
+                          </div>
+                          <a
+                            href={r.s}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-purple-500 hover:text-purple-400 mt-2"
+                          >
+                            Menný záznam na martin.sk
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </Disclosure>
               </div>
-            </section>
-
-            {/* Konkrétne dáta k trikom ①②③ */}
-            <FailedVotes items={a.failed} total={a.decidedVotings} presentNotVoting={a.presentNotVoting} />
-            <InterruptedMeetings />
-
-            {/* Zmena pravidiel hry — faktická kotva k ⑤ */}
-            <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Shuffle className="w-6 h-6 text-purple-400" aria-hidden="true" />
-                <h2 className="text-2xl font-bold text-body">⑤ Menili sa aj pravidlá rokovania</h2>
-              </div>
-              <p className="text-sm text-muted mb-4 max-w-3xl">
-                Rokovací poriadok určuje, ako zastupiteľstvo funguje — kto kedy dostane slovo, čo sa
-                stane, keď klesne počet poslancov, ako sa vedie rozprava. Za toto obdobie ho
-                zastupiteľstvo menilo viackrát, a dvakrát pri tom stála pevne proti celá opozícia. Čo
-                presne sa zmenilo, je v texte dodatku (odkaz) — tu ukazujeme len, kedy a ako tesne to
-                prešlo.
-              </p>
-              <ul className="space-y-3">
-                {[
-                  { d: "2024-06-20", t: "Dodatok č. 3 k Rokovaciemu poriadku", za: 15, proti: 11, prit: 26,
-                    s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-20-06-2024/ds-2536" },
-                  { d: "2025-03-27", t: "Dodatok č. 4 k Rokovaciemu poriadku", za: 14, proti: 11, prit: 27,
-                    s: "https://www.martin.sk/hlasovania-z-rokovania-zastupitelstva-zo-dna-27-03-2025/ds-2574" },
-                ].map((r) => (
-                  <li key={r.d} className="rounded-xl border border-line p-4">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <div>
-                        <p className="text-sm font-semibold text-body">{r.t}</p>
-                        <p className="text-xs text-muted mt-0.5">{r.d} · prešlo tesne (nadpolovičná prítomných)</p>
-                      </div>
-                      <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 px-2.5 py-0.5 text-[11px] font-bold">
-                        {r.proti} proti
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-emerald-600 shrink-0 w-12 text-right">ZA {r.za}</span>
-                      <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-elevated">
-                        <div className="bg-emerald-500" style={{ width: `${(r.za / r.prit) * 100}%` }} />
-                        <div className="bg-red-500" style={{ width: `${(r.proti / r.prit) * 100}%` }} />
-                      </div>
-                      <span className="text-xs font-bold text-red-600 shrink-0 w-24">{r.proti} proti</span>
-                    </div>
-                    <a
-                      href={r.s}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-purple-500 hover:text-purple-400 mt-2"
-                    >
-                      Menný záznam na martin.sk
-                    </a>
-                  </li>
-                ))}
-              </ul>
             </section>
 
             {/* ── 4. DVA TÁBORY (kontext — kto s kým drží) ── */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, XCircle } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import type { FailedVote } from "../../lib/councilVotes";
 
 // Vizuálny pomer ZA / proti / zdržal s vyznačenou hranicou kvóra.
@@ -35,12 +35,8 @@ export default function FailedVotes({ items, total, presentNotVoting }: { items:
   if (!items.length) return null;
 
   return (
-    <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
-      <div className="flex items-center gap-3 mb-2">
-        <XCircle className="w-6 h-6 text-red-400" aria-hidden="true" />
-        <h2 className="text-2xl font-bold text-body">Čo neprešlo</h2>
-      </div>
-      <p className="text-sm text-muted mb-5 max-w-3xl">
+    <div>
+      <p className="text-sm text-muted mb-4 max-w-3xl">
         Pri menovitom hlasovaní padlo na kvóre <strong className="text-body">{items.length}</strong>{" "}
         {items.length === 1 ? "návrh" : items.length < 5 ? "návrhy" : "návrhov"} z {total}, pri ktorých
         sa hlasovalo menovite. VZN a dodatky potrebujú trojpätinovú väčšinu{" "}
@@ -48,14 +44,12 @@ export default function FailedVotes({ items, total, presentNotVoting }: { items:
         Zvislá čiara v pruhu je hranica, ktorú bolo treba prekročiť. Kto bol proti, vidíte menovite;
         je to verejný záznam, nie obvinenie.
       </p>
-      <p className="text-xs text-muted/80 mb-5 max-w-3xl border-l-2 border-amber-400/60 pl-3">
+      <p className="text-xs text-muted/80 mb-4 max-w-3xl border-l-2 border-amber-400/60 pl-3">
         <strong className="text-muted">Toto číslo nie je mierou zhody.</strong> Je to najužšia možná
         kategória — návrh, ktorý sa dostal až k menovitému hlasovaniu a tam nezískal dosť hlasov.
-        Reálne sa v zastupiteľstve brzdí aj inak, a tieto cesty sem nespadajú: body stiahnuté z programu
-        pred hlasovaním, pozmeňujúce a protinávrhy, ktoré neprešli, aj hlasovania, kde sa časť poslancov
-        zaprezentovala, ale nehlasovala (to sa stalo v {presentNotVoting} hlasovaniach). Samostatná vec sú
-        body odložené po predčasnom konci zasadnutia — <a href="#nedokoncene" className="text-purple-500 hover:text-purple-400 underline">tie sme vyčíslili nižšie</a>.
-        Kde sa zastupiteľstvo reálne delí, ukazuje prehľad <a href="/dramy" className="text-purple-500 hover:text-purple-400 underline">sporných hlasovaní</a>.
+        Hlasovania, kde sa časť poslancov zaprezentovala, ale nehlasovala, sem nepatria (to sa stalo
+        v {presentNotVoting} hlasovaniach — viď trik ④). Kde sa zastupiteľstvo reálne delí, ukazuje
+        prehľad <a href="/dramy" className="text-purple-500 hover:text-purple-400 underline">sporných hlasovaní</a>.
       </p>
 
       <ul className="space-y-4">
@@ -133,6 +127,6 @@ export default function FailedVotes({ items, total, presentNotVoting }: { items:
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   );
 }
