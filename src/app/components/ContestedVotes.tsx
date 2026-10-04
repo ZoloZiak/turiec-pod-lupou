@@ -52,7 +52,7 @@ export default function ContestedVotes({ items }: { items: Contested[] }) {
 
       <ul className="space-y-3">
         {shown.map((c, i) => (
-          <li key={`${c.d}-${c.u ?? i}`} className="rounded-xl border border-line p-4">
+          <li key={`${c.d}-${c.u ?? "x"}-${i}`} className="rounded-xl border border-line p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-body">{c.full ?? c.t}</p>
