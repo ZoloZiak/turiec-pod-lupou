@@ -10,7 +10,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Návrh rozpočtu mesta Martin na rok 2025",
+    "desc": "Hlavný finančný plán mesta na celý rok — najdôležitejšie hlasovanie roka."
   },
   {
     "d": "2023-10-26",
@@ -24,7 +26,9 @@
       "silná opozícia",
       "VZN pri kvóre"
     ],
-    "margin": 5
+    "margin": 5,
+    "full": "Návrh dodatku č. 21 k VZN č. 76 o miestnych daniach a miestnom poplatku za komunálne odpady a drobné stavebné odpady",
+    "desc": "Koľko obyvatelia a firmy platia mestu na dani z nehnuteľností a za vývoz komunálneho odpadu."
   },
   {
     "d": "2023-04-27",
@@ -37,7 +41,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Informácia o pozastavení výkonu uznesenia MsZ č. 36/23",
+    "desc": "Primátor pozastavil platnosť uznesenia, lebo s ním nesúhlasí; zastupiteľstvo ho môže prelomiť."
   },
   {
     "d": "2025-03-27",
@@ -51,7 +57,9 @@
       "tesný rozdiel",
       "silná opozícia"
     ],
-    "margin": 3
+    "margin": 3,
+    "full": "Dodatok č. 4 k Rokovaciemu poriadku Mestského zastupiteľstva v Martine",
+    "desc": "Pravidlá, podľa ktorých prebieha samotné rokovanie — vrátane toho, čo sa stane, keď klesne počet poslancov pod uznášaniaschopnosť."
   },
   {
     "d": "2023-10-03",
@@ -64,7 +72,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Personálne otázky",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2024-06-20",
@@ -77,7 +87,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Návrh Dodatku č. 3 k Rokovaciemu poriadku MsZ v Martine",
+    "desc": "Pravidlá, podľa ktorých prebieha samotné rokovanie — vrátane toho, čo sa stane, keď klesne počet poslancov pod uznášaniaschopnosť."
   },
   {
     "d": "2025-03-27",
@@ -90,7 +102,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Návrh na zmenu rozpočtu mesta Martin na rok 2025",
+    "desc": "Hlavný finančný plán mesta na celý rok — najdôležitejšie hlasovanie roka."
   },
   {
     "d": "2023-03-30",
@@ -103,7 +117,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Návrh na zmeny v komisiách MsZ",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2023-03-30",
@@ -116,7 +132,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Návrh na zmeny v členstve orgánov spoločností s účasťou mesta Martin",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2023-04-27",
@@ -129,7 +147,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Návrh na schválenie úveru na výstavbu multifunkčnej voľnočasovej športovej haly",
+    "desc": "Mesto si berie pôžičku na veľkú investíciu — dlh, ktorý bude splácať z rozpočtu."
   },
   {
     "d": "2023-11-30",
@@ -143,7 +163,9 @@
       "silná opozícia",
       "VZN pri kvóre"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Návrh Dodatku č. 21 k VZN č. 76 o miestnych daniach a miestnom poplatku za komunálne odpady a drobné stavebné odpady“",
+    "desc": "Koľko obyvatelia a firmy platia mestu na dani z nehnuteľností a za vývoz komunálneho odpadu."
   },
   {
     "d": "2026-02-19",
@@ -156,7 +178,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Návrh zmeny rozpočtu mesta Martin na rok 2026",
+    "desc": "Hlavný finančný plán mesta na celý rok — najdôležitejšie hlasovanie roka."
   },
   {
     "d": "2026-02-19",
@@ -169,7 +193,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Zmeny v orgánoch obchodných spoločností a v komisiách pri MsZ",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2023-05-25",
@@ -182,7 +208,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 5
+    "margin": 5,
+    "full": "Návrhy zmien v komisiách pri MsZ",
+    "desc": "Kto zasadne do poradných komisií zastupiteľstva — rozdelenie postov."
   },
   {
     "d": "2024-06-20",
@@ -195,7 +223,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 5
+    "margin": 5,
+    "full": "Personálne otázky v orgánoch obchodných spoločností, komisiách pri MsZ a MsR",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2023-12-21",
@@ -208,7 +238,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Návrh rozpočtu mesta Martin na roky 2024 – 2026",
+    "desc": "Hlavný finančný plán mesta na celý rok — najdôležitejšie hlasovanie roka."
   },
   {
     "d": "2025-03-27",
@@ -221,7 +253,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Návrh na schválenie čerpania prostriedkov vo výške 3 659 004,35 EUR z úverového účtu v zmysle Zmluvy o úvere č. 1298/CC/23 na účet Mesta Martin",
+    "desc": "Mesto si berie pôžičku na veľkú investíciu — dlh, ktorý bude splácať z rozpočtu."
   },
   {
     "d": "2025-10-31",
@@ -234,7 +268,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Návrh rozpočtu mesta Martin na rok 2026 a návrh viacročného rozpočtu na roky 2026 - 2028",
+    "desc": "Hlavný finančný plán mesta na celý rok — najdôležitejšie hlasovanie roka."
   },
   {
     "d": "2023-03-30",
@@ -247,7 +283,9 @@
     "tags": [
       "silná opozícia"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Návrh na zmeny v komisiách MsZ",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2024-02-29",
@@ -260,7 +298,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Návrh na uzatvorenie dohody o urovnaní duplicitného vlastníctva k pozemku medzi mestom Martin a Ing. arch. Dušanom Holanom a MUDr. Tomášom Holanom",
+    "desc": "Mesto rieši spor o pozemok, ktorý mal podľa papierov dvoch vlastníkov."
   },
   {
     "d": "2024-09-26",
@@ -273,7 +313,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 5
+    "margin": 5,
+    "full": "Návrh na schválenie prebytočnosti a spôsobu prevodu nehnuteľného majetku",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2025-01-30",
@@ -286,7 +328,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 5
+    "margin": 5,
+    "full": "Majetkový blok",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2026-02-19",
@@ -299,7 +343,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 5
+    "margin": 5,
+    "full": "Zmeny v orgánoch obchodných spoločností a v komisiách pri MsZ",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2023-03-30",
@@ -312,7 +358,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Návrh na prevod nehnuteľného majetku",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2023-05-25",
@@ -325,7 +373,9 @@
     "tags": [
       "VZN pri kvóre"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Návrh na schválenie dotácií v zmysle VZN č.131 o poskytovaní dotácií z rozpočtu mesta v oblasti športu-2. Pilier",
+    "desc": "Rozdelenie mestských peňazí spolkom a organizáciám (šport, kultúra, sociálne služby)."
   },
   {
     "d": "2023-12-21",
@@ -338,7 +388,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Personálne otázky",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2023-08-17",
@@ -351,7 +403,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Informatívna správa o zámere financovania investičnej akcie „Atletický štadión zázemie s tribúnou v Martine“ a ďalších investičných akcií z úveru",
+    "desc": "Mesto si berie pôžičku na veľkú investíciu — dlh, ktorý bude splácať z rozpočtu."
   },
   {
     "d": "2023-08-17",
@@ -364,7 +418,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Návrh na čerpanie úveru z envirofondu na modernizáciu verejného osvetlenia v mesta Martin",
+    "desc": "Mesto si berie pôžičku na veľkú investíciu — dlh, ktorý bude splácať z rozpočtu."
   },
   {
     "d": "2024-06-20",
@@ -377,7 +433,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Návrh Dodatku č. 3 k Zásadám odmeňovania poslancov MsZ v Martine",
+    "desc": "Koľko dostávajú zaplatené samotní poslanci za svoju funkciu."
   },
   {
     "d": "2025-01-30",
@@ -390,7 +448,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Majetkový blok",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2024-07-11",
@@ -403,7 +463,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Návrh zmeny rozpočtu",
+    "desc": "Presun alebo dočerpanie peňazí v rámci rozpočtu počas roka."
   },
   {
     "d": "2024-11-28",
@@ -416,7 +478,9 @@
     "tags": [
       "tesný rozdiel"
     ],
-    "margin": 2
+    "margin": 2,
+    "full": "Majetkový blok",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2024-04-25",
@@ -429,7 +493,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 4
+    "margin": 4,
+    "full": "Mimoriadny členský príspevok mesta Martin pre Oblastnú organizáciu CR Turiec",
+    "desc": "Príspevok mesta organizácii cestovného ruchu Turiec."
   },
   {
     "d": "2025-04-24",
@@ -442,7 +508,9 @@
     "tags": [
       "VZN pri kvóre"
     ],
-    "margin": 5
+    "margin": 5,
+    "full": "Dodatku č. 6 k VZN č. 103 o organizovaní dopravy na území mesta Martin",
+    "desc": "Pravidlá dopravy a parkovania na území mesta."
   },
   {
     "d": "2026-02-19",
@@ -455,7 +523,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Zmeny v orgánoch obchodných spoločností a v komisiách pri MsZ",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2023-05-25",
@@ -468,7 +538,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Informatívna správa Nadácie Nová šanca za rok 2022, návrh zmeny orgánov Nadácie Nová šanca",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2024-06-20",
@@ -481,7 +553,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Personálne otázky v orgánoch obchodných spoločností, komisiách pri MsZ a MsR",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2025-01-30",
@@ -494,7 +568,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Majetkový blok",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2023-10-26",
@@ -507,7 +583,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 11
+    "margin": 11,
+    "full": "Návrh prenájmov nehnuteľného majetku mesta",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2023-03-30",
@@ -520,7 +598,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 12
+    "margin": 12,
+    "full": "Návrh na prerokovanie protestu prokurátora",
+    "desc": "Prokurátor namietol, že uznesenie je v rozpore so zákonom; zastupiteľstvo to musí riešiť."
   },
   {
     "d": "2025-02-27",
@@ -533,7 +613,8 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Rôzne"
   },
   {
     "d": "2024-06-20",
@@ -546,7 +627,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Návrh na vyplatenie odmien hlavnému kontrolórovi",
+    "desc": "Odmena pre mestského kontrolóra — nezávislý dohľad nad hospodárením mesta."
   },
   {
     "d": "2025-06-19",
@@ -559,7 +642,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Správa o plnení termínovaných uznesení MsZ a úloh VMČ",
+    "desc": "Kontrola, či sa splnili úlohy, ktoré si zastupiteľstvo samo uložilo."
   },
   {
     "d": "2024-06-20",
@@ -572,7 +657,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 9
+    "margin": 9,
+    "full": "Informatívna správa o oprave dlažby od pošty po Gašparíkov dom",
+    "desc": "Konkrétna stavebná či investičná akcia mesta."
   },
   {
     "d": "2025-01-30",
@@ -585,7 +672,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 10
+    "margin": 10,
+    "full": "Majetkový blok",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2025-05-29",
@@ -598,7 +687,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Personálne otázky- návrh na vymenovanie riaditeľa príspevkovej organizácie Správa športových zariadení mesta Martin",
+    "desc": "Kto zasadne do komisií a do orgánov mestských firiem — rozdelenie postov."
   },
   {
     "d": "2024-09-26",
@@ -611,7 +702,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 10
+    "margin": 10,
+    "full": "Návrhy zmien rozpočtu mesta Martin na rok 2024",
+    "desc": "Hlavný finančný plán mesta na celý rok — najdôležitejšie hlasovanie roka."
   },
   {
     "d": "2023-10-03",
@@ -624,7 +717,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 11
+    "margin": 11,
+    "full": "Návrh prenájmov nehnuteľného majetku",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2025-12-18",
@@ -637,7 +732,9 @@
     "tags": [
       "VZN pri kvóre"
     ],
-    "margin": 12
+    "margin": 12,
+    "full": "Návrh Dodatku č. 1 k VZN mesta Martin č. 130 o poskytovaní dotácií z rozpočtu Mesta Martin do oblasti kultúry, školstva, vzdelávania a mládeže, zdravotníctva a sociálnych služieb, charity, životného p",
+    "desc": "Rozdelenie mestských peňazí spolkom a organizáciám (šport, kultúra, sociálne služby)."
   },
   {
     "d": "2023-06-22",
@@ -650,7 +747,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 13
+    "margin": 13,
+    "full": "Prevody nehnuteľného majetku",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2023-10-26",
@@ -663,7 +762,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 13
+    "margin": 13,
+    "full": "Návrh na schválenie úveru na “financovanie investičnej akcie Atletický štadión zázemie s tribúnou v Martine a návrh ďalších investičných akcií schválených v MsZ",
+    "desc": "Mesto si berie pôžičku na veľkú investíciu — dlh, ktorý bude splácať z rozpočtu."
   },
   {
     "d": "2024-06-20",
@@ -676,7 +777,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 13
+    "margin": 13,
+    "full": "Správa o plnení termínovaných uznesení MsZ a úloh VMČ",
+    "desc": "Kontrola, či sa splnili úlohy, ktoré si zastupiteľstvo samo uložilo."
   },
   {
     "d": "2025-04-24",
@@ -690,7 +793,9 @@
       "tesný rozdiel",
       "VZN pri kvóre"
     ],
-    "margin": 3
+    "margin": 3,
+    "full": "Návrh na schválenie dotácií v zmysle VZN č. 130 - komisia regionálneho rozvoja a cestovného ruchu.",
+    "desc": "Rozdelenie mestských peňazí spolkom a organizáciám (šport, kultúra, sociálne služby)."
   },
   {
     "d": "2024-02-29",
@@ -703,7 +808,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 6
+    "margin": 6,
+    "full": "Návrh na vyplatenie odmien hlavnému kontrolórovi",
+    "desc": "Odmena pre mestského kontrolóra — nezávislý dohľad nad hospodárením mesta."
   },
   {
     "d": "2023-12-21",
@@ -716,7 +823,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 7
+    "margin": 7,
+    "full": "Žiadosť hlavného kontrolóra mesta Martin o súhlas MsZ v Martine v zmysle ust. § 18 ods. 1 zákona č. 369/1990 Zb. o obecnom zriadení v znení nesk.predpisov",
+    "desc": "Čo a ako smie kontrolovať mestský kontrolór."
   },
   {
     "d": "2023-06-22",
@@ -729,7 +838,8 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Informatívna správa o činnosti a hospodárení OOCR Turiec, za rok 2022"
   },
   {
     "d": "2023-10-03",
@@ -742,7 +852,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Návrh prenájmov nehnuteľného majetku",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2025-12-18",
@@ -755,7 +867,9 @@
     "tags": [
       "VZN pri kvóre"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Návrh Dodatku č. 3 k VZN mesta Martin č. 131 o poskytovaní dotácií z rozpočtu Mesta Martin v oblasti športu",
+    "desc": "Rozdelenie mestských peňazí spolkom a organizáciám (šport, kultúra, sociálne služby)."
   },
   {
     "d": "2023-03-30",
@@ -768,7 +882,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 10
+    "margin": 10,
+    "full": "Návrh Koncepcie rozvoja športu",
+    "desc": "Dlhodobý plán, ako mesto podporuje a financuje šport."
   },
   {
     "d": "2023-04-27",
@@ -781,7 +897,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 11
+    "margin": 11,
+    "full": "Návrh na vydanie súhlasného stanoviska k zaradeniu Elokovaného pracoviska, Hrdinov 1713/7, Martin ako súčasť Súkromnej základnej umeleckej školy, Námestie S. H. Vajanského 2, Martin do siete škôl a školských zariadení SR od 1.9.2023",
+    "desc": "Zaradenie školy či jej pracoviska do oficiálnej siete škôl."
   },
   {
     "d": "2023-10-03",
@@ -794,7 +912,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 12
+    "margin": 12,
+    "full": "Návrh prenájmov nehnuteľného majetku",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2023-10-03",
@@ -807,7 +927,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 12
+    "margin": 12,
+    "full": "Návrh prenájmov nehnuteľného majetku",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2025-11-21",
@@ -820,7 +942,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 13
+    "margin": 13,
+    "full": "Návrh prevodu nehnuteľného majetku mesta Martin",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   },
   {
     "d": "2025-10-31",
@@ -833,7 +957,9 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Návrh Plánu kontrolnej činnosti hlavného kontrolóra mesta Martin na II. polrok 2025",
+    "desc": "Čo a ako smie kontrolovať mestský kontrolór."
   },
   {
     "d": "2024-12-19",
@@ -846,7 +972,8 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 11
+    "margin": 11,
+    "full": "Návrh Plánu práce MsR a MsZ na I. polrok 2025"
   },
   {
     "d": "2024-11-28",
@@ -859,6 +986,8 @@
     "tags": [
       "rozdelené hlasovanie"
     ],
-    "margin": 8
+    "margin": 8,
+    "full": "Majetkový blok",
+    "desc": "Predaj alebo prenájom mestských pozemkov a budov."
   }
 ]

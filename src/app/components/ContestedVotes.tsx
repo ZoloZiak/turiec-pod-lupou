@@ -7,6 +7,8 @@ export type Contested = {
   d: string;
   u: string | null;
   t: string;
+  full?: string;
+  desc?: string;
   za: number;
   proti: number;
   zdrzal: number;
@@ -53,7 +55,10 @@ export default function ContestedVotes({ items }: { items: Contested[] }) {
           <li key={`${c.d}-${c.u ?? i}`} className="rounded-xl border border-line p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-body">{c.t}</p>
+                <p className="text-sm font-semibold text-body">{c.full ?? c.t}</p>
+                {c.desc && (
+                  <p className="text-xs text-muted mt-1 leading-relaxed">{c.desc}</p>
+                )}
                 <p className="text-xs text-muted mt-0.5">
                   {c.d}
                   {c.u && <> · Uznesenie č. {c.u}</>}
