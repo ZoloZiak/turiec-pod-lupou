@@ -139,7 +139,7 @@ export default async function SlubomerPage() {
                             </span>
                             <div className="flex items-center gap-3">
                               <span className="font-bold text-body whitespace-nowrap bg-elevated px-2 py-1 rounded">
-                                {formatEur(tx.amount_eur)}
+                                {formatEur(tx.amount_eur ?? 0)}
                               </span>
                               <a href={tx.source_url?.startsWith('http') ? tx.source_url : `https://${tx.source_url}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:bg-blue-50 p-1.5 rounded-md transition-colors" aria-label="Otvoriť zdrojový dokument">
                                 <ExternalLink className="w-4 h-4" aria-hidden="true" />

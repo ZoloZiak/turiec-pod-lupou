@@ -32,6 +32,14 @@ export default function ZmluvyPage() {
   const [type, setType] = useState("");
   const [onlyBig, setOnlyBig] = useState(false);
   const [page, setPage] = useState(1);
+  // Reset na 1. stranu pri zmene filtra — "you might not need an effect" pattern
+  // (úprava stavu počas renderu, nie v useEffect → žiadne kaskádové re-rendery).
+  const filterKey = `${query}|${year}|${type}|${onlyBig}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setPage(1);
+  }
 
   useEffect(() => {
     fetch("/data/city-contracts.json")
@@ -56,8 +64,6 @@ export default function ZmluvyPage() {
       return true;
     });
   }, [all, query, year, type, onlyBig]);
-
-  useEffect(() => { setPage(1); }, [query, year, type, onlyBig]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const pageItems = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -211,7 +217,7 @@ export default function ZmluvyPage() {
           </p>
           <p>
             Zo zoznamu <strong className="text-body">vynechávame nájmy hrobových miest</strong> ({stats.excludedGraves.toLocaleString("sk-SK")} zmlúv) — obsahujú mená občanov (osobné údaje) a nie sú výdavkom mesta.
-            Pri ostatných zmluvách s fyzickými osobami (nájmy, výpožičky) <strong className="text-body">anonymizujeme meno občana</strong> na „Fyzická osoba" ({stats.anonymizedPersons.toLocaleString("sk-SK")} zmlúv) — suma, predmet a typ zostávajú viditeľné, takže kontrola hospodárenia je zachovaná, ale súkromie občanov chránené. Firmy, živnostníkov a inštitúcie zobrazujeme s názvom.
+            Pri ostatných zmluvách s fyzickými osobami (nájmy, výpožičky) <strong className="text-body">anonymizujeme meno občana</strong> na „Fyzická osoba“ ({stats.anonymizedPersons.toLocaleString("sk-SK")} zmlúv) — suma, predmet a typ zostávajú viditeľné, takže kontrola hospodárenia je zachovaná, ale súkromie občanov chránené. Firmy, živnostníkov a inštitúcie zobrazujeme s názvom.
             Uvedená suma je cena za konkrétnu zmluvu; celkový súčet neuvádzame, lebo dodatky opakovane vykazujú celkovú cenu diela (nie rozdiel), takže by súčet výdavky nafúkol.
             Zmluvy portál nezverejňuje s IČO dodávateľa.
           </p>

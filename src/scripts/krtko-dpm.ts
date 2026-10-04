@@ -166,7 +166,7 @@ async function main() {
         .upsert({ ico: r.supplierIco, name: r.supplierName, type: 'COMPANY', normalized_name: r.supplierName.toLowerCase() }, { onConflict: 'ico' })
         .select('id').single();
       if (error || !sup) { entErr++; continue; }
-      supplierId = sup.id;
+      supplierId = sup.id as string;
       supplierIdCache.set(r.supplierIco!, supplierId);
     }
     // external_id deterministický z docId -> idempotentné, žiadne duplicity pri re-behu

@@ -69,10 +69,10 @@ export default function MacroStats() {
               <Tooltip
                 cursor={{ fill: 'var(--elevated)' }}
                 allowEscapeViewBox={{ x: false, y: false }}
-                formatter={(value: number) => [`${value} €`, 'Náklady na obyvateľa']}
-                labelFormatter={(label: string) => {
-                  const m = data.find((x) => x.mesto === label)!;
-                  return `${label} — ${m.obyvatelov.toLocaleString('sk-SK')} obyv.`;
+                formatter={(value) => [`${Number(value) || 0} €`, 'Náklady na obyvateľa']}
+                labelFormatter={(label) => {
+                  const m = data.find((x) => x.mesto === label);
+                  return m ? `${label} — ${m.obyvatelov.toLocaleString('sk-SK')} obyv.` : String(label);
                 }}
                 contentStyle={{ borderRadius: '12px', border: '1px solid var(--line)', background: 'var(--card)', color: 'var(--body)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.2)' }}
                 labelStyle={{ color: 'var(--body)' }}

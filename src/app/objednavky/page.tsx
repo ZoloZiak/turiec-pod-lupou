@@ -207,7 +207,7 @@ export default function ObjednavkyPage() {
             Do zoznamu zobrazujeme významné objednávky od {formatEur(stats.bigThreshold)}; menšie sú v celkovom súčte.
           </p>
           <p>
-            „Bez zmluvy" znamená, že dodávateľ tejto veľkej objednávky nemá v evidencii zmluvu s mestom (národný register CRZ ani zmluvy mesta) —
+            „Bez zmluvy“ znamená, že dodávateľ tejto veľkej objednávky nemá v evidencii zmluvu s mestom (národný register CRZ ani zmluvy mesta) —
             je to <strong className="text-body">ukazovateľ na ďalšie skúmanie, nie dôkaz pochybenia</strong>. Štátne inštitúcie (daňový úrad, poisťovne),
             interné podniky a monopolných správcov sietí zo zoznamu vylučujeme. Objednávky bez prideleného IČO neoznačujeme, aby nevzniklo falošné obvinenie.
           </p>

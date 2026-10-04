@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
-// @ts-expect-error pdf-parse nemá typové definície
 import pdf from 'pdf-parse';
 
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });

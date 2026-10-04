@@ -6,8 +6,19 @@ import { Building2, TrendingDown, ArrowRight, Activity, ArrowRightLeft } from "l
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
+interface CityCompany {
+  id: string | number;
+  name?: string | null;
+  type?: string | null;
+  ico?: string | null;
+  year?: string | number | null;
+  profit_loss_eur?: number | null;
+  city_subsidy_eur?: number | null;
+  finstat_url?: string | null;
+}
+
 export default function PodnikyPage() {
-  const [podniky, setPodniky] = useState<Record<string, unknown>[]>([]);
+  const [podniky, setPodniky] = useState<CityCompany[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Interactive Comparison Mode (Bliźniak)
@@ -19,11 +30,11 @@ export default function PodnikyPage() {
       try {
         const res = await fetch('/api/dataset?table=city_companies');
         const json = await res.json();
-        const data = json.success ? json.rows : [];
+        const data: CityCompany[] = json.success ? json.rows : [];
         setPodniky(data);
         if (data.length >= 2) {
-          setCompAId(data[0].id);
-          setCompBId(data[1].id);
+          setCompAId(String(data[0].id));
+          setCompBId(String(data[1].id));
         }
       } catch {
         // necháme prázdny stav
@@ -109,13 +120,13 @@ export default function PodnikyPage() {
                     <h3 className="text-xl font-extrabold text-emerald-400">{compA.name}</h3>
                     <div className="flex justify-between items-center bg-card p-3 rounded-lg border border-line">
                       <span className="text-xs text-muted">Hospodársky výsledok ({compA.year})</span>
-                      <span className={`font-bold font-mono ${compA.profit_loss_eur < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {formatEur(compA.profit_loss_eur)}
+                      <span className={`font-bold font-mono ${(compA.profit_loss_eur ?? 0) < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                        {formatEur(compA.profit_loss_eur ?? 0)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center bg-card p-3 rounded-lg border border-line">
                       <span className="text-xs text-muted">Mestská dotácia</span>
-                      <span className="font-bold font-mono text-body">{formatEur(compA.city_subsidy_eur)}</span>
+                      <span className="font-bold font-mono text-body">{formatEur(compA.city_subsidy_eur ?? 0)}</span>
                     </div>
                     <div className="pt-2">
                       <Link href={`/dodavatel/${compA.ico}`} className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1">
@@ -129,13 +140,13 @@ export default function PodnikyPage() {
                     <h3 className="text-xl font-extrabold text-blue-400">{compB.name}</h3>
                     <div className="flex justify-between items-center bg-card p-3 rounded-lg border border-line">
                       <span className="text-xs text-muted">Hospodársky výsledok ({compB.year})</span>
-                      <span className={`font-bold font-mono ${compB.profit_loss_eur < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {formatEur(compB.profit_loss_eur)}
+                      <span className={`font-bold font-mono ${(compB.profit_loss_eur ?? 0) < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                        {formatEur(compB.profit_loss_eur ?? 0)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center bg-card p-3 rounded-lg border border-line">
                       <span className="text-xs text-muted">Mestská dotácia</span>
-                      <span className="font-bold font-mono text-body">{formatEur(compB.city_subsidy_eur)}</span>
+                      <span className="font-bold font-mono text-body">{formatEur(compB.city_subsidy_eur ?? 0)}</span>
                     </div>
                     <div className="pt-2">
                       <Link href={`/dodavatel/${compB.ico}`} className="text-xs font-semibold text-blue-400 hover:underline flex items-center gap-1">
@@ -169,15 +180,15 @@ export default function PodnikyPage() {
                   <div className="flex gap-8">
                     <div className="text-right">
                       <p className="text-xs text-muted mb-1">Hospodársky výsledok ({p.year})</p>
-                      <p className={`text-2xl font-bold flex items-center gap-2 justify-end font-mono ${p.profit_loss_eur < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {p.profit_loss_eur < 0 ? <TrendingDown className="w-5 h-5" aria-hidden="true"/> : <Activity className="w-5 h-5" aria-hidden="true"/>}
-                        {formatEur(p.profit_loss_eur)}
+                      <p className={`text-2xl font-bold flex items-center gap-2 justify-end font-mono ${(p.profit_loss_eur ?? 0) < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                        {(p.profit_loss_eur ?? 0) < 0 ? <TrendingDown className="w-5 h-5" aria-hidden="true"/> : <Activity className="w-5 h-5" aria-hidden="true"/>}
+                        {formatEur(p.profit_loss_eur ?? 0)}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted mb-1">Mestská dotácia</p>
                       <div className="flex items-center justify-end">
-                        <p className="text-2xl font-bold text-body font-mono bg-elevated px-2 py-0.5 rounded border border-line">{formatEur(p.city_subsidy_eur)}</p>
+                        <p className="text-2xl font-bold text-body font-mono bg-elevated px-2 py-0.5 rounded border border-line">{formatEur(p.city_subsidy_eur ?? 0)}</p>
                       </div>
                     </div>
                   </div>

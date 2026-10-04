@@ -48,7 +48,7 @@ export const INCOME: FlowNode[] = [
 
 // ── STRED: mesto ────────────────────────────────────────────────────────────
 export const HUB: FlowNode = {
-  id: "mesto", label: "Mesto Martin", hint: "Primátor a mestský úrad — rozpočet schvaľuje mestské zastupiteľstvo.", color: "#e7ecf5", side: "hub",
+  id: "mesto", label: "Mesto Martin", hint: "Primátor a mestský úrad — rozpočet schvaľuje mestské zastupiteľstvo.", color: "#10b981", side: "hub",
 };
 
 // ── PRAVÁ STRANA: kam idú (výdavky 69.338.395 € + prebytok do rezervy) ───────

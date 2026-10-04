@@ -291,7 +291,7 @@ export default function AnalyzyPage() {
                       cursor={{ stroke: "var(--line)" }}
                       contentStyle={{ borderRadius: 12, background: "var(--card)", border: "1px solid var(--line)", color: "var(--body)" }}
                       labelStyle={{ color: "var(--body)", fontWeight: 700 }}
-                      formatter={(v: number, _n, p) => [`${formatEur(v)} — ${(p?.payload?.count ?? 0)} zmlúv`, "Výdavky"]}
+                      formatter={(v, _n, p) => [`${formatEur(Number(v) || 0)} — ${((p?.payload as { count?: number })?.count ?? 0)} zmlúv`, "Výdavky"]}
                     />
                     <Area type="monotone" dataKey="total" stroke="#10b981" strokeWidth={2.5} fill="url(#trendFill)" />
                   </AreaChart>
@@ -322,7 +322,7 @@ export default function AnalyzyPage() {
                       cursor={{ fill: "var(--elevated)" }}
                       contentStyle={{ borderRadius: 12, background: "var(--card)", border: "1px solid var(--line)", color: "var(--body)" }}
                       labelStyle={{ color: "var(--body)", fontWeight: 700 }}
-                      formatter={(v: number, _n, p) => [`${v.toFixed(0)} % (${formatEur(p?.payload?.dec ?? 0)})`, "Podiel decembra"]}
+                      formatter={(v, _n, p) => [`${(Number(v) || 0).toFixed(0)} % (${formatEur((p?.payload as { dec?: number })?.dec ?? 0)})`, "Podiel decembra"]}
                     />
                     <Bar dataKey="share" radius={[6, 6, 0, 0]} barSize={44}>
                       {analysis.december.map((d, i) => (

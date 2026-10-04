@@ -7,8 +7,18 @@ import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
 import { useState, useEffect } from "react";
 
+interface EuFund {
+  id: string | number;
+  program_name?: string | null;
+  year?: string | number | null;
+  project_name?: string | null;
+  winner_ico?: string | null;
+  winner_name?: string | null;
+  amount_eur: number;
+}
+
 export default function EurofondyPage() {
-  const [dotacie, setDotacie] = useState<Record<string, unknown>[]>([]);
+  const [dotacie, setDotacie] = useState<EuFund[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

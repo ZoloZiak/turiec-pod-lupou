@@ -7,8 +7,18 @@ import Link from "next/link";
 import VerifiedBadge from "../components/VerifiedBadge";
 import { useState, useEffect } from "react";
 
+interface NkuReport {
+  id: string | number;
+  status?: string | null;
+  year?: string | number | null;
+  title?: string | null;
+  description?: string | null;
+  report_url?: string | null;
+  penalty_eur?: number | null;
+}
+
 export default function NkuPage() {
-  const [nkuReports, setNkuReports] = useState<Record<string, unknown>[]>([]);
+  const [nkuReports, setNkuReports] = useState<NkuReport[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,14 +70,14 @@ export default function NkuPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-body mb-2">{r.title}</h2>
                 <p className="text-muted max-w-3xl">{r.description}</p>
-                <a href={r.report_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-4">Protokol o kontrole <ArrowRight className="w-3 h-3" aria-hidden="true"/></a>
+                <a href={r.report_url ?? undefined} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-4">Protokol o kontrole <ArrowRight className="w-3 h-3" aria-hidden="true"/></a>
               </div>
               
-              {r.penalty_eur > 0 && (
+              {(r.penalty_eur ?? 0) > 0 && (
                 <div className="bg-red-50 dark:bg-red-950/40 p-4 rounded-xl border border-red-100 dark:border-red-900 text-right min-w-[200px]">
                   <p className="text-sm text-red-800 dark:text-red-300 font-medium mb-1">Udelená pokuta / Manká</p>
                   <div className="flex items-center justify-end">
-                    <span className="text-3xl font-black text-red-600">{formatEur(r.penalty_eur)}</span>
+                    <span className="text-3xl font-black text-red-600">{formatEur(r.penalty_eur ?? 0)}</span>
                     <VerifiedBadge source="NKÚ SR" />
                   </div>
                 </div>
