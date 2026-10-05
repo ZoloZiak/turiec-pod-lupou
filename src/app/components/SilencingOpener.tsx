@@ -106,6 +106,12 @@ export default function SilencingOpener() {
         proti</strong>. Nižšie ukazujeme po lopate jednotlivé spôsoby, akými sa v praxi dá návrh
         „zabiť“ bez toho, aby zaň ktokoľvek zdvihol ruku.
       </p>
+
+      <p className="text-xs text-muted/80 max-w-3xl mt-3">
+        Pozn.: zopár zasadnutí sa takto neskončilo — boli to <strong>mimoriadne zasadnutia</strong>,
+        ktoré majú inú skladbu programu a spravidla nemajú bod „Rôzne“ ani interpelácie, teda tú
+        záverečnú časť, počas ktorej sála obvykle preriedne a kvórum padne.
+      </p>
     </section>
   );
 }

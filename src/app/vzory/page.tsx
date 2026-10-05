@@ -107,7 +107,7 @@ export default function VzoryPage() {
               </div>
               <p className="text-sm text-muted mb-4 max-w-3xl">
                 Najzákladnejšia vec zo všetkých. Podiel hlasovaní, pri ktorých bol poslanec prítomný,
-                za celý čas jeho členstva v rade. Toto nie je o politike — je to o tom, kto si robí
+                za celý čas jeho členstva v zastupiteľstve. Toto nie je o politike — je to o tom, kto si robí
                 mandát, za ktorý berie plat. Neúčasť môže mať legitímne dôvody, preto ukazujeme aj
                 počet zasadnutí, ktoré niekto <strong>vynechal celé</strong>.
               </p>
@@ -290,7 +290,7 @@ export default function VzoryPage() {
             <section id="tabory" className="bg-card rounded-2xl shadow-sm border border-line p-6 scroll-mt-20">
               <div className="flex items-center gap-3 mb-2">
                 <Network className="w-6 h-6 text-purple-400" aria-hidden="true" />
-                <h2 className="text-2xl font-bold text-body">4 · Dva tábory v rade</h2>
+                <h2 className="text-2xl font-bold text-body">4 · Dva tábory v zastupiteľstve</h2>
               </div>
               <p className="text-sm text-muted mb-2 max-w-3xl">
                 Aby triky vyššie dávali zmysel, treba vidieť, kto s kým drží. Každá bodka je poslanec.
