@@ -88,9 +88,26 @@ async function scrapeCrzForOrganization(queryName: string): Promise<RealContract
             // whack-a-mole (11 recidív). correctIco je presná zhoda -> pre IČO mimo mapy no-op.
             realIco = correctIco(realIco) ?? realIco;
 
-            const dateMatch = detailHtml.match(/Dátum zverejnenia:\s*(\d{2})\.(\d{2})\.(\d{4})/i);
-            if (dateMatch) {
-              realPublishedAt = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+            // WATCH #290: CRZ zmenil markup detailu — dátum je v samostatnom <span> ZA
+            // <strong>Dátum zverejnenia:</strong>, takže pôvodný regex `:\s*(\d{2})...` cez
+            // `</strong>...<span>` nikdy nematchol a KAŽDÁ čerstvá zmluva dostala new Date()
+            // (dátum behu scrapera). Dôsledok: ~1362 z 2274 CRZ zmlúv malo stamp-dátum behu
+            // namiesto reálneho zverejnenia -> skreslené rok/december/timeline filtre webu.
+            // Robustná DOM extrakcia (ten istý vzor ako IČO vyššie, odolná voči medzerám/tagom):
+            let dateFound = false;
+            $('strong').each((i, el) => {
+              if ($(el).text().includes('Dátum zverejnenia')) {
+                const m = $(el).next('span').text().trim().match(/(\d{2})\.(\d{2})\.(\d{4})/);
+                if (m) { realPublishedAt = `${m[3]}-${m[2]}-${m[1]}`; dateFound = true; }
+              }
+            });
+            // Fallback na surový text (pre prípad ďalšej zmeny markupu) — [\s\S]{0,120}? preskočí tagy
+            if (!dateFound) {
+              const dm = detailHtml.match(/Dátum zverejnenia:[\s\S]{0,120}?(\d{2})\.(\d{2})\.(\d{4})/i);
+              if (dm) { realPublishedAt = `${dm[3]}-${dm[2]}-${dm[1]}`; dateFound = true; }
+            }
+            if (!dateFound) {
+              console.error(`⚠️ Dátum zverejnenia sa nepodarilo extrahovať pre zmluvu ${id} — ponechávam dátum behu (POZOR: regresia stamp-dátumu, over markup CRZ)`);
             }
           } catch {
              console.error("Nedalo sa ziskat detail pre " + id);
