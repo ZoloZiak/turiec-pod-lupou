@@ -1,6 +1,6 @@
 {
   "generated_note": "Zdroj: hlavičky uznesení MsZ Martin (martin.sk). Prerušené = zasadnutie sa nedokončilo v jeden deň a muselo pokračovať na ďalšom termíne.",
-  "generated_at": "2026-10-04",
+  "generated_at": "2026-10-05",
   "interruptedMeetings": 6,
   "continuationDays": 11,
   "scheduledMeetings": 36,
@@ -87,10 +87,52 @@
       "quote": "Po tomto bode bolo pre neuznášaniaschopnosť poslancov rokovanie MsZ prerušené s tým, že pokračovanie bude 30.5.2024 o 8.00 hod."
     },
     {
+      "date": "2024-09-26",
+      "label": "26. september 2024",
+      "outcome": "prerušené",
+      "quote": "nedostačujúci počet poslancov, preto bolo predsedajúcim"
+    },
+    {
+      "date": "2024-10-24",
+      "label": "24. október 2024",
+      "outcome": "prerušené",
+      "quote": "Petráš - spätná väzba ako vnímali spoluprácu ich časti s ÚHA – poďakoval za súčinnosť Následne bolo rokovanie MsZ prerušené z dôvodu, že bol nedostačujúci počet poslancov v rokovacej miestnosti."
+    },
+    {
+      "date": "2025-02-27",
+      "label": "27. február 2025",
+      "outcome": "prerušené",
+      "quote": "viceprimátor Žilák Pri prezentácii bolo zistené, že v sále nie je dostatočný počet poslancov a preto bolo rokovanie MsZ prerušené na 15 min."
+    },
+    {
+      "date": "2025-03-27",
+      "label": "27. marec 2025",
+      "outcome": "prerušené",
+      "quote": "Po tejto dobe bolo po prezentácii zistené, že počet poslancov nebol zmenený a rokovania MsZ bolo v súlade s Rokovacím poriadkom ukončené."
+    },
+    {
       "date": "2025-04-24",
       "label": "24. apríl 2025",
       "outcome": "ukončené",
       "quote": "Po uplynutí prestávky bolo prezentáciou zistené, že rokovanie MsZ nie je uznášaniaschopné."
+    },
+    {
+      "date": "2025-05-29",
+      "label": "29. máj 2025",
+      "outcome": "ukončené",
+      "quote": "Záver Následne pri kontrole prezentácie bolo zistené, že v sále je nedostačujúci počet poslancov, aby zasadnutie bolo uznášaniaschopné – primátorom mesta bolo rokovanie prerušené a ani po čase 15 min."
+    },
+    {
+      "date": "2025-06-19",
+      "label": "19. jún 2025",
+      "outcome": "ukončené",
+      "quote": "Prepočítaním prítomných nebol počet poslancov dostačujúci a po vyhlásenej 15 min."
+    },
+    {
+      "date": "2025-09-18",
+      "label": "18. september 2025",
+      "outcome": "ukončené",
+      "quote": "nie je dostatočný počet prezentovaných poslancov a následne vyhlásil v súlade s rokovacím poriadkom 15 min."
     },
     {
       "date": "2025-10-23",
@@ -99,16 +141,52 @@
       "quote": "nakoľko nebolo prítomných dosť poslancov."
     },
     {
+      "date": "2025-10-31",
+      "label": "31. október 2025",
+      "outcome": "ukončené",
+      "quote": "--- --- --- Po tomto bode pri sčítaní poslancov nebol dostatočný počet poslancov – následne bolo vyhlásené 15 min."
+    },
+    {
+      "date": "2025-11-21",
+      "label": "21. november 2025",
+      "outcome": "ukončené",
+      "quote": "nedostatočný počet prítomných poslancov a po 15 min."
+    },
+    {
       "date": "2025-12-18",
       "label": "18. december 2025",
-      "outcome": "nezačalo",
+      "outcome": "ukončené",
       "quote": "Prezentáciou bolo zistené, že v sále bolo prítomných 14 poslancov a poslanecký zbor nebol uznášaniaschopný."
+    },
+    {
+      "date": "2026-01-29",
+      "label": "29. január 2026",
+      "outcome": "ukončené",
+      "quote": "Avšak ani po tomto čase počet poslancov nebol dostačujúci k pokračovaniu rokovania MsZ a rokovanie bolo primátorom mesta ukončené."
     },
     {
       "date": "2026-03-26",
       "label": "26. marec 2026",
       "outcome": "ukončené",
-      "quote": "Po tomto bode bolo po prepočítaní prítomných poslancov zistený nedostatočný počet poslancov v sále a rokovanie bolo"
+      "quote": "Následnou prezentáciou počet poslancov nebol dostačujúci a rokovanie MsZ bolo ukončené"
+    },
+    {
+      "date": "2026-04-30",
+      "label": "30. apríl 2026",
+      "outcome": "ukončené",
+      "quote": "Po obede bolo pri prezentácii zistené, že v rokovacej sále nie je dostatočný počet poslancov a rokovanie bolo prerušené v rámci ROPO na 15 min."
+    },
+    {
+      "date": "2026-05-28",
+      "label": "28. máj 2026",
+      "outcome": "ukončené",
+      "quote": "Následne bolo rokovanie MsZ ukončené, nakoľko pri prezentácii bolo zistené, že v rokovacej sále nie je dostačujúci počet poslancov."
+    },
+    {
+      "date": "2026-06-25",
+      "label": "25. jún 2026",
+      "outcome": "ukončené",
+      "quote": "Následnou kontrolou prítomných poslancov bolo zistené, že v sále nie je dostatok poslancov, aby sa mohlo pokračovať v rokovaní."
     }
   ],
   "withdrawalsNote": "Pokus vypustiť bod z programu na začiatku rokovania (zo zápisníc). „neprešlo“ = bod ostal v programe, „prešlo“ = bod bol stiahnutý.",

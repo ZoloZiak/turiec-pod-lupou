@@ -134,12 +134,26 @@ def human(iso):
     return f"{int(d)}. {names[int(m)]} {y}"
 
 
+# ROBUSTNÝ detektor padnutého kvóra — chytá VŠETKY formulácie, ktorými zápisnice MsZ Martin
+# oznamujú neuznášaniaschopnosť. Pôvodná úzka verzia („nedostatočný počet poslancov" + pár fráz)
+# PODHODNOCOVALA: od zmeny rokovacieho poriadku (27.3.2025) zápisnice píšu koniec zakaždým inak
+# („nie je dostatočný/dostačujúci počet poslancov", „nebolo prítomných dosť", „prítomných 14
+# poslancov"...). Starý regex našiel 4 prípady po zmene, v skutočnosti ich je 13. Doložené insiderom
+# (poslanec, priamy dôkaz proti dátam) + ručným čítaním doslovných záverov všetkých 17 zápisníc.
 QUORUM_HARD = re.compile(
-    r"(pre neuznášaniaschop|z dôvodu neuznášania\s*schop|nedostatočný počet poslancov|"
-    r"nebolo prítomných dosť|neb(?:ol|olo)[^.]{0,30}uznášaniaschop|"
+    r"(?:"
+    r"pre neuznášaniaschop|z dôvodu neuznášania\s*schop|"
     r"poslanecký zbor (?:bol|nebol)[^.]{0,30}uznášania\s*schop|"
-    r"zasadnutie MsZ nie je uznášaniaschop|rokovanie MsZ nie je uznášaniaschop)", re.I)
-BREAKOFF = re.compile(r"(prerušen|ukončil|ukončené|pokračovanie bude|pokračovanie zvolal)", re.I)
+    r"rokovanie MsZ nie je uznášaniaschop|zasadnutie MsZ nie je uznášaniaschop|"
+    r"(?:nie je|neb(?:ol|olo)|nedostatočn\w+|nedostačujúc\w+|nedostatok)\s+"
+    r"(?:dostatočn\w+\s+|dostačujúc\w+\s+)?počet\s+(?:prítomných\s+|prezentovaných\s+)?poslancov|"
+    r"počet poslancov (?:nie je|neb(?:ol|olo))\s*(?:dostatočn\w+|dostačujúc\w+)?|"
+    r"nie je dostatok (?:\w+\s+){0,2}poslancov|nebol(?:o)? prítomných dosť|"
+    r"v sále (?:bolo )?prítomných 1[0-5] poslancov|prítomných (?:bolo )?1[0-5] poslancov"
+    r")", re.I)
+BREAKOFF = re.compile(r"(prerušen|ukončil|ukončené|ukončen|pokračovanie bude|pokračovanie zvolal)", re.I)
+# Pokračovanie = zasadnutie sa dohlasovalo na ďalšom termíne (teda PRERUŠENÉ, nie definitívny koniec).
+CONTINUE = re.compile(r"(pokračovanie bude|pokračovanie zvolal|pokračovať\s+\d|pokrač\w+\s+\d{1,2}\.\s*\d)", re.I)
 
 
 def _sentence_around(flat, start, end, lookback=200, lookahead=240):
@@ -155,20 +169,29 @@ def _sentence_around(flat, start, end, lookback=200, lookahead=240):
 
 
 def detect_quorum(flat, iso):
+    # Zbieraj VŠETKY výskyty padnutého kvóra; padnuté kvórum, ktoré UKONČÍ zasadnutie, je
+    # typicky posledné (záver zápisnice). Zmienky v rozprave („zbor je neuznášaniaschopný?")
+    # odfiltruje podmienka BREAKOFF v okolí.
+    cands = []
     for m in QUORUM_HARD.finditer(flat):
-        win = flat[max(0, m.start() - 70):m.start() + 240]
-        if not BREAKOFF.search(win):
-            continue
-        low = win.lower()
-        if "nezač" in low or ("14 posl" in low) or ("prítomných 1" in low and "ukončen" not in low and "prerušen" not in low):
-            outcome = "nezačalo"
-        elif "ukončil" in low or "ukončené" in low:
-            outcome = "ukončené"
-        else:
-            outcome = "prerušené"
-        quote = _sentence_around(flat, m.start(), m.end())
-        return {"date": iso, "label": human(iso), "outcome": outcome, "quote": quote[:260]}
-    return None
+        win = flat[max(0, m.start() - 80):m.start() + 260]
+        if BREAKOFF.search(win):
+            cands.append((m.start(), m.end(), win))
+    if not cands:
+        return None
+    start, end, win = cands[-1]
+    low = win.lower()
+    if ("nezač" in low) or ("prítomných 1" in low and "ukončen" not in low and "prerušen" not in low):
+        outcome = "nezačalo"
+    elif CONTINUE.search(win):
+        # rokovanie sa dohlasovalo na ďalšom termíne = PRERUŠENÉ (nie definitívny koniec)
+        outcome = "prerušené"
+    elif "ukončil" in low or "ukončené" in low or "ukončen" in low:
+        outcome = "ukončené"
+    else:
+        outcome = "prerušené"
+    quote = _sentence_around(flat, start, end)
+    return {"date": iso, "label": human(iso), "outcome": outcome, "quote": quote[:260]}
 
 
 WITHDRAW = re.compile(
@@ -240,6 +263,17 @@ def main():
     # chains (pokračovania) = ručne kurátorované; ak ich v súbore niet (prepísaný prázdnom),
     # obnov zo zabudovaného fallbacku.
     chains = existing.get("chains") or FALLBACK_CHAINS
+
+    # ZOSÚLADENIE kvóra s pokračovaniami: ak v deň padnutého kvóra zasadnutie dokázateľne
+    # POKRAČOVALO na ďalšom termíne (je koreňom reťaze v `chains` s neprázdnymi continuations),
+    # NEBOL to definitívny koniec, ale prerušenie — aj keď minútka v ten deň píše „ukončené".
+    # Kritické pre 27.3.2025 (deň prijatia Dodatku č. 4): kvórum padlo, ale dohlasovalo sa 10.4.
+    # Bez tohto by sa 27.3 započítal medzi „definitívne konce po zmene pravidla" a číslo by bolo
+    # o 1 nadhodnotené (opačná chyba než pôvodné podhodnotenie — rovnako neprípustná).
+    continued_roots = {c["root"] for c in chains if c.get("continuations")}
+    for qf in quorum:
+        if qf["date"] in continued_roots and qf["outcome"] != "prerušené":
+            qf["outcome"] = "prerušené"
 
     data = {
         "generated_note": "Zdroj: hlavičky uznesení MsZ Martin (martin.sk). Prerušené = zasadnutie "
