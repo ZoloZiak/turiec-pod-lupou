@@ -23,6 +23,7 @@ const GROUPS: Group[] = [
     icon: Wallet,
     accent: "emerald",
     items: [
+      { href: "/rozpocet", label: "Rozpočet do hĺbky", desc: "Na čo mesto minulo peniaze (programy)", icon: Wallet },
       { href: "/zmluvy", label: "Zmluvy mesta", desc: "Evidencia zmlúv od 2011", icon: FileText },
       { href: "/objednavky", label: "Objednávky", desc: "Objednávky mesta 2011–2026", icon: ShoppingCart },
       { href: "/dodavatelia", label: "Dodávatelia", desc: "Kto dostáva peniaze mesta", icon: Building2 },

@@ -1,0 +1,556 @@
+{
+  "year": 2025,
+  "source": "Záverečný účet mesta Martin za rok 2025, Správa o finančnom plnení rozpočtu k 31.12.2025",
+  "sourceUrl": "https://www.martin.sk/d-108583",
+  "totalExpenditure": 67670079,
+  "totalBezne": 59146218,
+  "totalKapital": 8523861,
+  "officialBezne": 59149217,
+  "officialKapital": 8517787,
+  "programs": [
+    {
+      "no": 1,
+      "name": "Plánovanie, manažment a kontrola",
+      "total": 1512383,
+      "subprograms": [
+        {
+          "code": "1.1",
+          "name": "Výkon funkcie primátora",
+          "bezne": 49315,
+          "kapital": 0
+        },
+        {
+          "code": "1.2",
+          "name": "Výkon funkcie prednostu",
+          "bezne": 3936,
+          "kapital": 0
+        },
+        {
+          "code": "1.3",
+          "name": "Členstvo v samosprávnych organizáciách a združeniach",
+          "bezne": 8530,
+          "kapital": 0
+        },
+        {
+          "code": "1.4",
+          "name": "Strategické plánovanie a príprava projektov z fondov EÚ",
+          "bezne": 57239,
+          "kapital": 744860
+        },
+        {
+          "code": "1.5",
+          "name": "Územné plánovanie – ÚHA",
+          "bezne": 370470,
+          "kapital": 0
+        },
+        {
+          "code": "1.6",
+          "name": "Manažment investícií",
+          "bezne": 3162,
+          "kapital": 205908
+        },
+        {
+          "code": "1.8",
+          "name": "Účtovníctvo",
+          "bezne": 68963,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "name": "Ľudské zdroje",
+      "total": 281062,
+      "subprograms": [
+        {
+          "code": "2.1",
+          "name": "Vzdelávanie zamestnancov mesta",
+          "bezne": 16574,
+          "kapital": 0
+        },
+        {
+          "code": "2.2",
+          "name": "Chránené pracovisko",
+          "bezne": 163954,
+          "kapital": 0
+        },
+        {
+          "code": "2.3",
+          "name": "Aktivačná činnosť",
+          "bezne": 4999,
+          "kapital": 0
+        },
+        {
+          "code": "2.4",
+          "name": "Podpora zamestnanosti",
+          "bezne": 95535,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "name": "Propagácia a prezentácia mesta",
+      "total": 234655,
+      "subprograms": [
+        {
+          "code": "3.1",
+          "name": "Turisticko-informačná kancelária",
+          "bezne": 748,
+          "kapital": 0
+        },
+        {
+          "code": "3.2",
+          "name": "Propagácia a prezentácia mesta",
+          "bezne": 202847,
+          "kapital": 0
+        },
+        {
+          "code": "3.3",
+          "name": "Medzinárodná spolupráca a partnerské vzťahy",
+          "bezne": 30857,
+          "kapital": 0
+        },
+        {
+          "code": "3.4",
+          "name": "Kronika mesta",
+          "bezne": 203,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 4,
+      "name": "Údržba majetku mesta",
+      "total": 2676525,
+      "subprograms": [
+        {
+          "code": "4.1",
+          "name": "Správa, údržba a prevádzka v budove MsÚ a správa úradu",
+          "bezne": 508746,
+          "kapital": 11859
+        },
+        {
+          "code": "4.2",
+          "name": "Správa nebytových priestorov mesta",
+          "bezne": 952458,
+          "kapital": 366992
+        },
+        {
+          "code": "4.3",
+          "name": "Evidencia pozemkov a majetkoprávne vysporiadanie",
+          "bezne": 57359,
+          "kapital": 494223
+        },
+        {
+          "code": "4.4",
+          "name": "Prevody nehnuteľností",
+          "bezne": 16359,
+          "kapital": 0
+        },
+        {
+          "code": "4.5",
+          "name": "Prevádzka a údržba cintorínov",
+          "bezne": 254095,
+          "kapital": 14434
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "name": "Ochrana životného prostredia",
+      "total": 2988368,
+      "subprograms": [
+        {
+          "code": "5.1",
+          "name": "Odpadové hospodárstvo",
+          "bezne": 2883841,
+          "kapital": 0
+        },
+        {
+          "code": "5.4",
+          "name": "Čistenie uličných vpustí",
+          "bezne": 90539,
+          "kapital": 0
+        },
+        {
+          "code": "5.5",
+          "name": "PVŠS na úseku správy a ochrany prírody",
+          "bezne": 6618,
+          "kapital": 0
+        },
+        {
+          "code": "5.6",
+          "name": "Podpora mesta – dotácie do oblasti životného prostredia",
+          "bezne": 7370,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 6,
+      "name": "Prostredie pre život a oddych občanov",
+      "total": 2690342,
+      "subprograms": [
+        {
+          "code": "6.1",
+          "name": "Verejné osvetlenie",
+          "bezne": 728842,
+          "kapital": 850130
+        },
+        {
+          "code": "6.2",
+          "name": "Údržba mestskej zelene",
+          "bezne": 796476,
+          "kapital": 0
+        },
+        {
+          "code": "6.3",
+          "name": "Mestský mobiliár a údržba detských ihrísk",
+          "bezne": 77474,
+          "kapital": 150871
+        },
+        {
+          "code": "6.4",
+          "name": "Fontány",
+          "bezne": 31547,
+          "kapital": 0
+        },
+        {
+          "code": "6.6",
+          "name": "Útulok pre zvieratá",
+          "bezne": 37612,
+          "kapital": 17390
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "name": "Služby občanom",
+      "total": 857866,
+      "subprograms": [
+        {
+          "code": "7.2",
+          "name": "Činnosť matriky a údržba sobášnej siene",
+          "bezne": 186868,
+          "kapital": 0
+        },
+        {
+          "code": "7.3",
+          "name": "Občianske obrady",
+          "bezne": 20581,
+          "kapital": 0
+        },
+        {
+          "code": "7.4",
+          "name": "Informovanosť občanov",
+          "bezne": 325832,
+          "kapital": 0
+        },
+        {
+          "code": "7.6",
+          "name": "Evidencia obyvateľov",
+          "bezne": 60931,
+          "kapital": 0
+        },
+        {
+          "code": "7.7",
+          "name": "Stavebný úrad",
+          "bezne": 262001,
+          "kapital": 0
+        },
+        {
+          "code": "7.10",
+          "name": "Zdravé mesto",
+          "bezne": 1653,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "name": "Bezpečnosť a poriadok",
+      "total": 2213446,
+      "subprograms": [
+        {
+          "code": "8.1",
+          "name": "Verejný poriadok a bezpečnosť",
+          "bezne": 2081774,
+          "kapital": 59914
+        },
+        {
+          "code": "8.2",
+          "name": "Civilná ochrana",
+          "bezne": 22493,
+          "kapital": 0
+        },
+        {
+          "code": "8.3",
+          "name": "Požiarna ochrana",
+          "bezne": 43190,
+          "kapital": 6075
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "name": "Rozvoj bývania",
+      "total": 48892,
+      "subprograms": [
+        {
+          "code": "9.1",
+          "name": "Správa bytov n. o. Matra",
+          "bezne": 16116,
+          "kapital": 0
+        },
+        {
+          "code": "9.2",
+          "name": "Agenda ŠFRB",
+          "bezne": 32776,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "name": "Cestná doprava, miestne komunikácie, verejné priestranstvo",
+      "total": 6151160,
+      "subprograms": [
+        {
+          "code": "10.1",
+          "name": "Údržba a rekonštrukcie komunikácií, chodníkov, parkovísk",
+          "bezne": 808064,
+          "kapital": 140317
+        },
+        {
+          "code": "10.2",
+          "name": "Zimná údržba, čistenie verejných priestranstiev a zastávok MHD",
+          "bezne": 967387,
+          "kapital": 0
+        },
+        {
+          "code": "10.3",
+          "name": "Dopravné značenie",
+          "bezne": 95542,
+          "kapital": 0
+        },
+        {
+          "code": "10.4",
+          "name": "PVŠS na úseku dopravy",
+          "bezne": 3168,
+          "kapital": 0
+        },
+        {
+          "code": "10.5",
+          "name": "Mestská autobusová verejná doprava",
+          "bezne": 4136682,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "name": "Kultúra",
+      "total": 392411,
+      "subprograms": [
+        {
+          "code": "11.1",
+          "name": "Kultúrne podujatia v meste – akcie, oslavy",
+          "bezne": 299436,
+          "kapital": 0
+        },
+        {
+          "code": "11.2",
+          "name": "Ochrana a údržba kultúrnych pamiatok",
+          "bezne": 0,
+          "kapital": 6000
+        },
+        {
+          "code": "11.3",
+          "name": "Podpora mesta – dotácie pre oblasť kultúry",
+          "bezne": 68927,
+          "kapital": 0
+        },
+        {
+          "code": "11.4",
+          "name": "Príležitostné trhy",
+          "bezne": 18048,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "name": "Šport",
+      "total": 3586121,
+      "subprograms": [
+        {
+          "code": "12.1",
+          "name": "Správa športových zariadení",
+          "bezne": 1229419,
+          "kapital": 1922402
+        },
+        {
+          "code": "12.3",
+          "name": "Športové akcie organizované mestom",
+          "bezne": 58936,
+          "kapital": 0
+        },
+        {
+          "code": "12.4",
+          "name": "Podpora mesta – dotácie pre oblasť športu",
+          "bezne": 375364,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "name": "Vzdelávanie",
+      "total": 29485151,
+      "subprograms": [
+        {
+          "code": "13.1",
+          "name": "Materské školy",
+          "bezne": 3639903,
+          "kapital": 35318
+        },
+        {
+          "code": "13.2",
+          "name": "Základné školy",
+          "bezne": 21026800,
+          "kapital": 333846
+        },
+        {
+          "code": "13.3",
+          "name": "Východno-vzdelávacie a voľno časové aktivity",
+          "bezne": 1445674,
+          "kapital": 0
+        },
+        {
+          "code": "13.5",
+          "name": "Neštátne školy a školské zariadenia",
+          "bezne": 2818673,
+          "kapital": 0
+        },
+        {
+          "code": "13.6",
+          "name": "Školský úrad",
+          "bezne": 90494,
+          "kapital": 0
+        },
+        {
+          "code": "13.7",
+          "name": "Školské linky",
+          "bezne": 28028,
+          "kapital": 0
+        },
+        {
+          "code": "13.9",
+          "name": "Podpora mesta – dotácie pre oblasť školstva a vzdelávania",
+          "bezne": 66415,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "name": "Sociálna starostlivosť",
+      "total": 8990395,
+      "subprograms": [
+        {
+          "code": "14.1",
+          "name": "Jednorazové dávky v hmotnej a sociálnej pomoci",
+          "bezne": 29882,
+          "kapital": 0
+        },
+        {
+          "code": "14.2",
+          "name": "Podpora mesta – dotácie pre oblasť sociálno-zdravotnú",
+          "bezne": 36646,
+          "kapital": 0
+        },
+        {
+          "code": "14.3",
+          "name": "Sociálna starostlivosť o bezdomovcov",
+          "bezne": 178367,
+          "kapital": 0
+        },
+        {
+          "code": "14.4",
+          "name": "Opatrovateľská služba v domácnostiach",
+          "bezne": 2000939,
+          "kapital": 2940
+        },
+        {
+          "code": "14.5",
+          "name": "Denné centrá",
+          "bezne": 605044,
+          "kapital": 2618
+        },
+        {
+          "code": "14.6",
+          "name": "Zariadenia sociálnych služieb",
+          "bezne": 1522663,
+          "kapital": 3048276
+        },
+        {
+          "code": "14.7",
+          "name": "Osobitný príjemca",
+          "bezne": 12511,
+          "kapital": 0
+        },
+        {
+          "code": "14.8",
+          "name": "Dotácie pre deti v hmotnej núdzi",
+          "bezne": 1456778,
+          "kapital": 0
+        },
+        {
+          "code": "14.9",
+          "name": "Sociálno-právna ochrana a kuratela",
+          "bezne": 91703,
+          "kapital": 2028
+        }
+      ]
+    },
+    {
+      "no": 15,
+      "name": "Dlhová služba",
+      "total": 300738,
+      "subprograms": [
+        {
+          "code": "15.1",
+          "name": "Splátky úverov a úrokov z úverov",
+          "bezne": 300738,
+          "kapital": 0
+        }
+      ]
+    },
+    {
+      "no": 16,
+      "name": "Podporná činnosť",
+      "total": 5260564,
+      "subprograms": [
+        {
+          "code": "16.1",
+          "name": "Informačné technológie",
+          "bezne": 396770,
+          "kapital": 85135
+        },
+        {
+          "code": "16.2",
+          "name": "Priestorové informácie – digitálna mapa",
+          "bezne": 0,
+          "kapital": 22325
+        },
+        {
+          "code": "16.3",
+          "name": "Funkčný chod MsÚ a MsZ v Martine",
+          "bezne": 4756334,
+          "kapital": 0
+        }
+      ]
+    }
+  ]
+}
