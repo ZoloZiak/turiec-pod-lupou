@@ -6,10 +6,6 @@ import { ShieldAlert, Quote } from "lucide-react";
 type QuorumFailure = { date: string; label: string; outcome: string; quote: string };
 type InterruptedData = { quorumFailures?: QuorumFailure[] };
 
-// Deň, keď zastupiteľstvo schválilo Dodatok č. 4 k rokovaciemu poriadku.
-// Od tohto dňa sa padnuté kvórum už nedohlasúva — rokovanie sa ukončí.
-const DODATOK4 = "2025-03-27";
-
 export default function SilencingOpener() {
   const [data, setData] = useState<InterruptedData | null>(null);
 
@@ -21,12 +17,17 @@ export default function SilencingOpener() {
   }, []);
 
   const q = data?.quorumFailures ?? [];
-  // Pomer PRED a PO zmene pravidla — počítané živo z dát, nie napevno.
-  const before = q.filter((x) => x.date < DODATOK4);
-  const after = q.filter((x) => x.date >= DODATOK4);
-  const beforeInterrupted = before.filter((x) => x.outcome === "prerušené").length;
-  const afterEnded = after.filter((x) => x.outcome !== "prerušené").length;
-  const hasSplit = before.length > 0 && after.length > 0;
+  // Pomer PRED a PO zmene pravidla — počítaný ŽIVO podľa VÝSLEDKU, nie podľa dátumu.
+  // Prečo podľa výsledku: 27.3.2025 je deň, keď zbor Dodatok č. 4 SCHVÁLIL — ale na tom
+  // istom zasadnutí ešte platili staré pravidlá, takže keď padlo kvórum, rokovanie sa
+  // PRERUŠILO a pokračovalo (10.4.2025), presne ako predtým. Nové pravidlo platilo až od
+  // ďalšieho zasadnutia (24.4.). Filter podľa dátumu (>=27.3.) by 27.3. nesprávne hodil
+  // medzi „po" a potom ho ako „prerušené" nezapočítal → súčet 6+13=19 nesedel s počtom
+  // všetkých padnutých kvór (20). Výsledok je jednoznačný: „prerušené" = staré správanie
+  // (dohlasovalo sa), čokoľvek iné = nové (definitívny koniec). 7 + 13 = 20.
+  const beforeInterrupted = q.filter((x) => x.outcome === "prerušené").length;
+  const afterEnded = q.filter((x) => x.outcome !== "prerušené").length;
+  const hasSplit = beforeInterrupted > 0 && afterEnded > 0;
 
   return (
     <section className="bg-card rounded-2xl shadow-sm border border-line p-6">
