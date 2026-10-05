@@ -100,17 +100,21 @@ export default function SilencingOpener() {
 
       <p className="text-sm text-muted max-w-3xl">
         Toto nie je obvinenie z úmyslu — pravidlo sa dá obhájiť aj vecne (netahať polprázdnu sálu do
-        noci). Ale dôsledok je jednoznačný a vidno ho priamo v dátach: od zmeny pravidla padnuté
-        kvórum <strong className="text-body">zakaždým</strong> znamená koniec, nie odklad. A keď sa
-        zmena rokovacieho poriadku schvaľovala, <strong className="text-body">celá opozícia bola
-        proti</strong>. Nižšie ukazujeme po lopate jednotlivé spôsoby, akými sa v praxi dá návrh
-        „zabiť“ bez toho, aby zaň ktokoľvek zdvihol ruku.
+        noci). Ale dôsledok je jednoznačný a vidno ho priamo v dátach: pravidlo, ktoré koalícia
+        presadila <strong className="text-body">proti celej opozícii (dvakrát)</strong>, spôsobuje,
+        že záverečná časť zasadnutia — <strong className="text-body">Rôzne a interpelácie, teda
+        priestor menšiny</strong> — systematicky nedôjde na rad: <strong className="text-body">13 zo
+        14 riadnych zastupiteľstiev</strong> po zmene pravidla padlo na kvóre skôr, než sa k nej
+        dostali. Nižšie ukazujeme po lopate jednotlivé spôsoby, akými sa v praxi dá návrh „zabiť“
+        bez toho, aby ktorýkoľvek poslanec otvorene hlasoval „proti“.
       </p>
 
       <p className="text-xs text-muted/80 max-w-3xl mt-3">
-        Pozn.: zopár zasadnutí sa takto neskončilo — boli to <strong>mimoriadne zasadnutia</strong>,
-        ktoré majú inú skladbu programu a spravidla nemajú bod „Rôzne“ ani interpelácie, teda tú
-        záverečnú časť, počas ktorej sála obvykle preriedne a kvórum padne.
+        Pozn.: nie úplne každé zasadnutie sa takto skončilo. Dve boli <strong>mimoriadne
+        zasadnutia</strong> („mimo Plánu práce“), ktoré majú inú skladbu programu a spravidla nemajú
+        bod „Rôzne“ ani interpelácie — teda tú záverečnú časť, počas ktorej sála obvykle preriedne a
+        kvórum padne. A jedno riadne (19. 2. 2026) dobehlo normálne. Zvyšných 13 zo 14 riadnych
+        skončilo na padnutom kvóre.
       </p>
     </section>
   );

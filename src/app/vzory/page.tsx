@@ -77,7 +77,7 @@ export default function VzoryPage() {
               <p className="text-body/90 mb-3 max-w-3xl">
                 Potom príde to, čo nie je vidno na prvý pohľad: ako sa dá v zastupiteľstve{" "}
                 <strong className="text-body">umlčať menšina</strong> a akými <strong className="text-body">trikmi</strong> sa
-                dá návrh „zabiť“ bez toho, aby zaň ktokoľvek otvorene zdvihol ruku. Každý trik
+                dá návrh „zabiť“ bez toho, aby ktorýkoľvek poslanec otvorene hlasoval „proti“. Každý trik
                 vysvetlíme jednou vetou — a kto chce detail, rozklikne si ho.
               </p>
               <p className="text-sm text-muted max-w-3xl">
