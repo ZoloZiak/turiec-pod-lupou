@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-10-01T10:35:51.722Z",
+  "generatedAt": "2026-11-01T10:56:22.881Z",
   "source": "egov.martin.sk CORA sekcia 781 (objednávky) — open-data JSON export",
   "sourceUrl": "https://egov.martin.sk/Default.aspx?NavigationState=781:0:",
   "note": "Precompute objednávok. Do klienta idú agregáty + veľké objednávky ≥10k € (rovnaká škálovacia logika ako faktúry). IČO z presného meno-matchu na entities; bez zhody null. hasContract = dodávateľ má zmluvu mesta/CRZ (supplier-contracts.json).",
-  "totalOrdered": 47586676.59,
-  "orderCount": 91033,
+  "totalOrdered": 49079905.11,
+  "orderCount": 91845,
   "bigThreshold": 10000,
-  "bigOrderCount": 531,
-  "bigOrdersMatchedIco": 460,
+  "bigOrderCount": 543,
+  "bigOrdersMatchedIco": 469,
   "byYear": {
     "2010": {
       "count": 5,
@@ -66,19 +66,29 @@
       "sum": 4381089.51
     },
     "2024": {
-      "count": 8068,
-      "sum": 4850728.32
+      "count": 8069,
+      "sum": 4854325.32
     },
     "2025": {
-      "count": 8026,
-      "sum": 5894022.23
+      "count": 8034,
+      "sum": 5918327.45
     },
     "2026": {
-      "count": 5471,
-      "sum": 4359177.2
+      "count": 6274,
+      "sum": 5824503.5
     }
   },
   "bigOrders": [
+    {
+      "cislo": "20260688",
+      "supplier": "Metrostav DS a.s.",
+      "ico": "46120602",
+      "amount_eur": 929406.23,
+      "date": "2026-10-07",
+      "text": "Opravy a rekonštrukcie ciest mesta Martin asfaltobetónom AC 11 50/70 II. v zmysle rámcovej zmluvy 03/JŠ2026, č.1165/2026 a jej cenovej prílohy na vzájomne dohodnutých  rozsahov prác na jednotlivých čiastkových úsekoch., množ.: 1 ks, jedn. cena: 929 406,2300 EUR, spolu: 929 406,23 EUR",
+      "hasContract": true,
+      "suspicious": false
+    },
     {
       "cislo": "20260601",
       "supplier": "Swietelsky-Slovakia spol. s.r.o.",
@@ -392,12 +402,12 @@
     {
       "cislo": "20220250",
       "supplier": "VODAKAN, s.r.o.",
-      "ico": "36374521",
+      "ico": "NO_ICO_VODAKANSRO",
       "amount_eur": 55599.16,
       "date": "2022-09-21",
       "text": "Odstránenie havarijného stavu - únik vody -  pripojka a arealovy rozvod vody podľa cenovej ponuky \t\t, množ.: 1 , jedn. cena: 55 599,1600 EUR, spolu: 55 599,16 EUR",
-      "hasContract": true,
-      "suspicious": false
+      "hasContract": false,
+      "suspicious": true
     },
     {
       "cislo": "20210334",
@@ -1420,6 +1430,16 @@
       "suspicious": false
     },
     {
+      "cislo": "2026201",
+      "supplier": "AJA Stavby, s. r. o.",
+      "ico": "52555933",
+      "amount_eur": 22540,
+      "date": "2026-09-29",
+      "text": "Objednávame si u Vás:opravu strechy na budove MŠ, množ.: 1 , jedn. cena: 22 540,0000 EUR, spolu: 22 540,00 EUR",
+      "hasContract": true,
+      "suspicious": false
+    },
+    {
       "cislo": "20190228",
       "supplier": "Daňový úrad Žilina",
       "ico": null,
@@ -1826,6 +1846,16 @@
       "amount_eur": 19900,
       "date": "2016-09-05",
       "text": "prevádzkový servis rozvodov verejného osvetlenia spojený s dodávkou elektrickej energie pre napojenie zariadení mesta Martin v zmysle rokovacieho konania zo dňa 29.07.2016, množ.: 1 , jedn. cena: 19 900,0000 EUR, spolu: 19 900,00 EUR",
+      "hasContract": true,
+      "suspicious": false
+    },
+    {
+      "cislo": "20250399",
+      "supplier": "Marek Benko s.r.o.",
+      "ico": "47846828",
+      "amount_eur": 19894.89,
+      "date": "2025-06-25",
+      "text": "Objednávame si u Vás: stavebné práce a dodávky na základe stanovísk dotknutých orgánov Inšpektorát práce, RÚVZ Martin, OR HaZZ Martin ku kolaudácii stavby ,,Zariadenie pre seniorov na Ul. Škultétyho v Martine”., množ.: 1 , jedn. cena: 19 894,8900 EUR, spolu: 19 894,89 EUR",
       "hasContract": true,
       "suspicious": false
     },
@@ -2330,6 +2360,16 @@
       "suspicious": false
     },
     {
+      "cislo": "2026317",
+      "supplier": "P.O.S system s.r.o.",
+      "ico": "51678730",
+      "amount_eur": 17478.1,
+      "date": "2026-10-15",
+      "text": "Demontáž osvetlenia, množ.: 1 ks, jedn. cena: 130,0000 EUR, spolu: 130,00 EUR,\rOčistenie stien od pôvodnej maľby, množ.: 1 ks, jedn. cena: 720,0000 EUR, spolu: 720,00 EUR,\rHrubé vyspravenie podkladu, množ.: 1 ks, jedn. cena: 1 120,0000 EUR, spolu: 1 120,00 EUR,\rLepidlo, množ.: 40 ks, jedn. cena: 5,8",
+      "hasContract": true,
+      "suspicious": false
+    },
+    {
       "cislo": "20181149",
       "supplier": "Veríme v Zábavu, s.r.o.",
       "ico": "46167145",
@@ -2696,6 +2736,16 @@
       "amount_eur": 15861.68,
       "date": "2019-01-11",
       "text": "Toto ananás 100 % šťava, množ.: 1500 ks, jedn. cena: 0,4200 EUR, spolu: 630,00 EUR,\rToto jablko 100 % šťava, množ.: 1500 ks, jedn. cena: 0,3800 EUR, spolu: 570,00 EUR,\rToto Cocos Bar - tyčinka, množ.: 2000 ks, jedn. cena: 0,2720 EUR, spolu: 544,00 EUR,\rPerník jahoda, slivka, množ.: 2000 ks, jedn. ce",
+      "hasContract": false,
+      "suspicious": false
+    },
+    {
+      "cislo": "20260453",
+      "supplier": "UNIKOR trade s. r. o.",
+      "ico": null,
+      "amount_eur": 15850,
+      "date": "2026-10-20",
+      "text": "StarBoard PRO 65 (8 + 128 GB) verzia A 16, množ.: 4 ks, jedn. cena: 1 429,0000 EUR, spolu: 5 716,00 EUR,\rStarBoard PRO 75 (8 + 128 GB) verzia A 16, množ.: 6 ks, jedn. cena: 1 689,0000 EUR, spolu: 10 134,00 EUR",
       "hasContract": false,
       "suspicious": false
     },
@@ -3152,12 +3202,12 @@
     {
       "cislo": "20180941",
       "supplier": "VODAKAN, s.r.o.",
-      "ico": "36374521",
+      "ico": "NO_ICO_VODAKANSRO",
       "amount_eur": 14097.06,
       "date": "2018-10-08",
       "text": "Asfaltovanie časti komunikácie Hlboká - predĺženie po odbočku na Nový Martin v zmysle Vašej ponuky 33-2018 v celkovej cene do (vrátane DPH), množ.: 1 , jedn. cena: 14 097,0600 EUR, spolu: 14 097,06 EUR",
-      "hasContract": true,
-      "suspicious": false
+      "hasContract": false,
+      "suspicious": true
     },
     {
       "cislo": "20140118",
@@ -3627,6 +3677,16 @@
       "date": "2018-06-11",
       "text": "Rekonštrukciu hosp. objektu NC v zmysle Vašej ponuky zo dňa 18.5.2018 v celkovej cene do (vrátane DPH), množ.: 1 , jedn. cena: 12 309,5800 EUR, spolu: 12 309,58 EUR",
       "hasContract": true,
+      "suspicious": false
+    },
+    {
+      "cislo": "20260555",
+      "supplier": "Ústav súdneho inžinierstva Žilinskej univerzity",
+      "ico": null,
+      "amount_eur": 12300,
+      "date": "2026-08-17",
+      "text": "Znalecký posudok na stavbu ,,Areál základnej školy Jozefa Kronera 25, Martin” vo veci stanovenia rozsahu a množstva skutočne zrealizovaných stavebných prác., množ.: 1 , jedn. cena: 12 300,0000 EUR, spolu: 12 300,00 EUR",
+      "hasContract": false,
       "suspicious": false
     },
     {
@@ -4440,6 +4500,16 @@
       "suspicious": false
     },
     {
+      "cislo": "20260320",
+      "supplier": "MPJ group s.r.o.",
+      "ico": "51666499",
+      "amount_eur": 11543.55,
+      "date": "2026-05-13",
+      "text": "Vypracovanie projektu stavby, akcia Park Rybárske, Martin - Priekopa. peniaze mestská časť, množ.: 1 , jedn. cena: 5 500,0000 EUR, spolu: 5 500,00 EUR,\rVypracovanie projektu stavby, akcia Park Rybárske, Martin - Priekopa. - peniaze projekty IO, množ.: 1 , jedn. cena: 6 043,5500 EUR, spolu: 6 043,55 ",
+      "hasContract": true,
+      "suspicious": false
+    },
+    {
       "cislo": "20250176",
       "supplier": "JRK Slovensko s.r.o.",
       "ico": null,
@@ -4690,6 +4760,16 @@
       "suspicious": false
     },
     {
+      "cislo": "20260671",
+      "supplier": "BRAMAPO, s.r.o.",
+      "ico": "36776785",
+      "amount_eur": 10994.7,
+      "date": "2026-10-05",
+      "text": "Kontrola funkčnosti garníž ich následná oprava s dodaním záclon a závesov na mieru, množ.: 1 úkon, jedn. cena: 10 994,7000 EUR, spolu: 10 994,70 EUR",
+      "hasContract": true,
+      "suspicious": false
+    },
+    {
       "cislo": "20250493",
       "supplier": "R. V. K. STAV s.r.o.",
       "ico": "50435612",
@@ -4770,6 +4850,16 @@
       "suspicious": false
     },
     {
+      "cislo": "20260401",
+      "supplier": "Fatra TIP, s.r.o.",
+      "ico": "36412741",
+      "amount_eur": 10807.17,
+      "date": "2026-09-02",
+      "text": "zelenina a ovocieavokádo\t1,2\tkg\t10,70833\t12,85\tbanány\t148\tkg\t1,52318\t225,43\tbanány\t5,1\tkg\t1,52353\t7,77\tbanány\t148\tkg\t1,8802\t278,27\tbanány\t20\tkg\t1,892\t37,84\tbanány\t37\tkg\t1,52324\t56,36\tbatáty\t47,5\tkg\t3,332\t158,27\tbatáty\t36\tkg\t3,33194\t119,95\tbroskyne\t146,3\tkg\t2,61798\t383,01\tcesnak\t5\tkg\t3,36\t16,80\tcibuľ",
+      "hasContract": true,
+      "suspicious": false
+    },
+    {
       "cislo": "20200619",
       "supplier": "Bidfood Slovakia s.r.o",
       "ico": null,
@@ -4816,6 +4906,16 @@
       "amount_eur": 10794.48,
       "date": "2025-07-09",
       "text": "v zmysle PD - stavebné práce - ostrovček pod závorovým systém, množ.: 1 , jedn. cena: 10 794,4800 EUR, spolu: 10 794,48 EUR",
+      "hasContract": true,
+      "suspicious": false
+    },
+    {
+      "cislo": "20260721",
+      "supplier": "Aricoma Systems s.r.o.",
+      "ico": "36396222",
+      "amount_eur": 10754.28,
+      "date": "2026-10-16",
+      "text": "Systémové práce v serverovom prostredí MsÚ, množ.: 1 kusov, jedn. cena: 10 754,2800 EUR, spolu: 10 754,28 EUR",
       "hasContract": true,
       "suspicious": false
     },
@@ -4920,6 +5020,16 @@
       "suspicious": false
     },
     {
+      "cislo": "2026322",
+      "supplier": "Michal Čížek - PROINTERIÉR",
+      "ico": null,
+      "amount_eur": 10587.8,
+      "date": "2026-10-20",
+      "text": "Celotieniace žalúzie ISSO biele, množ.: 27 trieda, jedn. cena: 388,6800 EUR, spolu: 10 494,36 EUR,\rSiete proti hmyzu 450 x 1000 mm, množ.: 4 ks, jedn. cena: 23,3600 EUR, spolu: 93,44 EUR",
+      "hasContract": false,
+      "suspicious": false
+    },
+    {
       "cislo": "20260443",
       "supplier": "PROMT, s.r.o., Martin",
       "ico": "36401391",
@@ -4997,6 +5107,16 @@
       "date": "2023-11-23",
       "text": "2.\tWhalebone Corporate User Subcription and Business support: 06.12.2023 - 05.12.2025 (počet užívateľov: 180), množ.: 1 kusov, jedn. cena: 10 452,0000 EUR, spolu: 10 452,00 EUR",
       "hasContract": false,
+      "suspicious": false
+    },
+    {
+      "cislo": "20260463",
+      "supplier": "ŠKOLEX, spol. s r.o.",
+      "ico": "31396763",
+      "amount_eur": 10436.45,
+      "date": "2026-10-21",
+      "text": "polica na stenu 36x120x30 cm zadná stena HDF, množ.: 24 , jedn. cena: 116,8500 EUR, spolu: 2 804,40 EUR,\rvešiaková stena 90x80x1,8 cm, množ.: 2 , jedn. cena: 86,1000 EUR, spolu: 172,20 EUR,\rpolica na stôl, množ.: 2 , jedn. cena: 88,5600 EUR, spolu: 177,12 EUR,\rparapetná doska L, množ.: 2 , jedn. cen",
+      "hasContract": true,
       "suspicious": false
     },
     {
@@ -5191,7 +5311,7 @@
     },
     {
       "cislo": "20240427",
-      "supplier": "AZ KLIMA SK, s.r.o.",
+      "supplier": "ESCO Integra, s. r. o.",
       "ico": null,
       "amount_eur": 10056.48,
       "date": "2024-06-17",
