@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-10-01T10:35:04.417Z",
+  "generatedAt": "2026-11-01T10:55:34.063Z",
   "source": "egov.martin.sk CORA 778 (zmluvy mesta) — open-data JSON export",
   "sourceUrl": "https://egov.martin.sk/Default.aspx?NavigationState=778:0:",
   "note": "Prehliadateľné zmluvy mesta Martin (od 2011). Vynechané nájmy hrobových miest (osobné údaje občanov, nie výdavok mesta). Sumy sú per zmluva; celkový súčet neuvádzame, lebo dodatky recyklujú celkovú cenu (nie deltu). Zmluvy nemajú v exporte IČO.",
-  "totalContracts": 20289,
-  "excludedGraves": 10243,
-  "anonymizedPersons": 7737,
-  "pricedContracts": 9240,
+  "totalContracts": 20440,
+  "excludedGraves": 10292,
+  "anonymizedPersons": 7797,
+  "pricedContracts": 9321,
   "bigThreshold": 10000,
-  "bigCount": 1480,
-  "hugeCount": 454,
+  "bigCount": 1482,
+  "hugeCount": 455,
   "byYear": {
     "2002": 1,
     "2005": 1,
@@ -32,34 +32,34 @@
     "2023": 2193,
     "2024": 1386,
     "2025": 1730,
-    "2026": 1131,
+    "2026": 1282,
     "2111": 1,
     "2523": 1
   },
   "topTypes": [
     [
       "Zmluva",
-      3818
+      3879
     ],
     [
       "Dohoda",
-      3816
+      3828
     ],
     [
       "Zmluva o výpožičke",
-      2397
+      2407
     ],
     [
       "Kúpna zmluva",
-      1440
+      1446
     ],
     [
       "Zmluva o nájme",
-      1051
+      1057
     ],
     [
       "Dodatok k zmluve",
-      1017
+      1021
     ],
     [
       "Zmluva o dielo",
@@ -67,23 +67,23 @@
     ],
     [
       "Zmluva o nájme nebytových priestorov",
-      665
+      671
     ],
     [
       "Zmluva o budúcej zmluve",
-      390
+      392
     ],
     [
       "Zmluva o poskytovaní služieb",
-      372
+      375
     ],
     [
       "Zmluva o spolupráci",
-      327
+      329
     ],
     [
       "Nájomná zmluva",
-      256
+      265
     ]
   ]
 }
