@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T08:30:54.170Z",
+  "generatedAt": "2026-11-02T10:31:17.186Z",
   "source": "rpvs.gov.sk OData v2 + GetPartners",
   "note": "Precompute pre audit \"zákazky nad 100k bez RPVS\". unknown = register nedostupný, NIE je to red flag.",
   "counts": {
